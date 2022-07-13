@@ -38,7 +38,7 @@ def load_and_clean_suite_datasets(suite, random_state):
         print(f"dataset_id: {str(task.dataset_id)}")
 
         # set paths for files
-        path = Path(f"..//data//{str(task.dataset_id)}//")
+        path = Path(f"..//data//datasets//{str(task.dataset_id)}//")
         path_X = path.joinpath(f"X_clean.feather")
         path_y = path.joinpath(f"y.feather")
 
