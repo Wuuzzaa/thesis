@@ -6,12 +6,12 @@ import openml
 import pandas as pd
 
 from feature_engine.encoding import OneHotEncoder
-from feature_engine.imputation import RandomSampleImputer, CategoricalImputer
+from feature_engine.imputation import CategoricalImputer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 random_state = 42
 
-# load study
+# load suite
 suite = openml.study.get_suite(99)
 print(suite)
 
@@ -29,7 +29,7 @@ for task_id in tasks:
 
     # check if already done -> skip the task/dataset
     path = Path(f".//data//{str(task.dataset_id)}//")
-    path_X = path.joinpath(f"X.feather")
+    path_X = path.joinpath(f"X_clean.feather")
     path_y = path.joinpath(f"y.feather")
 
     if path_X.exists() and path_y.exists():
@@ -51,16 +51,16 @@ for task_id in tasks:
         encoder = OneHotEncoder()
         X = encoder.fit_transform(X, y)
     except ValueError as e:
-        # not nice but there are different value error thrown so we need to handle by error message
+        # not nice but there are different value error thrown, so we need to handle by error message
         if "No categorical variables found in this dataframe" in str(e):
             warnings.warn("ValueError: No categorical variables found in this dataframe. -> No One hot encoding used.")
         else:
             raise
 
-    # store feature names
+    # store feature names after encoding
     feature_names_encoded = X.columns
 
-    # Standardscale X
+    # standard scale X
     X = StandardScaler().fit_transform(X)
 
     # get a dataframe again after scaling from ndarray
@@ -70,7 +70,7 @@ for task_id in tasks:
     # y label encode
     y = LabelEncoder().fit_transform(y)
 
-    # shuffel data
+    # shuffle data
     X["y"] = y
     X = X.sample(frac=1).reset_index(drop=True)
 
@@ -87,4 +87,3 @@ for task_id in tasks:
     # store y as Dataframe cause feather can not store Series
     y = pd.DataFrame(y, columns=["y"])
     y.to_feather(path=path_y)
-
