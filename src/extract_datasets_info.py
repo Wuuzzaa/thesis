@@ -18,6 +18,12 @@ def extract_datasets_info(suite):
     :param suite: openml suit to extract the infos from.
     :return: None
     """
+    print("")
+    print("#"*80)
+    print("extract datasets info".upper())
+    print("#" * 80)
+    print("")
+
     path = Path(f"..//data//results")
     path_results_file = path.joinpath("results.feather")
 

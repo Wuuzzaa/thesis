@@ -6,6 +6,7 @@ from pathlib import Path
 import openml
 import pandas as pd
 import numpy as np
+from itertools import compress
 
 
 def load_and_clean_suite_datasets(suite, random_state):
@@ -23,6 +24,12 @@ def load_and_clean_suite_datasets(suite, random_state):
     :param suite: openml suite
     :return: None
     """
+    print("")
+    print("#"*80)
+    print("load and clean suite datasets".upper())
+    print("#" * 80)
+    print("")
+
     print(suite)
 
     # get all tasks of the study
@@ -54,27 +61,32 @@ def load_and_clean_suite_datasets(suite, random_state):
         target = dataset.default_target_attribute
         X, y, categorical_indicator, attribute_names = dataset.get_data(target=target)
 
+        # make lists of numerical and categorical features
+        categorical_features = list(compress(attribute_names, categorical_indicator))
+        numeric_features = list(set(attribute_names) - set(categorical_features))
+
+        # todo check if object type in series in numerical features if so kick it and switch it to categorical. can not impute mean with objectish shitttt
+        not_numeric_columns = list(X[numeric_features].select_dtypes(exclude=np.number).columns)
+        if not_numeric_columns:
+            categorical_features.extend(not_numeric_columns)
+            numeric_features = list(set(numeric_features) - set(not_numeric_columns))
+
         # impute NaN values
         if X.isnull().values.any():
-            n_features_before = len(X.columns)
-            numeric_features = X.select_dtypes(include=np.number).columns.tolist()
-            categorical_features = X.select_dtypes(exclude=np.number).columns.tolist()
-
             if len(categorical_features) > 0:
-                X[categorical_features] = CategoricalImputer(ignore_format=False).fit_transform(X[categorical_features], y)
+                X = CategoricalImputer(ignore_format=True, variables=categorical_features).fit_transform(X, y)
 
             if len(numeric_features) > 0:
-                X[numeric_features] = MeanMedianImputer(imputation_method="mean").fit_transform(X[numeric_features], y)
+                X = MeanMedianImputer(imputation_method="mean", variables=numeric_features).fit_transform(X, y)
 
-            n_features_after = len(X.columns)
-
-            if n_features_before != n_features_after:
-                raise ValueError("Features before and after NaN imputation are not the same!")
+            if X.isnull().values.any():
+                raise ValueError("There are still NaN values in the dataframe")
 
         # X one hot encode
         try:
-            encoder = OneHotEncoder()
-            X = encoder.fit_transform(X, y)
+            if len(categorical_features) > 0:
+                encoder = OneHotEncoder(variables=categorical_features, ignore_format=True)
+                X = encoder.fit_transform(X, y)
         except ValueError as e:
             # not nice but there are different value error thrown, so we need to handle by error message
             if "No categorical variables found in this dataframe" in str(e):

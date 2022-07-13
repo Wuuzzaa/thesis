@@ -68,13 +68,13 @@ if __name__ == "__main__":
     suite = openml.study.get_suite(99)
 
 
-    load_and_clean_suite_datasets(suite, random_state)
+    #load_and_clean_suite_datasets(suite, random_state)
     #extract_datasets_info(suite)
-    # calc_baseline_scores(
-    #     random_state=random_state,
-    #     path_datasets_folder=Path("..//data//datasets"),
-    #     path_results_file=Path("..//data//results//results.feather"),
-    # )
+    calc_baseline_scores(
+        random_state=random_state,
+        path_datasets_folder=Path("..//data//datasets"),
+        path_results_file=Path("..//data//results//results.feather"),
+    )
 
 
 
