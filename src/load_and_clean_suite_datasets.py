@@ -1,10 +1,11 @@
 from feature_engine.encoding import OneHotEncoder
-from feature_engine.imputation import CategoricalImputer
+from feature_engine.imputation import CategoricalImputer, MeanMedianImputer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import warnings
 from pathlib import Path
 import openml
 import pandas as pd
+import numpy as np
 
 
 def load_and_clean_suite_datasets(suite, random_state):
@@ -37,7 +38,7 @@ def load_and_clean_suite_datasets(suite, random_state):
         print(f"dataset_id: {str(task.dataset_id)}")
 
         # set paths for files
-        path = Path(f".//data//{str(task.dataset_id)}//")
+        path = Path(f"..//data//{str(task.dataset_id)}//")
         path_X = path.joinpath(f"X_clean.feather")
         path_y = path.joinpath(f"y.feather")
 
@@ -54,7 +55,21 @@ def load_and_clean_suite_datasets(suite, random_state):
         X, y, categorical_indicator, attribute_names = dataset.get_data(target=target)
 
         # impute NaN values
-        X = CategoricalImputer(ignore_format=True).fit_transform(X, y)
+        if X.isnull().values.any():
+            n_features_before = len(X.columns)
+            numeric_features = X.select_dtypes(include=np.number).columns.tolist()
+            categorical_features = X.select_dtypes(exclude=np.number).columns.tolist()
+
+            if len(categorical_features) > 0:
+                X[categorical_features] = CategoricalImputer(ignore_format=False).fit_transform(X[categorical_features], y)
+
+            if len(numeric_features) > 0:
+                X[numeric_features] = MeanMedianImputer(imputation_method="mean").fit_transform(X[numeric_features], y)
+
+            n_features_after = len(X.columns)
+
+            if n_features_before != n_features_after:
+                raise ValueError("Features before and after NaN imputation are not the same!")
 
         # X one hot encode
         try:
