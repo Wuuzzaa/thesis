@@ -1,6 +1,8 @@
+import warnings
 from pathlib import Path
 import openml
 import pandas as pd
+from tqdm import tqdm
 
 
 def extract_datasets_info(suite):
@@ -37,7 +39,6 @@ def extract_datasets_info(suite):
     task_ids = []
     n_classes = []
     n_features = []
-    n_features_ohe = []  # todo get data from X feather files
     name_datasets = []
     n_samples = []
 
@@ -77,3 +78,41 @@ def extract_datasets_info(suite):
 
     # store dataframe
     df.to_feather(path=path_results_file)
+
+
+def extract_amount_ohe_features(path_datasets_folder, path_results_file):
+    ohe_column_name = "n_features_ohe"
+
+    # load the results dataframes columns
+    results_df_columns = pd.read_feather(path_results_file).columns.tolist()
+
+    # when the ohe column is already in the dataframe we can skip
+    if ohe_column_name in results_df_columns:
+        warnings.warn(f"{ohe_column_name} is already in the results dataframe. Done")
+        return
+
+    # make some lists
+    n_features_ohe = []
+    dataset_folders = []
+
+    # get the dataset folders in the data folder
+    for path in path_datasets_folder.iterdir():
+        if path.is_dir():
+            dataset_folders.append(path)
+
+    for dataset_folder in tqdm(dataset_folders):
+        print(f"current folder: {dataset_folder}")
+
+        # get X columns
+        path_X = dataset_folder.joinpath("X_clean.feather")
+        X_columns = pd.read_feather(path_X).columns.tolist()
+        n_features_ohe.append(len(X_columns))
+
+    # load the results dataframe
+    results_df = pd.read_feather(path_results_file)
+
+    # add the new column
+    results_df[ohe_column_name] = pd.Series(data=n_features_ohe)
+
+    # store results with ohe features info
+    results_df.to_feather(path_results_file)
