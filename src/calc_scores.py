@@ -18,6 +18,14 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
         "baseline": Runs a random forest on the cleaned data
     :return: None
     """
+
+    print("")
+    print("#"*80)
+    print("calc scores".upper())
+    print(f"mode: {mode}".upper())
+    print("#" * 80)
+    print("")
+
     # check if already done, by checking if the new to generate columns are already in the results dataframe
     if mode == "baseline":
         train_cv_score_column_name = "baseline_random_forest_train_cv_score"
@@ -36,9 +44,9 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
         warnings.warn(f"All columns for mode: {mode} are already in the results file. Done")
         return
 
-    # make some lists
-    train_cv_scores = []
-    test_scores = []
+    # make some dicts
+    train_cv_scores_dict = {}
+    test_scores_dict = {}
     dataset_folders = []
 
     # use a random forest as classifier
@@ -68,13 +76,17 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
         rf.fit(X_train, y_train)
 
         # score model on test data and cv score for train data
-        test_scores.append(rf.score(X_test, y_test))
-        train_cv_scores.append(cross_val_score(rf, X_train, y_train, cv=10, n_jobs=-1).mean())
+        test_scores_dict[int(dataset_folder.name)] = rf.score(X_test, y_test)
+        train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(rf, X_train, y_train, cv=10, n_jobs=1).mean()
+
+    # sort the dicts by keys to get the same order as the dataframe we want to concat with
+    test_scores_dict = dict(sorted((test_scores_dict.items())))
+    train_cv_scores_dict = dict(sorted((train_cv_scores_dict.items())))
 
     # make a dataframe from the score lists
     scores_df = pd.DataFrame(data={
-        train_cv_score_column_name: train_cv_scores,
-        test_score_column_name: test_scores
+        train_cv_score_column_name: train_cv_scores_dict.values(),
+        test_score_column_name: test_scores_dict.values()
     })
 
     # load the results dataframe

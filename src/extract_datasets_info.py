@@ -81,18 +81,24 @@ def extract_datasets_info(suite):
 
 
 def extract_amount_ohe_features(path_datasets_folder, path_results_file):
+    print("")
+    print("#"*80)
+    print("extract amount ohe features".upper())
+    print("#" * 80)
+    print("")
+
     ohe_column_name = "n_features_ohe"
 
     # load the results dataframes columns
     results_df_columns = pd.read_feather(path_results_file).columns.tolist()
 
-    # when the ohe column is already in the dataframe we can skip
-    if ohe_column_name in results_df_columns:
-        warnings.warn(f"{ohe_column_name} is already in the results dataframe. Done")
-        return
+    # # when the ohe column is already in the dataframe we can skip
+    # if ohe_column_name in results_df_columns:
+    #     warnings.warn(f"{ohe_column_name} is already in the results dataframe. Done")
+    #     return
 
     # make some lists
-    n_features_ohe = []
+    n_features_ohe_dict = {}
     dataset_folders = []
 
     # get the dataset folders in the data folder
@@ -106,13 +112,16 @@ def extract_amount_ohe_features(path_datasets_folder, path_results_file):
         # get X columns
         path_X = dataset_folder.joinpath("X_clean.feather")
         X_columns = pd.read_feather(path_X).columns.tolist()
-        n_features_ohe.append(len(X_columns))
+        n_features_ohe_dict[int(dataset_folder.name)] = len(X_columns)
 
     # load the results dataframe
     results_df = pd.read_feather(path_results_file)
 
+    # sort the n_features_ohe_dict by the keys
+    n_features_ohe_dict = dict(sorted((n_features_ohe_dict.items())))
+
     # add the new column
-    results_df[ohe_column_name] = pd.Series(data=n_features_ohe)
+    results_df[ohe_column_name] = pd.Series(data=n_features_ohe_dict.values())
 
     # store results with ohe features info
     results_df.to_feather(path_results_file)

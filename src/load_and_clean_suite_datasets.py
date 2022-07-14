@@ -65,7 +65,8 @@ def load_and_clean_suite_datasets(suite, random_state):
         categorical_features = list(compress(attribute_names, categorical_indicator))
         numeric_features = list(set(attribute_names) - set(categorical_features))
 
-        # todo check if object type in series in numerical features if so kick it and switch it to categorical. can not impute mean with objectish shitttt
+        # check if object type numerical features if so kick it and switch it to categorical features list.
+        # its not possible to impute mean on not numeric data
         not_numeric_columns = list(X[numeric_features].select_dtypes(exclude=np.number).columns)
         if not_numeric_columns:
             categorical_features.extend(not_numeric_columns)
@@ -83,6 +84,8 @@ def load_and_clean_suite_datasets(suite, random_state):
                 raise ValueError("There are still NaN values in the dataframe")
 
         # X one hot encode
+        n_features_before = len(X.columns)
+
         try:
             if len(categorical_features) > 0:
                 encoder = OneHotEncoder(variables=categorical_features, ignore_format=True)
@@ -94,6 +97,10 @@ def load_and_clean_suite_datasets(suite, random_state):
                     "ValueError: No categorical variables found in this dataframe. -> No One hot encoding used.")
             else:
                 raise
+
+        n_features_after = len(X.columns)
+        if n_features_after < n_features_before:
+            raise Exception("OHE generates less features than before")
 
         # store feature names after encoding
         feature_names_encoded = X.columns
