@@ -81,6 +81,13 @@ def extract_datasets_info(suite):
 
 
 def extract_amount_ohe_features(path_datasets_folder, path_results_file):
+    """
+    Function to extract the amount of features after one hot encoding
+
+    :param path_datasets_folder: Path to the dataset folder
+    :param path_results_file: Path to the results file
+    :return: None
+    """
     print("")
     print("#"*80)
     print("extract amount ohe features".upper())
@@ -92,10 +99,10 @@ def extract_amount_ohe_features(path_datasets_folder, path_results_file):
     # load the results dataframes columns
     results_df_columns = pd.read_feather(path_results_file).columns.tolist()
 
-    # # when the ohe column is already in the dataframe we can skip
-    # if ohe_column_name in results_df_columns:
-    #     warnings.warn(f"{ohe_column_name} is already in the results dataframe. Done")
-    #     return
+    # when the ohe column is already in the dataframe we can skip
+    if ohe_column_name in results_df_columns:
+        warnings.warn(f"{ohe_column_name} is already in the results dataframe. Done")
+        return
 
     # make some lists
     n_features_ohe_dict = {}

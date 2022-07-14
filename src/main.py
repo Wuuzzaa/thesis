@@ -18,14 +18,20 @@ if __name__ == "__main__":
     # https://openml.github.io/openml-python/main/examples/20_basic/simple_suites_tutorial.html#sphx-glr-examples-20-basic-simple-suites-tutorial-py
     suite = openml.study.get_suite(99)
 
-
+    # first load the datasets from the suit and use ohe etc
     load_and_clean_suite_datasets(suite, random_state)
+
+    # extract infos like amount features, classes etc.
     extract_datasets_info(suite)
+
+    # amount features after one hot encoding
     extract_amount_ohe_features(
         path_datasets_folder=Path("..//data//datasets"),
         path_results_file=Path("..//data//results//results.feather"),
     )
 
+    # calc the train and test scores for the baseline.
+    # Baseline means random forest on cleaned data. No filter no additional features
     calc_scores(
         random_state=random_state,
         path_datasets_folder=Path("..//data//datasets"),

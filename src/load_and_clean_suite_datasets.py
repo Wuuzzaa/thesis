@@ -38,7 +38,6 @@ def load_and_clean_suite_datasets(suite, random_state):
     for task_id in tasks:
         print()
         task = openml.tasks.get_task(task_id)
-        print(task)
 
         # show dataset id is not equal the taskid
         print()
@@ -100,7 +99,7 @@ def load_and_clean_suite_datasets(suite, random_state):
 
         n_features_after = len(X.columns)
         if n_features_after < n_features_before:
-            raise Exception("OHE generates less features than before")
+            raise Exception("Amount of features after OHE is lower than before encoding")
 
         # store feature names after encoding
         feature_names_encoded = X.columns
