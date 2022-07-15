@@ -33,6 +33,8 @@ def calc_scores(
             "n_components": 3,
             "random_state": random_state
             }
+        "pca_mle_clean": like "pca_clean" mode but n_components is set to "mle"
+
     :param X_train_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
     :param X_test_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
     :param pca_params: Needed for mode "pca_clean". dict with the parameters used for pca.
@@ -48,13 +50,8 @@ def calc_scores(
     print("#" * 80)
     print("")
 
-    # check if already done, by checking if the new to generate columns are already in the results dataframe
-    if mode == "baseline":
-        train_cv_score_column_name = "baseline_random_forest_train_cv_score"
-        test_score_column_name = "baseline_random_forest_test_score"
-
-    elif mode == "pca_clean":
-        # check needed parameters are not None
+    # check needed parameters are not None
+    if "pca" in mode:
         needed_pca_parameters = [
             X_train_pca_file_name,
             X_test_pca_file_name,
@@ -63,13 +60,20 @@ def calc_scores(
         ]
 
         if None in needed_pca_parameters:
-            raise ValueError(f"One or more parameter for pca is None. Give it a value. Parameters needed are: {needed_pca_parameters}")
+            raise ValueError(f"One or more parameter for pca is None. Give it a value.")
 
-        train_cv_score_column_name = "pca_clean_train_cv_score"
-        test_score_column_name = "pca_clean_test_score"
+    # check if mode is valid
+    modes = [
+        "baseline",
+        "pca_clean",
+        "pca_mle_clean"
+    ]
+    if mode not in modes:
+        raise NotImplemented(f"mode: {mode} is not implemented. Use on of thease modes {modes}")
 
-    else:
-        raise NotImplemented(f"mode: {mode} is not implemented")
+    # check if already done, by checking if the new to generate columns are already in the results dataframe
+    train_cv_score_column_name = f"{mode}_train_cv_score"
+    test_score_column_name = f"{mode}_test_score"
 
     new_columns = [train_cv_score_column_name, test_score_column_name]
 
@@ -84,6 +88,8 @@ def calc_scores(
     # make some dicts
     train_cv_scores_dict = {}
     test_scores_dict = {}
+
+    # store the dataset folders
     dataset_folders = []
 
     # use a random forest as classifier
@@ -109,7 +115,7 @@ def calc_scores(
             # train test split
             X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
 
-        elif mode == "pca_clean":
+        elif mode in ["pca_clean", "pca_mle_clean"]:
             # get X, y
             path_X = dataset_folder.joinpath("X_clean.feather")
             path_y = dataset_folder.joinpath("y.feather")

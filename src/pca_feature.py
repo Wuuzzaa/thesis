@@ -16,10 +16,27 @@ def create_pca_features(X_train: pd.DataFrame, X_test: pd.DataFrame, X_train_pca
     # make a pca instance
     pca = PCA(**pca_params)
 
+    # for performance sake check the size of the train matrix and reduce n_components when it is too huge
+    train_size = X_train.shape[0] * X_train.shape[1]
+
+    if train_size > 10_000_000:
+        # fall back to n_components = 10
+        warnings.warn("Train size is too huge. Fall back to n_components = 10")
+        pca.set_params(**{"n_components": 10})
+
     # X_train pca features dataframe
-    df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+    try:
+        print("pca fit transform train")
+        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+
+    except ValueError:
+        warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components = 3")
+        # fall back to n_components = 3
+        pca.set_params(**{"n_components": 3})
+        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
     # X_test pca features dataframe
+    print("pca transform test")
     df_pca_test = pd.DataFrame(pca.transform(X_test)).add_prefix(prefix)
 
     # check for NaN
