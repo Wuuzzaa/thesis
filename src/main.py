@@ -39,6 +39,25 @@ if __name__ == "__main__":
         mode="baseline",
     )
 
+    # calc the train and test scores for the "pca_clean".
+    # "pca_clean": Runs a random forest on the cleaned data with pca additional features no feature selection
+
+    pca_params = {
+        "n_components": 3,
+        "random_state": random_state
+    }
+
+    calc_scores(
+        random_state=random_state,
+        path_datasets_folder=Path("..//data//datasets"),
+        path_results_file=Path("..//data//results//results.feather"),
+        mode="pca_clean",
+        X_train_pca_file_name="pca_train_clean.feather",
+        X_test_pca_file_name="pca_test_clean.feather",
+        pca_params=pca_params,
+        prefix="pca_",
+    )
+
 
 
 

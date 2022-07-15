@@ -22,6 +22,12 @@ def create_pca_features(X_train: pd.DataFrame, X_test: pd.DataFrame, X_train_pca
     # X_test pca features dataframe
     df_pca_test = pd.DataFrame(pca.transform(X_test)).add_prefix(prefix)
 
+    # check for NaN
+    if df_pca_train.isnull().values.any():
+        raise ValueError("train dataframe pca features contain Nan Values")
+    if df_pca_test.isnull().values.any():
+        raise ValueError("test dataframe pca features contain Nan Values")
+
     # store pca features
     df_pca_train.to_feather(X_train_pca_file)
     df_pca_test.to_feather(X_test_pca_file)
@@ -50,7 +56,7 @@ if __name__ == "__main__":
 
     pca_params = {
         "n_components": 3,
-        "random_state":42
+        "random_state": 42
     }
 
     create_pca_features(

@@ -4,18 +4,40 @@ import pandas as pd
 from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
+from pathlib import Path
+from src.pca_feature import create_pca_features
 
 
-def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
+def calc_scores(
+        random_state: int,
+        path_datasets_folder: Path,
+        path_results_file: Path,
+        mode: str,
+        X_train_pca_file_name: str = None,
+        X_test_pca_file_name: str = None,
+        pca_params: dict = None,
+        prefix: str = None,
+):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
     the results file.
 
-    :param random_state: int
-    :param path_datasets_folder: Path to the folder with the datasets
-    :param path_results_file: Path to the results file
-    :param mode: str. Current modes:
-        "baseline": Runs a random forest on the cleaned data
+
+    :param random_state:
+    :param path_datasets_folder:
+    :param path_results_file:
+    :param mode:
+        "baseline": Runs a random forest on the cleaned data no additional features no feature selection
+        "pca_clean": Runs a random forest on the cleaned data with pca additional features no feature selection.
+            pca_params = {
+            "n_components": 3,
+            "random_state": random_state
+            }
+    :param X_train_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
+    :param X_test_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
+    :param pca_params: Needed for mode "pca_clean". dict with the parameters used for pca.
+    For the parameters see: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+    :param prefix: Needed for mode "pca_clean". Prefix for the column name in the dataframe for the generated pca features
     :return: None
     """
 
@@ -30,6 +52,21 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
     if mode == "baseline":
         train_cv_score_column_name = "baseline_random_forest_train_cv_score"
         test_score_column_name = "baseline_random_forest_test_score"
+
+    elif mode == "pca_clean":
+        # check needed parameters are not None
+        needed_pca_parameters = [
+            X_train_pca_file_name,
+            X_test_pca_file_name,
+            pca_params,
+            prefix,
+        ]
+
+        if None in needed_pca_parameters:
+            raise ValueError(f"One or more parameter for pca is None. Give it a value. Parameters needed are: {needed_pca_parameters}")
+
+        train_cv_score_column_name = "pca_clean_train_cv_score"
+        test_score_column_name = "pca_clean_test_score"
 
     else:
         raise NotImplemented(f"mode: {mode} is not implemented")
@@ -50,7 +87,7 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
     dataset_folders = []
 
     # use a random forest as classifier
-    rf = RandomForestClassifier(random_state=random_state, n_jobs=-1)
+    rf = RandomForestClassifier(random_state=random_state, n_jobs=-1, max_depth=12)
 
     # get the dataset folders in the data folder
     for path in path_datasets_folder.iterdir():
@@ -69,14 +106,44 @@ def calc_scores(random_state, path_datasets_folder, path_results_file, mode):
             X = pd.read_feather(path_X)
             y = pd.read_feather(path_y)["y"]
 
-        # train test split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+            # train test split
+            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+
+        elif mode == "pca_clean":
+            # get X, y
+            path_X = dataset_folder.joinpath("X_clean.feather")
+            path_y = dataset_folder.joinpath("y.feather")
+
+            X = pd.read_feather(path_X)
+            y = pd.read_feather(path_y)["y"]
+
+            # train test split
+            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+
+            df_pca_train, df_pca_test = create_pca_features(
+                X_train=X_train,
+                X_test=X_test,
+                X_train_pca_file=dataset_folder.joinpath(X_train_pca_file_name),
+                X_test_pca_file=dataset_folder.joinpath(X_test_pca_file_name),
+                pca_params=pca_params,
+                prefix=prefix
+            )
+
+            # drop index to be able to concat on axis columns
+            X_train.reset_index(drop=True, inplace=True)
+            X_test.reset_index(drop=True, inplace=True)
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_pca_train], axis="columns")
+            X_test = pd.concat([X_test, df_pca_test], axis="columns")
 
         # fit model
         rf.fit(X_train, y_train)
 
         # score model on test data and cv score for train data
         test_scores_dict[int(dataset_folder.name)] = rf.score(X_test, y_test)
+
+        # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
         train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(rf, X_train, y_train, cv=10, n_jobs=1).mean()
 
     # sort the dicts by keys to get the same order as the dataframe we want to concat with
