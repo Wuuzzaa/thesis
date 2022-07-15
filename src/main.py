@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
-
+from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview
 
 if __name__ == "__main__":
     random_state = 42
@@ -76,6 +76,9 @@ if __name__ == "__main__":
         pca_params=pca_params,
         prefix="pca_mle_",
     )
+
+    add_compare_scores_columns(results_file_path=Path("..//data//results//results.feather"))
+    print_info_pca_performance_overview(results_file_path=Path("..//data//results//results.feather"))
 
 
 
