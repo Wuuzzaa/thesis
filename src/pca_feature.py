@@ -33,6 +33,7 @@ def create_pca_features(
         raise ValueError(f"mode {mode} is not implemented")
 
     # for performance sake check the size of the train matrix and reduce n_components when it is too huge
+    # most likely when "mle" mode is used for n_components
     train_size = X_train.shape[0] * X_train.shape[1]
 
     if train_size > 10_000_000 and mode == "pca":
@@ -48,6 +49,7 @@ def create_pca_features(
 
         except ValueError:
             warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components = 3")
+
             # fall back to n_components = 3
             pca.set_params(**{"n_components": 3})
             df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)

@@ -1,10 +1,5 @@
-import warnings
 from pathlib import Path
 import openml
-import pandas as pd
-from tqdm import tqdm
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score
 
 from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
@@ -13,6 +8,10 @@ from analyze_results import add_compare_scores_columns, print_info_pca_performan
 
 if __name__ == "__main__":
     random_state = 42
+
+    ####################################################################################################################
+    # LOAD DATA PREPROCESSING
+    ####################################################################################################################
 
     # load suite
     # https://openml.github.io/openml-python/main/examples/20_basic/simple_suites_tutorial.html#sphx-glr-examples-20-basic-simple-suites-tutorial-py
@@ -30,6 +29,10 @@ if __name__ == "__main__":
         path_results_file=Path("..//data//results//results.feather"),
     )
 
+    ####################################################################################################################
+    # BASELINE
+    ####################################################################################################################
+
     # calc the train and test scores for the "baseline".
     # "baseline": see calc_scores docu
     calc_scores(
@@ -38,6 +41,10 @@ if __name__ == "__main__":
         path_results_file=Path("..//data//results//results.feather"),
         mode="baseline",
     )
+
+    ####################################################################################################################
+    # PCA
+    ####################################################################################################################
 
     # calc the train and test scores for the "pca_clean".
     # "pca_clean": see calc_scores docu
@@ -77,6 +84,10 @@ if __name__ == "__main__":
         prefix="pca_mle_",
     )
 
+    ####################################################################################################################
+    # KERNEL PCA
+    ####################################################################################################################
+
     # calc the train and test scores for the "kpca_clean".
     # "kpca_clean": see calc_scores docu
 
@@ -85,7 +96,8 @@ if __name__ == "__main__":
         "random_state": random_state,
         "kernel": "rbf",
         "n_jobs": -1,
-        "copy_X": False
+        "copy_X": False,
+        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low.
     }
 
     calc_scores(
@@ -98,6 +110,10 @@ if __name__ == "__main__":
         pca_params=pca_params,
         prefix="kpca_",
     )
+
+    ####################################################################################################################
+    # RESULTS STATISTICS
+    ####################################################################################################################
 
     add_compare_scores_columns(results_file_path=Path("..//data//results//results.feather"))
     print_info_pca_performance_overview(results_file_path=Path("..//data//results//results.feather"))
