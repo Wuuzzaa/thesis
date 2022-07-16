@@ -1,10 +1,19 @@
 from pathlib import Path
 import pandas as pd
 import warnings
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, KernelPCA
 
 
-def create_pca_features(X_train: pd.DataFrame, X_test: pd.DataFrame, X_train_pca_file: Path, X_test_pca_file: Path, pca_params: dict, prefix: str):
+def create_pca_features(
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        X_train_pca_file: Path,
+        X_test_pca_file: Path,
+        pca_params: dict,
+        prefix: str,
+        mode: str,
+        random_state: int,
+):
     # check if file already exists -> load from files the features
     if X_train_pca_file.is_file() and X_test_pca_file.is_file():
         warnings.warn(f"pca files found load from {X_train_pca_file} and {X_test_pca_file}")
@@ -14,26 +23,50 @@ def create_pca_features(X_train: pd.DataFrame, X_test: pd.DataFrame, X_train_pca
         return df_pca_train, df_pca_test
 
     # make a pca instance
-    pca = PCA(**pca_params)
+    if mode == "pca":
+        pca = PCA(**pca_params)
+
+    elif mode == "kpca":
+        pca = KernelPCA(**pca_params)
+
+    else:
+        raise ValueError(f"mode {mode} is not implemented")
 
     # for performance sake check the size of the train matrix and reduce n_components when it is too huge
     train_size = X_train.shape[0] * X_train.shape[1]
 
-    if train_size > 10_000_000:
+    if train_size > 10_000_000 and mode == "pca":
         # fall back to n_components = 10
         warnings.warn("Train size is too huge. Fall back to n_components = 10")
         pca.set_params(**{"n_components": 10})
 
     # X_train pca features dataframe
-    try:
-        print("pca fit transform train")
-        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+    if mode == "pca":
+        try:
+            print("pca fit transform train")
+            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
-    except ValueError:
-        warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components = 3")
-        # fall back to n_components = 3
-        pca.set_params(**{"n_components": 3})
-        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+        except ValueError:
+            warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components = 3")
+            # fall back to n_components = 3
+            pca.set_params(**{"n_components": 3})
+            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+
+    elif mode == "kpca":
+        # kernel pca uses far too much ram even on mid sized datasets or higher.
+        # So we need to use a sample of the train data
+        if len(X_train) > 1000:
+            X_train_sample = X_train.sample(n=1000, random_state=random_state)
+
+            print("pca fit")
+            pca.fit(X_train_sample)
+
+            print("pca transform train")
+            df_pca_train = pd.DataFrame(pca.transform(X_train)).add_prefix(prefix)
+
+        else:
+            print("pca fit transform train")
+            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
     # X_test pca features dataframe
     print("pca transform test")

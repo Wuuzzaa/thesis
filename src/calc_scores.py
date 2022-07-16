@@ -16,7 +16,7 @@ def calc_scores(
         X_train_pca_file_name: str = None,
         X_test_pca_file_name: str = None,
         pca_params: dict = None,
-        prefix: str = None,
+        prefix: str = None
 ):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
@@ -34,12 +34,14 @@ def calc_scores(
             "random_state": random_state
             }
         "pca_mle_clean": like "pca_clean" mode but n_components is set to "mle"
+        "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features no feature selection.
 
-    :param X_train_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
-    :param X_test_pca_file_name: Needed for mode "pca_clean". Just the filename not the path.
-    :param pca_params: Needed for mode "pca_clean". dict with the parameters used for pca.
+    :param X_train_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
+    :param X_test_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
+    :param pca_params: Needed for any mode with "pca". dict with the parameters used for pca.
     For the parameters see: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
-    :param prefix: Needed for mode "pca_clean". Prefix for the column name in the dataframe for the generated pca features
+
+    :param prefix: Needed for any mode with "pca". Prefix for the column name in the dataframe for the generated pca features
     :return: None
     """
 
@@ -66,7 +68,8 @@ def calc_scores(
     modes = [
         "baseline",
         "pca_clean",
-        "pca_mle_clean"
+        "pca_mle_clean",
+        "kpca_clean",
     ]
     if mode not in modes:
         raise NotImplemented(f"mode: {mode} is not implemented. Use on of thease modes {modes}")
@@ -115,7 +118,7 @@ def calc_scores(
             # train test split
             X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
 
-        elif mode in ["pca_clean", "pca_mle_clean"]:
+        elif mode in ["pca_clean", "pca_mle_clean", "kpca_clean"]:
             # get X, y
             path_X = dataset_folder.joinpath("X_clean.feather")
             path_y = dataset_folder.joinpath("y.feather")
@@ -126,13 +129,21 @@ def calc_scores(
             # train test split
             X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
 
+            # set the pca mode
+            pca_mode = "pca"
+
+            if mode == "kpca_clean":
+                pca_mode = "kpca"
+
             df_pca_train, df_pca_test = create_pca_features(
                 X_train=X_train,
                 X_test=X_test,
                 X_train_pca_file=dataset_folder.joinpath(X_train_pca_file_name),
                 X_test_pca_file=dataset_folder.joinpath(X_test_pca_file_name),
                 pca_params=pca_params,
-                prefix=prefix
+                prefix=prefix,
+                mode=pca_mode,
+                random_state=random_state
             )
 
             # drop index to be able to concat on axis columns

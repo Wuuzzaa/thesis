@@ -30,8 +30,8 @@ if __name__ == "__main__":
         path_results_file=Path("..//data//results//results.feather"),
     )
 
-    # calc the train and test scores for the baseline.
-    # Baseline means random forest on cleaned data. No filter no additional features
+    # calc the train and test scores for the "baseline".
+    # "baseline": see calc_scores docu
     calc_scores(
         random_state=random_state,
         path_datasets_folder=Path("..//data//datasets"),
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     )
 
     # calc the train and test scores for the "pca_clean".
-    # "pca_clean": Runs a random forest on the cleaned data with pca additional features no feature selection
+    # "pca_clean": see calc_scores docu
 
     pca_params = {
         "n_components": 3,
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     )
 
     # calc the train and test scores for the "pca_mle_clean".
-    # "pca_mle_clean": like "pca_clean" mode but n_components is set to "mle"
+    # "pca_mle_clean": see calc_scores docu
 
     pca_params = {
         "n_components": "mle",
@@ -75,6 +75,28 @@ if __name__ == "__main__":
         X_test_pca_file_name="pca_test_mle_clean.feather",
         pca_params=pca_params,
         prefix="pca_mle_",
+    )
+
+    # calc the train and test scores for the "kpca_clean".
+    # "kpca_clean": see calc_scores docu
+
+    pca_params = {
+        "n_components": 3,
+        "random_state": random_state,
+        "kernel": "rbf",
+        "n_jobs": -1,
+        "copy_X": False
+    }
+
+    calc_scores(
+        random_state=random_state,
+        path_datasets_folder=Path("..//data//datasets"),
+        path_results_file=Path("..//data//results//results.feather"),
+        mode="kpca_clean",
+        X_train_pca_file_name="kpca_train_clean.feather",
+        X_test_pca_file_name="kpca_test_clean.feather",
+        pca_params=pca_params,
+        prefix="kpca_",
     )
 
     add_compare_scores_columns(results_file_path=Path("..//data//results//results.feather"))
