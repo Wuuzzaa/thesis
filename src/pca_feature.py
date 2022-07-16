@@ -57,8 +57,11 @@ def create_pca_features(
     elif mode == "kpca":
         # kernel pca uses far too much ram even on mid sized datasets or higher.
         # So we need to use a sample of the train data
-        if len(X_train) > 1000:
-            X_train_sample = X_train.sample(n=1000, random_state=random_state)
+
+        sample_size = 10_000
+
+        if len(X_train) > sample_size:
+            X_train_sample = X_train.sample(n=sample_size, random_state=random_state)
 
             print("pca fit")
             pca.fit(X_train_sample)

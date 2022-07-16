@@ -65,24 +65,24 @@ if __name__ == "__main__":
         prefix="pca_",
     )
 
-    # calc the train and test scores for the "pca_mle_clean".
-    # "pca_mle_clean": see calc_scores docu
-
-    pca_params = {
-        "n_components": "mle",
-        "random_state": random_state
-    }
-
-    calc_scores(
-        random_state=random_state,
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
-        mode="pca_mle_clean",
-        X_train_pca_file_name="pca_train_mle_clean.feather",
-        X_test_pca_file_name="pca_test_mle_clean.feather",
-        pca_params=pca_params,
-        prefix="pca_mle_",
-    )
+    # # calc the train and test scores for the "pca_mle_clean".
+    # # "pca_mle_clean": see calc_scores docu
+    #
+    # pca_params = {
+    #     "n_components": "mle",
+    #     "random_state": random_state
+    # }
+    #
+    # calc_scores(
+    #     random_state=random_state,
+    #     path_datasets_folder=Path("..//data//datasets"),
+    #     path_results_file=Path("..//data//results//results.feather"),
+    #     mode="pca_mle_clean",
+    #     X_train_pca_file_name="pca_train_mle_clean.feather",
+    #     X_test_pca_file_name="pca_test_mle_clean.feather",
+    #     pca_params=pca_params,
+    #     prefix="pca_mle_",
+    # )
 
     ####################################################################################################################
     # KERNEL PCA
