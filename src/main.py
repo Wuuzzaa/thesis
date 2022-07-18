@@ -112,6 +112,21 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
+    # PCA AND KERNEL PCA TOGETHER
+    ####################################################################################################################
+
+    # calc the train and test scores for the "pca_and_kpca_clean".
+    # "pca_and_kpca_clean": see calc_scores docu
+
+    calc_scores(
+        random_state=random_state,
+        path_datasets_folder=Path("..//data//datasets"),
+        path_results_file=Path("..//data//results//results.feather"),
+        mode="pca_and_kpca_clean",
+    )
+
+
+    ####################################################################################################################
     # RESULTS STATISTICS
     ####################################################################################################################
 

@@ -10,18 +10,6 @@ def add_compare_scores_columns(results_file_path: Path):
     df["pca_clean_train_score > baseline_train_score"]  = df["pca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["pca_clean_test_score > baseline_test_score"]    = df["pca_clean_test_score"] > df["baseline_test_score"]
 
-    # compare pca mle with baseline
-    #df["pca_mle_clean_train_score > baseline_train_score"] = df["pca_mle_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    #0df["pca_mle_clean_test_score > baseline_test_score"] = df["pca_mle_clean_test_score"] > df["baseline_test_score"]
-
-    # compare pca with pca mle
-    #df["pca_clean_train_score > pca_mle_clean_train_score"] = df["pca_clean_train_cv_score"] > df["pca_mle_clean_train_cv_score"]
-    #df["pca_clean_test_score > pca_mle_clean_test_score"] = df["pca_clean_test_score"] > df["pca_mle_clean_test_score"]
-
-    # compare pca and pca mle with baseline
-    #df["pca_clean and pca_clean_mle > baseline train score"] = df["pca_clean_train_score > baseline_train_score"] & df["pca_mle_clean_train_score > baseline_train_score"]
-    #df["pca_clean and pca_clean_mle > baseline test score"] = df["pca_clean_test_score > baseline_test_score"] & df["pca_mle_clean_test_score > baseline_test_score"]
-
     # compare kpca with baseline
     df["kpca_clean_train_score > baseline_train_score"]  = df["kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["kpca_clean_test_score > baseline_test_score"]    = df["kpca_clean_test_score"] > df["baseline_test_score"]
@@ -32,7 +20,12 @@ def add_compare_scores_columns(results_file_path: Path):
     
     # kpca and pca > baseline on train and test at the same time
     df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"] = df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] & df["pca_clean_train_score & kpca_clean_train_score > baseline_train_score"]
-    
+
+    # pca and kpca MERGED
+    df["pca_kpca_merged_clean_train_score > baseline_train_score"] = df["pca_and_kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
+    df["pca_kpca_merged_clean_test_score > baseline_test_score"] = df["pca_and_kpca_clean_test_score"] > df["baseline_test_score"]
+
+
     # store again
     df.to_feather(results_file_path)
 
@@ -68,6 +61,14 @@ def print_info_pca_performance_overview(results_file_path: Path):
     n_pca_and_kpca_improved_datasets_on_train_and_test = sum(df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"])
     n_pca_and_kpca_improved_datasets_on_train_and_test_percent = round(n_pca_and_kpca_improved_datasets_on_train_and_test /n_datasets * 100, 2)
 
+    # pca and kpca merged test data
+    n_pca_kpca_merged_improved_datasets_test = sum(df["pca_kpca_merged_clean_test_score > baseline_test_score"])
+    pca_kpca_merged_improved_dataset_percent_test = round(n_pca_kpca_merged_improved_datasets_test / n_datasets * 100, 2)
+
+    # pca and kpca merged train data
+    n_pca_kpca_merged_improved_datasets_train = sum(df["pca_kpca_merged_clean_train_score > baseline_train_score"])
+    pca_kpca_merged_improved_dataset_percent_train = round(n_pca_kpca_merged_improved_datasets_train / n_datasets * 100, 2)
+
     # print it out
     print()
     print("#"*80)
@@ -77,6 +78,9 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print(f"Amount of datasets tested: {n_datasets}")
     print("")
     print("#"*80)
+
+    # TEST DATA
+
     print("Statistics on test data".upper())
     print("#" * 80)
     print("")
@@ -84,21 +88,17 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print(f"pca on clean data improved the performance on {n_pca_improved_datasets_test} datasets = {pca_improved_dataset_percent_test}%")
     print("")
     print("KPCA:")
-    print("")
     print(f"kpca on clean data improved the performance on {n_kpca_improved_datasets_test} datasets = {kpca_improved_dataset_percent_test}%")
     print("")
-    print("PCA AND KPCA AT THE SAME TIME EACH ON ITS ONE AGAINST BASELINE")
-    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets} datasets = {pca_and_kpca_improved_datasets_percent}%")
-    print("")
-    print("#" * 80)
-    print("TRAIN AND TEST OF PCA AND KPCA")
-    print("#" * 80)
-    print("")
-    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets_on_train_and_test} datasets = {n_pca_and_kpca_improved_datasets_on_train_and_test_percent}%")
+    print("PCA AND KPCA MERGED")
+    print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_test} datasets = {pca_kpca_merged_improved_dataset_percent_test}%")
+
+    # TRAIN DATA
+
     print("")
     print("#"*80)
     print("Statistics on train data".upper())
-    print("#" * 80)
+    print("#"*80)
     print("")
     print("PCA:")
     print(f"pca on clean data improved the cross validation performance on {n_pca_improved_datasets_train} datasets = {pca_improved_dataset_percent_train}%")
@@ -106,3 +106,18 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print("KPCA:")
     print(f"kpca on clean data improved the cross validation performance on {n_kpca_improved_datasets_train} datasets = {kpca_improved_dataset_percent_train}%")
     print("")
+    print("PCA AND KPCA MERGED")
+    print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_train} datasets = {pca_kpca_merged_improved_dataset_percent_train}%")
+
+    # OTHER STUFF
+
+    print("")
+    print("#" * 80)
+    print("PCA AND KPCA AT THE SAME TIME EACH ON ITS OWN AGAINST  (NOT MERGED)")
+    print("#" * 80)
+    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets} datasets = {pca_and_kpca_improved_datasets_percent}%")
+    print("")
+    print("#" * 80)
+    print("TRAIN AND TEST OF PCA AND KPCA (NOT MERGED)")
+    print("#" * 80)
+    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets_on_train_and_test} datasets = {n_pca_and_kpca_improved_datasets_on_train_and_test_percent}%")

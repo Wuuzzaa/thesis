@@ -28,20 +28,25 @@ def calc_scores(
     :param path_results_file:
     :param mode:
         "baseline": Runs a random forest on the cleaned data no additional features no feature selection
+
         "pca_clean": Runs a random forest on the cleaned data with pca additional features no feature selection.
             pca_params = {
             "n_components": 3,
             "random_state": random_state
             }
+
         "pca_mle_clean": like "pca_clean" mode but n_components is set to "mle"
+
         "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features no feature selection.
 
-    :param X_train_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
-    :param X_test_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
-    :param pca_params: Needed for any mode with "pca". dict with the parameters used for pca.
+        "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features.
+
+    :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
+    :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
+    :param pca_params: Needed for any mode with "pca" exept "pca_and_kpca_clean". dict with the parameters used for pca.
     For the parameters see: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
 
-    :param prefix: Needed for any mode with "pca". Prefix for the column name in the dataframe for the generated pca features
+    :param prefix: Needed for any mode with "pca" exept "pca_and_kpca_clean". Prefix for the column name in the dataframe for the generated pca features
     :return: None
     """
 
@@ -52,8 +57,10 @@ def calc_scores(
     print("#" * 80)
     print("")
 
+    modes_pca_parameter_needed = ["pca_clean", "pca_mle_clean", "kpca_clean"]
+
     # check needed parameters are not None
-    if "pca" in mode:
+    if mode in modes_pca_parameter_needed:
         needed_pca_parameters = [
             X_train_pca_file_name,
             X_test_pca_file_name,
@@ -70,9 +77,10 @@ def calc_scores(
         "pca_clean",
         "pca_mle_clean",
         "kpca_clean",
+        "pca_and_kpca_clean"
     ]
     if mode not in modes:
-        raise NotImplemented(f"mode: {mode} is not implemented. Use on of thease modes {modes}")
+        raise NotImplemented(f"mode: {mode} is not implemented. Use on of these modes {modes}")
 
     # check if already done, by checking if the new to generate columns are already in the results dataframe
     train_cv_score_column_name = f"{mode}_train_cv_score"
@@ -108,26 +116,12 @@ def calc_scores(
         print(f"current folder: {dataset_folder}")
 
         if mode == "baseline":
-            # get X, y
-            path_X = dataset_folder.joinpath("X_clean.feather")
-            path_y = dataset_folder.joinpath("y.feather")
-
-            X = pd.read_feather(path_X)
-            y = pd.read_feather(path_y)["y"]
-
-            # train test split
-            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+            # get X and y train and test splitted
+            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
 
         elif mode in ["pca_clean", "pca_mle_clean", "kpca_clean"]:
-            # get X, y
-            path_X = dataset_folder.joinpath("X_clean.feather")
-            path_y = dataset_folder.joinpath("y.feather")
-
-            X = pd.read_feather(path_X)
-            y = pd.read_feather(path_y)["y"]
-
-            # train test split
-            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+            # get X and y train and test splitted
+            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
 
             # set the pca mode
             pca_mode = "pca"
@@ -146,13 +140,25 @@ def calc_scores(
                 random_state=random_state
             )
 
-            # drop index to be able to concat on axis columns
-            X_train.reset_index(drop=True, inplace=True)
-            X_test.reset_index(drop=True, inplace=True)
-
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_pca_train], axis="columns")
             X_test = pd.concat([X_test, df_pca_test], axis="columns")
+
+        elif mode == "pca_and_kpca_clean":
+            # get X and y train and test splitted
+            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
+
+            # load pca features
+            df_pca_train = pd.read_feather(dataset_folder.joinpath("pca_train_clean.feather"))
+            df_pca_test = pd.read_feather(dataset_folder.joinpath("pca_test_clean.feather"))
+
+            # load kpca features
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath("kpca_train_clean.feather"))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath("kpca_test_clean.feather"))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
+            X_test = pd.concat([X_test, df_pca_test, df_kpca_test], axis="columns")
 
         # fit model
         rf.fit(X_train, y_train)
@@ -181,3 +187,21 @@ def calc_scores(
 
     # store results with scores
     results_df.to_feather(path_results_file)
+
+
+def _get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: int):
+    # get X, y
+    path_X = dataset_folder.joinpath("X_clean.feather")
+    path_y = dataset_folder.joinpath("y.feather")
+
+    X = pd.read_feather(path_X)
+    y = pd.read_feather(path_y)["y"]
+
+    # train test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+
+    # drop index to be able to concat on axis columns
+    X_train.reset_index(drop=True, inplace=True)
+    X_test.reset_index(drop=True, inplace=True)
+
+    return X_train, X_test, y_train, y_test

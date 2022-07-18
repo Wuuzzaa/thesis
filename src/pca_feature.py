@@ -13,7 +13,7 @@ def create_pca_features(
         prefix: str,
         mode: str,
         random_state: int,
-):
+) -> (pd.DataFrame, pd.DataFrame):
     # check if file already exists -> load from files the features
     if X_train_pca_file.is_file() and X_test_pca_file.is_file():
         warnings.warn(f"pca files found load from {X_train_pca_file} and {X_test_pca_file}")
