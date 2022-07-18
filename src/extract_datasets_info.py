@@ -3,6 +3,7 @@ from pathlib import Path
 import openml
 import pandas as pd
 from tqdm import tqdm
+from constans import *
 
 
 def extract_datasets_info(suite):
@@ -26,11 +27,8 @@ def extract_datasets_info(suite):
     print("#" * 80)
     print("")
 
-    path = Path(f"..//data//results")
-    path_results_file = path.joinpath("results.feather")
-
     # check if already done
-    if path_results_file.exists():
+    if RESULTS_FILE_PATH.exists():
         print("already done... return")
         return
 
@@ -74,10 +72,10 @@ def extract_datasets_info(suite):
         reset_index(drop=True)
 
     # create folder for dataset
-    path.mkdir(parents=True, exist_ok=True)
+    RESULTS_FOLDER_PATH.mkdir(parents=True, exist_ok=True)
 
     # store dataframe
-    df.to_feather(path=path_results_file)
+    df.to_feather(path=RESULTS_FILE_PATH)
 
 
 def extract_amount_ohe_features(path_datasets_folder, path_results_file):

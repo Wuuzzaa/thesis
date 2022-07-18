@@ -1,3 +1,4 @@
+from constans import *
 from pathlib import Path
 import openml
 
@@ -25,8 +26,8 @@ if __name__ == "__main__":
 
     # amount features after one hot encoding
     extract_amount_ohe_features(
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
     )
 
     ####################################################################################################################
@@ -37,8 +38,8 @@ if __name__ == "__main__":
     # "baseline": see calc_scores docu
     calc_scores(
         random_state=random_state,
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
         mode="baseline",
     )
 
@@ -56,11 +57,11 @@ if __name__ == "__main__":
 
     calc_scores(
         random_state=random_state,
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
         mode="pca_clean",
-        X_train_pca_file_name="pca_train_clean.feather",
-        X_test_pca_file_name="pca_test_clean.feather",
+        X_train_pca_file_name=X_TRAIN_CLEAN_PCA_FILE_NAME,
+        X_test_pca_file_name=X_TEST_CLEAN_PCA_FILE_NAME,
         pca_params=pca_params,
         prefix="pca_",
     )
@@ -102,11 +103,11 @@ if __name__ == "__main__":
 
     calc_scores(
         random_state=random_state,
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
         mode="kpca_clean",
-        X_train_pca_file_name="kpca_train_clean.feather",
-        X_test_pca_file_name="kpca_test_clean.feather",
+        X_train_pca_file_name=X_TRAIN_CLEAN_KPCA_FILE_NAME,
+        X_test_pca_file_name=X_TEST_CLEAN_KPCA_FILE_NAME,
         pca_params=pca_params,
         prefix="kpca_",
     )
@@ -120,8 +121,8 @@ if __name__ == "__main__":
 
     calc_scores(
         random_state=random_state,
-        path_datasets_folder=Path("..//data//datasets"),
-        path_results_file=Path("..//data//results//results.feather"),
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
         mode="pca_and_kpca_clean",
     )
 

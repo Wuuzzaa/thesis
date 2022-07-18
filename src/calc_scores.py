@@ -1,6 +1,6 @@
 import warnings
-
 import pandas as pd
+from constans import *
 from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -79,6 +79,7 @@ def calc_scores(
         "kpca_clean",
         "pca_and_kpca_clean"
     ]
+
     if mode not in modes:
         raise NotImplemented(f"mode: {mode} is not implemented. Use on of these modes {modes}")
 
@@ -149,12 +150,12 @@ def calc_scores(
             X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
 
             # load pca features
-            df_pca_train = pd.read_feather(dataset_folder.joinpath("pca_train_clean.feather"))
-            df_pca_test = pd.read_feather(dataset_folder.joinpath("pca_test_clean.feather"))
+            df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
+            df_pca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME))
 
             # load kpca features
-            df_kpca_train = pd.read_feather(dataset_folder.joinpath("kpca_train_clean.feather"))
-            df_kpca_test = pd.read_feather(dataset_folder.joinpath("kpca_test_clean.feather"))
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KPCA_FILE_NAME))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KPCA_FILE_NAME))
 
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
@@ -191,8 +192,8 @@ def calc_scores(
 
 def _get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: int):
     # get X, y
-    path_X = dataset_folder.joinpath("X_clean.feather")
-    path_y = dataset_folder.joinpath("y.feather")
+    path_X = dataset_folder.joinpath(X_CLEAN_FILE_NAME)
+    path_y = dataset_folder.joinpath(y_FILE_NAME)
 
     X = pd.read_feather(path_X)
     y = pd.read_feather(path_y)["y"]

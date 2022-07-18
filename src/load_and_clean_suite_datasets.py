@@ -7,6 +7,7 @@ import openml
 import pandas as pd
 import numpy as np
 from itertools import compress
+from constans import *
 
 
 def load_and_clean_suite_datasets(suite, random_state):
@@ -44,9 +45,9 @@ def load_and_clean_suite_datasets(suite, random_state):
         print(f"dataset_id: {str(task.dataset_id)}")
 
         # set paths for files
-        path = Path(f"..//data//datasets//{str(task.dataset_id)}//")
-        path_X = path.joinpath(f"X_clean.feather")
-        path_y = path.joinpath(f"y.feather")
+        path = DATASETS_FOLDER_PATH.joinpath(str(task.dataset_id))
+        path_X = path.joinpath(X_CLEAN_FILE_NAME)
+        path_y = path.joinpath(y_FILE_NAME)
 
         # check if already done -> skip the task/dataset
         if path_X.exists() and path_y.exists():

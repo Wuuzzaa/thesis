@@ -25,8 +25,10 @@ def delete_files(root_folder: Path, filename: str):
 
 
 if __name__ == "__main__":
-    root_folder = Path("..//data")
+    from constans import *
+    root_folder = DATASETS_FOLDER_PATH
 
+    # set a filename
     #filename = "pca_train_mle_clean.feather"
     #filename = "pca_test_mle_clean.feather"
     #filename = "kpca_train_clean.feather"
@@ -34,4 +36,5 @@ if __name__ == "__main__":
     #filename = "pca_train_clean.feather"
     #filename = "pca_test_clean.feather"
 
+    # traverse the root folder and subfolders and delete all matches
     delete_files(root_folder, filename)

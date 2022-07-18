@@ -32,15 +32,6 @@ def create_pca_features(
     else:
         raise ValueError(f"mode {mode} is not implemented")
 
-    # for performance sake check the size of the train matrix and reduce n_components when it is too huge
-    # most likely when "mle" mode is used for n_components
-    train_size = X_train.shape[0] * X_train.shape[1]
-
-    if train_size > 10_000_000 and mode == "pca":
-        # fall back to n_components = 10
-        warnings.warn("Train size is too huge. Fall back to n_components = 10")
-        pca.set_params(**{"n_components": 10})
-
     # X_train pca features dataframe
     if mode == "pca":
         try:
@@ -61,6 +52,7 @@ def create_pca_features(
         sample_size = 10_000
 
         if len(X_train) > sample_size:
+            warnings.warn("Dataset is huge. Kernel PCA needs huge memory with too much rows. -> Sample of 10000 rows is used")
             X_train_sample = X_train.sample(n=sample_size, random_state=random_state)
 
             print("pca fit")
