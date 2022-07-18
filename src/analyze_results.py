@@ -25,7 +25,6 @@ def add_compare_scores_columns(results_file_path: Path):
     df["pca_kpca_merged_clean_train_score > baseline_train_score"] = df["pca_and_kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["pca_kpca_merged_clean_test_score > baseline_test_score"] = df["pca_and_kpca_clean_test_score"] > df["baseline_test_score"]
 
-
     # store again
     df.to_feather(results_file_path)
 

@@ -10,7 +10,7 @@ RANDOM_STATE = 42
 ########################################################################################################################
 # X and y
 X_CLEAN_FILE_NAME = "X_clean.feather"
-y_FILE_NAME = "y.feather"
+Y_FILE_NAME = "y.feather"
 
 # pca
 X_TRAIN_CLEAN_PCA_FILE_NAME = "pca_train_clean.feather"
@@ -30,8 +30,9 @@ RESULTS_DATAFRAME = "results.feather"
 ########################################################################################################################
 
 # FOLDERS
-DATASETS_FOLDER_PATH = Path("..//data//datasets")
-RESULTS_FOLDER_PATH = Path("..//data//results")
+DATA_FOLDER_PATH = Path("..//data")
+DATASETS_FOLDER_PATH = DATA_FOLDER_PATH.joinpath("datasets")
+RESULTS_FOLDER_PATH = DATA_FOLDER_PATH.joinpath("results")
 
 # FILES
 RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME)

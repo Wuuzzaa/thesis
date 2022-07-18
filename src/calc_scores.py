@@ -5,6 +5,7 @@ from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from pathlib import Path
+import joblib
 
 
 def calc_scores(
@@ -147,6 +148,10 @@ def calc_scores(
         # fit model
         rf.fit(X_train, y_train)
 
+        # todo store the random forest on disk
+        random_forest_file_path = dataset_folder.joinpath(f"{mode}_random_forest.joblib")
+        joblib.dump(rf, filename=random_forest_file_path)
+
         # score model on test data and cv score for train data
         test_scores_dict[int(dataset_folder.name)] = rf.score(X_test, y_test)
 
@@ -182,7 +187,7 @@ def get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: 
     """
     # get X, y
     path_X = dataset_folder.joinpath(X_CLEAN_FILE_NAME)
-    path_y = dataset_folder.joinpath(y_FILE_NAME)
+    path_y = dataset_folder.joinpath(Y_FILE_NAME)
 
     X = pd.read_feather(path_X)
     y = pd.read_feather(path_y)["y"]
