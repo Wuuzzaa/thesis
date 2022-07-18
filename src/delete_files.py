@@ -25,7 +25,7 @@ def delete_files(root_folder: Path, filename: str):
 
 
 if __name__ == "__main__":
-    from constans import *
+    from constants import *
     root_folder = DATASETS_FOLDER_PATH
 
     # set a filename

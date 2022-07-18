@@ -3,7 +3,7 @@ from pathlib import Path
 import openml
 import pandas as pd
 from tqdm import tqdm
-from constans import *
+from constants import *
 
 
 def extract_datasets_info(suite):

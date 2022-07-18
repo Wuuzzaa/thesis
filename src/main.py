@@ -1,4 +1,4 @@
-from constans import *
+from constants import *
 from pathlib import Path
 import openml
 

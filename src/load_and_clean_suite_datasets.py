@@ -7,7 +7,7 @@ import openml
 import pandas as pd
 import numpy as np
 from itertools import compress
-from constans import *
+from constants import *
 
 
 def load_and_clean_suite_datasets(suite, random_state):
