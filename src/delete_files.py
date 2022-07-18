@@ -1,4 +1,5 @@
 from pathlib import Path
+from constants import *
 
 
 def delete_files(root_folder: Path, filename: str):
@@ -29,12 +30,24 @@ if __name__ == "__main__":
     root_folder = DATASETS_FOLDER_PATH
 
     # set a filename
-    #filename = "pca_train_mle_clean.feather"
-    #filename = "pca_test_mle_clean.feather"
-    #filename = "kpca_train_clean.feather"
-    #filename = "kpca_test_clean.feather"
-    #filename = "pca_train_clean.feather"
-    #filename = "pca_test_clean.feather"
+    filenames = [
+        # X and y
+        # X_CLEAN_FILE_NAME,
+        # y_FILE_NAME,
+
+        # pca
+        X_TRAIN_CLEAN_PCA_FILE_NAME,
+        X_TEST_CLEAN_PCA_FILE_NAME,
+
+        # kpca
+        X_TRAIN_CLEAN_KPCA_FILE_NAME,
+        X_TEST_CLEAN_KPCA_FILE_NAME,
+
+        # results file
+        RESULTS_DATAFRAME
+    ]
 
     # traverse the root folder and subfolders and delete all matches
-    delete_files(root_folder, filename)
+    for filename in filenames:
+        print(f"delete all files with name: {filename}")
+        delete_files(root_folder, filename)

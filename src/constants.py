@@ -1,17 +1,7 @@
 from pathlib import Path
 
-########################################################################################################################
-# PATHS
-# Paths from pathlib to folders or files
-# suffix: _FOLDER_PATH or _FILE_PATH
-########################################################################################################################
-
-# FOLDERS
-DATASETS_FOLDER_PATH = Path("..//data//datasets")
-RESULTS_FOLDER_PATH = Path("..//data//results")
-
-# FILES
-RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath("results.feather")
+# RANDOM STATE
+RANDOM_STATE = 42
 
 ########################################################################################################################
 # FILENAMES
@@ -29,3 +19,21 @@ X_TEST_CLEAN_PCA_FILE_NAME = "pca_test_clean.feather"
 # kpca
 X_TRAIN_CLEAN_KPCA_FILE_NAME = "kpca_train_clean.feather"
 X_TEST_CLEAN_KPCA_FILE_NAME = "kpca_test_clean.feather"
+
+# results dataframe file
+RESULTS_DATAFRAME = "results.feather"
+
+########################################################################################################################
+# PATHS
+# Paths from pathlib to folders or files
+# suffix: _FOLDER_PATH or _FILE_PATH
+########################################################################################################################
+
+# FOLDERS
+DATASETS_FOLDER_PATH = Path("..//data//datasets")
+RESULTS_FOLDER_PATH = Path("..//data//results")
+
+# FILES
+RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME)
+
+

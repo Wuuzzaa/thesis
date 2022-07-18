@@ -6,10 +6,10 @@ from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview
+from src.constants import RANDOM_STATE
+from src.pca_feature import create_pca_features
 
 if __name__ == "__main__":
-    random_state = 42
-
     ####################################################################################################################
     # LOAD DATA PREPROCESSING
     ####################################################################################################################
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     suite = openml.study.get_suite(99)
 
     # first load the datasets from the suit and use ohe etc
-    load_and_clean_suite_datasets(suite, random_state)
+    load_and_clean_suite_datasets(suite, RANDOM_STATE)
 
     # extract infos like amount features, classes etc.
     extract_datasets_info(suite)
@@ -31,13 +31,53 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
+    # GENERATE PCA FEATURES
+    ####################################################################################################################
+
+    # pca
+    pca_params = {
+        "n_components": 3,
+        "random_state": RANDOM_STATE
+    }
+
+    create_pca_features(
+        pca_train_filename=X_TRAIN_CLEAN_PCA_FILE_NAME,
+        pca_test_filename=X_TEST_CLEAN_PCA_FILE_NAME,
+        datasets_folder=DATASETS_FOLDER_PATH,
+        pca_params=pca_params,
+        prefix="pca_",
+        mode="pca",
+        random_state=RANDOM_STATE
+    )
+
+    # kernel pca
+    pca_params = {
+        "n_components": 3,
+        "random_state": RANDOM_STATE,
+        "kernel": "rbf",
+        "n_jobs": -1,
+        "copy_X": False,
+        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low.
+    }
+
+    create_pca_features(
+        pca_train_filename=X_TRAIN_CLEAN_KPCA_FILE_NAME,
+        pca_test_filename=X_TEST_CLEAN_KPCA_FILE_NAME,
+        datasets_folder=DATASETS_FOLDER_PATH,
+        pca_params=pca_params,
+        prefix="kpca_",
+        mode="kpca",
+        random_state=RANDOM_STATE
+    )
+
+    ####################################################################################################################
     # BASELINE
     ####################################################################################################################
 
     # calc the train and test scores for the "baseline".
     # "baseline": see calc_scores docu
     calc_scores(
-        random_state=random_state,
+        random_state=RANDOM_STATE,
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="baseline",
@@ -52,38 +92,17 @@ if __name__ == "__main__":
 
     pca_params = {
         "n_components": 3,
-        "random_state": random_state
+        "random_state": RANDOM_STATE
     }
 
     calc_scores(
-        random_state=random_state,
+        random_state=RANDOM_STATE,
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="pca_clean",
         X_train_pca_file_name=X_TRAIN_CLEAN_PCA_FILE_NAME,
         X_test_pca_file_name=X_TEST_CLEAN_PCA_FILE_NAME,
-        pca_params=pca_params,
-        prefix="pca_",
     )
-
-    # # calc the train and test scores for the "pca_mle_clean".
-    # # "pca_mle_clean": see calc_scores docu
-    #
-    # pca_params = {
-    #     "n_components": "mle",
-    #     "random_state": random_state
-    # }
-    #
-    # calc_scores(
-    #     random_state=random_state,
-    #     path_datasets_folder=Path("..//data//datasets"),
-    #     path_results_file=Path("..//data//results//results.feather"),
-    #     mode="pca_mle_clean",
-    #     X_train_pca_file_name="pca_train_mle_clean.feather",
-    #     X_test_pca_file_name="pca_test_mle_clean.feather",
-    #     pca_params=pca_params,
-    #     prefix="pca_mle_",
-    # )
 
     ####################################################################################################################
     # KERNEL PCA
@@ -92,24 +111,13 @@ if __name__ == "__main__":
     # calc the train and test scores for the "kpca_clean".
     # "kpca_clean": see calc_scores docu
 
-    pca_params = {
-        "n_components": 3,
-        "random_state": random_state,
-        "kernel": "rbf",
-        "n_jobs": -1,
-        "copy_X": False,
-        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low.
-    }
-
     calc_scores(
-        random_state=random_state,
+        random_state=RANDOM_STATE,
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="kpca_clean",
         X_train_pca_file_name=X_TRAIN_CLEAN_KPCA_FILE_NAME,
         X_test_pca_file_name=X_TEST_CLEAN_KPCA_FILE_NAME,
-        pca_params=pca_params,
-        prefix="kpca_",
     )
 
     ####################################################################################################################
@@ -120,7 +128,7 @@ if __name__ == "__main__":
     # "pca_and_kpca_clean": see calc_scores docu
 
     calc_scores(
-        random_state=random_state,
+        random_state=RANDOM_STATE,
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="pca_and_kpca_clean",

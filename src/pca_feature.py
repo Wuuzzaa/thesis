@@ -2,26 +2,30 @@ from pathlib import Path
 import pandas as pd
 import warnings
 from sklearn.decomposition import PCA, KernelPCA
+from tqdm import tqdm
+
+from src.calc_scores import get_X_train_X_test_y_train_y_test_clean
 
 
-def create_pca_features(
+def _create_pca_features(
         X_train: pd.DataFrame,
         X_test: pd.DataFrame,
-        X_train_pca_file: Path,
-        X_test_pca_file: Path,
         pca_params: dict,
         prefix: str,
         mode: str,
         random_state: int,
 ) -> (pd.DataFrame, pd.DataFrame):
-    # check if file already exists -> load from files the features
-    if X_train_pca_file.is_file() and X_test_pca_file.is_file():
-        warnings.warn(f"pca files found load from {X_train_pca_file} and {X_test_pca_file}")
-        df_pca_train = pd.read_feather(X_train_pca_file)
-        df_pca_test = pd.read_feather(X_test_pca_file)
+    """
+    Function to create pca features.
 
-        return df_pca_train, df_pca_test
-
+    :param X_train:
+    :param X_test:
+    :param pca_params: dict with the parameters for sklearns PCA or Kernel PCA
+    :param prefix: prefix for the columnname
+    :param mode: on of "pca" or "kpca" which one to use
+    :param random_state:
+    :return:
+    """
     # make a pca instance
     if mode == "pca":
         pca = PCA(**pca_params)
@@ -34,16 +38,8 @@ def create_pca_features(
 
     # X_train pca features dataframe
     if mode == "pca":
-        try:
-            print("pca fit transform train")
-            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
-
-        except ValueError:
-            warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components = 3")
-
-            # fall back to n_components = 3
-            pca.set_params(**{"n_components": 3})
-            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+        print("pca fit transform train")
+        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
     elif mode == "kpca":
         # kernel pca uses far too much ram even on mid sized datasets or higher.
@@ -65,6 +61,9 @@ def create_pca_features(
             print("pca fit transform train")
             df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
+    else:
+        raise ValueError(f"unkown mode {mode}")
+
     # X_test pca features dataframe
     print("pca transform test")
     df_pca_test = pd.DataFrame(pca.transform(X_test)).add_prefix(prefix)
@@ -75,42 +74,58 @@ def create_pca_features(
     if df_pca_test.isnull().values.any():
         raise ValueError("test dataframe pca features contain Nan Values")
 
-    # store pca features
-    df_pca_train.to_feather(X_train_pca_file)
-    df_pca_test.to_feather(X_test_pca_file)
-
     return df_pca_train, df_pca_test
 
 
-if __name__ == "__main__":
-    X_train = pd.DataFrame(
-        data={
-            "a": [i for i in range(1000)],
-            "b": [i+3 for i in range(1000)],
-            "c": [i**1 for i in range(1000)],
-            "d": [i / 8 for i in range(1000)],
-        }
-    )
+def create_pca_features(
+        pca_train_filename: str,
+        pca_test_filename: str,
+        datasets_folder: Path,
+        pca_params: dict,
+        prefix: str,
+        mode: str,
+        random_state: int,
+):
+    print()
+    print("#"*80)
+    print(f"create pca features with mode: {mode}".upper())
+    print("#" * 80)
+    print()
 
-    X_test = pd.DataFrame(
-        data={
-            "a": [i for i in range(100)],
-            "b": [i+3 for i in range(100)],
-            "c": [i**1 for i in range(100)],
-            "d": [i / 8 for i in range(100)],
-        }
-    )
+    # store the dataset folders
+    dataset_folders = []
 
-    pca_params = {
-        "n_components": 3,
-        "random_state": 42
-    }
+    # get the dataset folders in the data folder
+    for path in datasets_folder.iterdir():
+        if path.is_dir():
+            dataset_folders.append(path)
 
-    create_pca_features(
-        X_train=X_train,
-        X_test=X_test,
-        X_train_pca_file=Path("..//data//datasets//3//pca_train_clean.feather"),
-        X_test_pca_file=Path("..//data//datasets//3//pca_test_clean.feather"),
-        pca_params=pca_params,
-        prefix="pca_"
-    )
+    # make pca features for each dataset
+    for dataset_folder in tqdm(dataset_folders):
+        print(f"current folder: {dataset_folder}")
+
+        X_train_pca_file_path = dataset_folder.joinpath(pca_train_filename)
+        X_test_pca_file_path = dataset_folder.joinpath(pca_test_filename)
+
+        # check if file already exists -> load from files the features
+        if X_train_pca_file_path.is_file() and X_test_pca_file_path.is_file():
+            warnings.warn(f"pca files found  {X_train_pca_file_path} and {X_test_pca_file_path}. Done")
+            continue
+
+        # get X and y train and test splitted
+        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
+
+        # make the features dataframes for train and test
+        df_pca_train, df_pca_test = _create_pca_features(
+                X_train=X_train,
+                X_test=X_test,
+                pca_params=pca_params,
+                prefix=prefix,
+                mode=mode,
+                random_state=random_state,
+        )
+
+        # store pca features
+        df_pca_train.to_feather(X_train_pca_file_path)
+        df_pca_test.to_feather(X_test_pca_file_path)
+

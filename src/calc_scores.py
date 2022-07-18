@@ -5,7 +5,6 @@ from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from pathlib import Path
-from src.pca_feature import create_pca_features
 
 
 def calc_scores(
@@ -15,8 +14,6 @@ def calc_scores(
         mode: str,
         X_train_pca_file_name: str = None,
         X_test_pca_file_name: str = None,
-        pca_params: dict = None,
-        prefix: str = None
 ):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
@@ -35,18 +32,12 @@ def calc_scores(
             "random_state": random_state
             }
 
-        "pca_mle_clean": like "pca_clean" mode but n_components is set to "mle"
-
         "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features no feature selection.
 
         "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features.
 
     :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
-    :param pca_params: Needed for any mode with "pca" exept "pca_and_kpca_clean". dict with the parameters used for pca.
-    For the parameters see: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
-
-    :param prefix: Needed for any mode with "pca" exept "pca_and_kpca_clean". Prefix for the column name in the dataframe for the generated pca features
     :return: None
     """
 
@@ -57,15 +48,13 @@ def calc_scores(
     print("#" * 80)
     print("")
 
-    modes_pca_parameter_needed = ["pca_clean", "pca_mle_clean", "kpca_clean"]
+    modes_pca_parameter_needed = ["pca_clean", "kpca_clean"]
 
     # check needed parameters are not None
     if mode in modes_pca_parameter_needed:
         needed_pca_parameters = [
             X_train_pca_file_name,
             X_test_pca_file_name,
-            pca_params,
-            prefix,
         ]
 
         if None in needed_pca_parameters:
@@ -75,7 +64,6 @@ def calc_scores(
     modes = [
         "baseline",
         "pca_clean",
-        "pca_mle_clean",
         "kpca_clean",
         "pca_and_kpca_clean"
     ]
@@ -116,39 +104,34 @@ def calc_scores(
     for dataset_folder in tqdm(dataset_folders):
         print(f"current folder: {dataset_folder}")
 
+        # get X and y train and test splitted
+        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test_clean(
+            dataset_folder=dataset_folder,
+            random_state=random_state
+        )
+
         if mode == "baseline":
-            # get X and y train and test splitted
-            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
+            pass
 
-        elif mode in ["pca_clean", "pca_mle_clean", "kpca_clean"]:
-            # get X and y train and test splitted
-            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
-
-            # set the pca mode
-            pca_mode = "pca"
-
-            if mode == "kpca_clean":
-                pca_mode = "kpca"
-
-            df_pca_train, df_pca_test = create_pca_features(
-                X_train=X_train,
-                X_test=X_test,
-                X_train_pca_file=dataset_folder.joinpath(X_train_pca_file_name),
-                X_test_pca_file=dataset_folder.joinpath(X_test_pca_file_name),
-                pca_params=pca_params,
-                prefix=prefix,
-                mode=pca_mode,
-                random_state=random_state
-            )
+        elif mode == "pca_clean":
+            # load pca features
+            df_pca_train    = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
+            df_pca_test     = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME))
 
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_pca_train], axis="columns")
             X_test = pd.concat([X_test, df_pca_test], axis="columns")
 
-        elif mode == "pca_and_kpca_clean":
-            # get X and y train and test splitted
-            X_train, X_test, y_train, y_test = _get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
+        elif mode == "kpca_clean":
+            # load kpca features
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KPCA_FILE_NAME))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KPCA_FILE_NAME))
 
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_kpca_train], axis="columns")
+            X_test = pd.concat([X_test, df_kpca_test], axis="columns")
+
+        elif mode == "pca_and_kpca_clean":
             # load pca features
             df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
             df_pca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME))
@@ -190,7 +173,13 @@ def calc_scores(
     results_df.to_feather(path_results_file)
 
 
-def _get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: int):
+def get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: int):
+    """
+
+    :param dataset_folder: Path to a dataset with X and y files in it.
+    :param random_state: int
+    :return: tuple (DataFrame, DataFrame, Series, Series) X_train, X_test, y_train, y_test
+    """
     # get X, y
     path_X = dataset_folder.joinpath(X_CLEAN_FILE_NAME)
     path_y = dataset_folder.joinpath(y_FILE_NAME)
