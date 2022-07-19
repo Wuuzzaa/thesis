@@ -20,6 +20,7 @@ def calc_scores(
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
     the results file.
 
+    There is a check if already done, by checking if the new to generate columns are already in the results dataframe.
 
     :param random_state:
     :param path_datasets_folder:
@@ -62,19 +63,12 @@ def calc_scores(
             raise ValueError(f"One or more parameter for pca is None. Give it a value.")
 
     # check if mode is valid
-    modes = [
-        "baseline",
-        "pca_clean",
-        "kpca_clean",
-        "pca_and_kpca_clean"
-    ]
-
-    if mode not in modes:
-        raise NotImplemented(f"mode: {mode} is not implemented. Use on of these modes {modes}")
+    if mode not in CALC_SCORES_MODES:
+        raise NotImplemented(f"mode: {mode} is not implemented. Use on of these modes {CALC_SCORES_MODES}")
 
     # check if already done, by checking if the new to generate columns are already in the results dataframe
-    train_cv_score_column_name = f"{mode}_train_cv_score"
-    test_score_column_name = f"{mode}_test_score"
+    train_cv_score_column_name = f"{mode}{CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX}"
+    test_score_column_name = f"{mode}{CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX}"
 
     new_columns = [train_cv_score_column_name, test_score_column_name]
 
@@ -148,8 +142,9 @@ def calc_scores(
         # fit model
         rf.fit(X_train, y_train)
 
-        # todo store the random forest on disk
-        random_forest_file_path = dataset_folder.joinpath(f"{mode}_random_forest.joblib")
+        # store the random forest on disk
+        random_forest_file_path = dataset_folder.joinpath(f"{mode}{CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX}")
+        print(f"store random forest model to: {random_forest_file_path}")
         joblib.dump(rf, filename=random_forest_file_path)
 
         # score model on test data and cv score for train data
