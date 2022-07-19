@@ -44,7 +44,7 @@ if __name__ == "__main__":
         X_TEST_CLEAN_KPCA_FILE_NAME,
 
         # results file
-        RESULTS_DATAFRAME
+        RESULTS_DATAFRAME_FILE_NAME
     ]
 
     # traverse the root folder and subfolders and delete all matches

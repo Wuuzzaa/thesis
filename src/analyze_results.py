@@ -1,6 +1,11 @@
+import warnings
 from pathlib import Path
 import pandas as pd
-
+from sklearn.ensemble import RandomForestClassifier
+from tqdm import tqdm
+from constants import *
+import joblib
+import numpy as np
 
 def add_compare_scores_columns(results_file_path: Path):
     # read file into dataframe
@@ -120,3 +125,102 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print("TRAIN AND TEST OF PCA AND KPCA (NOT MERGED)")
     print("#" * 80)
     print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets_on_train_and_test} datasets = {n_pca_and_kpca_improved_datasets_on_train_and_test_percent}%")
+
+
+def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
+    # first get the feature importance from each model and store them in files
+    _extract_feature_importance_from_models(path_datasets_folder, path_feature_importance_folder)
+
+    # load results dataframe
+    df_results = pd.read_feather(path_results_file)
+
+    # we just care for modes which have pca features
+    pca_modes = [mode for mode in CALC_SCORES_MODES if "pca" in mode]
+
+    #check if results dataframe has columns if so stop it.
+    for mode in pca_modes:
+        if f"{mode}_pca_features_importance_mean_factor" in df_results.columns:
+            warnings.warn("Feature importance columns already in results dataframe. Done")
+            break
+
+    # containers
+    feature_importance_files = []
+
+    # key mode, value dict with key dataset_id and value pca relative feature importance to mean
+    feature_importance_dict = {}
+
+    # set empty dicts for each mode
+    for mode in pca_modes:
+        if "pca" in mode:
+            feature_importance_dict[mode] = {}
+
+    # get each feature importance file path
+    for path in path_feature_importance_folder.iterdir():
+        for mode in pca_modes:
+            feature_importance_files.append(path.joinpath(mode, FEATURE_IMPORTANCE_FILE_NAME))
+
+    # calculate the factor how much more important pca features are compared to the others
+    for file in feature_importance_files:
+        df = pd.read_feather(file)
+        mode = file.parts[-2]
+        dataset_id = int(file.parts[-3]) # need int of the dataset id for sorting on
+
+        mean_importance = df["importance"].mean()
+        mean_pca_importance = df[df['feature'].str.contains('pca')]["importance"].mean()
+        feature_importance_dict[mode][dataset_id] = mean_pca_importance / mean_importance
+
+    # add columns to the results dataframe
+    for mode in pca_modes:
+        temp_dict = feature_importance_dict[mode]
+        temp_dict = dict(sorted((temp_dict.items())))
+
+        df_results[f"{mode}_pca_features_importance_mean_factor"] = temp_dict.values()
+
+    # store the results dataframe
+    df_results.to_feather(path_results_file)
+
+
+def _extract_feature_importance_from_models(path_datasets_folder: Path, path_feature_importance_folder: Path):
+    if path_feature_importance_folder.exists():
+        warnings.warn(f"Feature importance folder {path_feature_importance_folder} already exists. Done")
+        return
+
+    # store the dataset folders
+    dataset_folders = []
+
+    # get the dataset folders in the data folder
+    for path in path_datasets_folder.iterdir():
+        if path.is_dir():
+            dataset_folders.append(path)
+
+    # extract feature importance from each dataset
+    dataset_folder: Path
+    for dataset_folder in tqdm(dataset_folders):
+        print(f"current folder: {dataset_folder}")
+
+        # each mode has its own feature importance
+        for mode in CALC_SCORES_MODES:
+            # set the path to the random forest model
+            model_file_path = dataset_folder.joinpath(f"{mode}{CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX}")
+
+            # load the model
+            rf: RandomForestClassifier = joblib.load(model_file_path)
+
+            # make a dataframe with the features and the importance sorted
+            data = {
+                "feature": np.array(rf.feature_names_in_),
+                "importance": np.array(rf.feature_importances_)
+            }
+
+            df_feature_importance = pd.DataFrame(data). \
+                sort_values(by=["importance"], ascending=False). \
+                reset_index(drop=True)
+
+            # create feature importance folder
+            folder_path = path_feature_importance_folder.joinpath(dataset_folder.name, mode)
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            # make the feather file
+            file_path = folder_path.joinpath(FEATURE_IMPORTANCE_FILE_NAME)
+            print(f"store feature importance to: {file_path}")
+            df_feature_importance.to_feather(file_path)

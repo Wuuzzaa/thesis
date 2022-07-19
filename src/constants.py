@@ -21,7 +21,10 @@ X_TRAIN_CLEAN_KPCA_FILE_NAME = "kpca_train_clean.feather"
 X_TEST_CLEAN_KPCA_FILE_NAME = "kpca_test_clean.feather"
 
 # results dataframe file
-RESULTS_DATAFRAME = "results.feather"
+RESULTS_DATAFRAME_FILE_NAME = "results.feather"
+
+# feature importance file
+FEATURE_IMPORTANCE_FILE_NAME = "feature_importance.feather"
 
 ########################################################################################################################
 # PATHS
@@ -33,9 +36,10 @@ RESULTS_DATAFRAME = "results.feather"
 DATA_FOLDER_PATH = Path("..//data")
 DATASETS_FOLDER_PATH = DATA_FOLDER_PATH.joinpath("datasets")
 RESULTS_FOLDER_PATH = DATA_FOLDER_PATH.joinpath("results")
+FEATURE_IMPORTANCE_FOLDER_PATH = RESULTS_FOLDER_PATH.joinpath("feature_importance")
 
 # FILES
-RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME)
+RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 
 ########################################################################################################################
 # CALC_SCORES CONSTANTS

@@ -5,7 +5,7 @@ import openml
 from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
-from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview
+from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview, analyze_feature_importance
 from src.constants import RANDOM_STATE
 from src.pca_feature import create_pca_features
 
@@ -138,9 +138,13 @@ if __name__ == "__main__":
     ####################################################################################################################
     # RESULTS STATISTICS
     ####################################################################################################################
-
-    add_compare_scores_columns(results_file_path=Path("..//data//results//results.feather"))
-    print_info_pca_performance_overview(results_file_path=Path("..//data//results//results.feather"))
+    analyze_feature_importance(
+        path_results_file=RESULTS_FILE_PATH,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_feature_importance_folder=FEATURE_IMPORTANCE_FOLDER_PATH
+    )
+    add_compare_scores_columns(results_file_path=RESULTS_FILE_PATH)
+    print_info_pca_performance_overview(results_file_path=RESULTS_FILE_PATH)
 
 
 
