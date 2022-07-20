@@ -7,6 +7,7 @@ from constants import *
 import joblib
 import numpy as np
 
+
 def add_compare_scores_columns(results_file_path: Path):
     # read file into dataframe
     df = pd.read_feather(results_file_path)
@@ -29,6 +30,12 @@ def add_compare_scores_columns(results_file_path: Path):
     # pca and kpca MERGED
     df["pca_kpca_merged_clean_train_score > baseline_train_score"] = df["pca_and_kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["pca_kpca_merged_clean_test_score > baseline_test_score"] = df["pca_and_kpca_clean_test_score"] > df["baseline_test_score"]
+
+    # change in percent
+    df["pca_clean_test_score_change_to_baseline"]           = (df["pca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
+    df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
+    df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
+
 
     # store again
     df.to_feather(results_file_path)
@@ -137,7 +144,7 @@ def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Pa
     # we just care for modes which have pca features
     pca_modes = [mode for mode in CALC_SCORES_MODES if "pca" in mode]
 
-    #check if results dataframe has columns if so stop it.
+    # check if results dataframe has columns if so stop it.
     for mode in pca_modes:
         if f"{mode}_pca_features_importance_mean_factor" in df_results.columns:
             warnings.warn("Feature importance columns already in results dataframe. Done")
