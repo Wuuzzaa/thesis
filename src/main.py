@@ -51,8 +51,8 @@ if __name__ == "__main__":
     )
 
     # kernel pca
-    pca_params = {
-        "n_components": 3,
+    kpca_params = {
+        "n_components": 2,
         "random_state": RANDOM_STATE,
         "kernel": "rbf",
         "n_jobs": -1,
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         pca_train_filename=X_TRAIN_CLEAN_KPCA_FILE_NAME,
         pca_test_filename=X_TEST_CLEAN_KPCA_FILE_NAME,
         datasets_folder=DATASETS_FOLDER_PATH,
-        pca_params=pca_params,
+        pca_params=kpca_params,
         prefix="kpca_",
         mode="kpca",
         random_state=RANDOM_STATE
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     # "pca_clean": see calc_scores docu
 
     pca_params = {
-        "n_components": 3,
+        "n_components": 2,
         "random_state": RANDOM_STATE
     }
 
