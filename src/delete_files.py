@@ -33,18 +33,22 @@ if __name__ == "__main__":
     filenames = [
         # X and y
         # X_CLEAN_FILE_NAME,
-        # y_FILE_NAME,
+        # Y_FILE_NAME,
 
-        # pca
+        # pca files
         X_TRAIN_CLEAN_PCA_FILE_NAME,
         X_TEST_CLEAN_PCA_FILE_NAME,
 
-        # kpca
+        # kpca files
         X_TRAIN_CLEAN_KPCA_FILE_NAME,
         X_TEST_CLEAN_KPCA_FILE_NAME,
 
         # results file
-        RESULTS_DATAFRAME_FILE_NAME
+        RESULTS_DATAFRAME_FILE_NAME,
+
+        # feature importance files
+        FEATURE_IMPORTANCE_FILE_NAME,
+
     ]
 
     # traverse the root folder and subfolders and delete all matches
