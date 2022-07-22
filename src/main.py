@@ -1,3 +1,5 @@
+from sklearn.ensemble import RandomForestClassifier
+
 from constants import *
 from pathlib import Path
 import openml
@@ -81,6 +83,10 @@ if __name__ == "__main__":
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="baseline",
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
     )
 
     ####################################################################################################################
@@ -102,6 +108,10 @@ if __name__ == "__main__":
         mode="pca_clean",
         X_train_pca_file_name=X_TRAIN_CLEAN_PCA_FILE_NAME,
         X_test_pca_file_name=X_TEST_CLEAN_PCA_FILE_NAME,
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
     )
 
     ####################################################################################################################
@@ -118,6 +128,10 @@ if __name__ == "__main__":
         mode="kpca_clean",
         X_train_pca_file_name=X_TRAIN_CLEAN_KPCA_FILE_NAME,
         X_test_pca_file_name=X_TEST_CLEAN_KPCA_FILE_NAME,
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
     )
 
     ####################################################################################################################
@@ -132,6 +146,10 @@ if __name__ == "__main__":
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="pca_and_kpca_clean",
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
     )
 
 

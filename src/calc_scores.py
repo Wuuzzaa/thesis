@@ -1,9 +1,11 @@
 import warnings
 import pandas as pd
+from sklearn.base import ClassifierMixin
+
 from constants import *
 from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from pathlib import Path
 import joblib
 
@@ -13,14 +15,29 @@ def calc_scores(
         path_datasets_folder: Path,
         path_results_file: Path,
         mode: str,
+        estimator: ClassifierMixin,
+        estimator_param_grid: dict,
+        cv: int,
+        estimator_file_path_suffix: str,
         X_train_pca_file_name: str = None,
         X_test_pca_file_name: str = None,
+
 ):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
     the results file.
 
     There is a check if already done, by checking if the new to generate columns are already in the results dataframe.
+
+    :param estimator_file_path_suffix: A str. for the filename like "_random_forest.joblib" do not forget the filetype
+    joblib
+    :param cv: int. How many cross validation iterations.
+    :param estimator: Estimator to use. Must be an estimator supported by sklearn.
+    :param estimator_param_grid: A dict with the grid of hyper-parameters for the estimator.
+    See sklearn docu:
+    https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV
+
+    Also look at the parameters for each estimator on sklearn documentation.
 
     :param random_state:
     :param path_datasets_folder:
@@ -87,9 +104,6 @@ def calc_scores(
     # store the dataset folders
     dataset_folders = []
 
-    # use a random forest as classifier
-    rf = RandomForestClassifier(random_state=random_state, n_jobs=-1, max_depth=12)
-
     # get the dataset folders in the data folder
     for path in path_datasets_folder.iterdir():
         if path.is_dir():
@@ -139,19 +153,23 @@ def calc_scores(
             X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
             X_test = pd.concat([X_test, df_pca_test, df_kpca_test], axis="columns")
 
-        # fit model
-        rf.fit(X_train, y_train)
+        # search the best hyperparameter
+        # let n_jobs = 1 because estimator will run on all cores -> less memory usage
+        estimator_tuned_grid = GridSearchCV(estimator=estimator, param_grid=estimator_param_grid, n_jobs=-1, cv=cv, verbose=1)
+        estimator_tuned_grid.fit(X_train, y_train)
 
-        # store the random forest on disk
-        random_forest_file_path = dataset_folder.joinpath(f"{mode}{CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX}")
-        print(f"store random forest model to: {random_forest_file_path}")
-        joblib.dump(rf, filename=random_forest_file_path)
+        # store the estimator (tuned) on disk
+        estimator_file_path = dataset_folder.joinpath(f"{mode}{estimator_file_path_suffix}")
+        print(f"store estimator model to: {estimator_file_path}")
+        joblib.dump(estimator_tuned_grid.best_estimator_, filename=estimator_file_path)
 
         # score model on test data and cv score for train data
-        test_scores_dict[int(dataset_folder.name)] = rf.score(X_test, y_test)
+        test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
 
+        # get the train score
         # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
-        train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(rf, X_train, y_train, cv=10, n_jobs=1).mean()
+        # train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(estimator_tuned_grid, X_train, y_train, cv=cv, n_jobs=1).mean()
+        train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
 
     # sort the dicts by keys to get the same order as the dataframe we want to concat with
     test_scores_dict = dict(sorted((test_scores_dict.items())))
@@ -188,7 +206,7 @@ def get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: 
     y = pd.read_feather(path_y)["y"]
 
     # train test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.75)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.66)
 
     # drop index to be able to concat on axis columns
     X_train.reset_index(drop=True, inplace=True)

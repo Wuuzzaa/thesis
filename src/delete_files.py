@@ -36,18 +36,18 @@ if __name__ == "__main__":
         # Y_FILE_NAME,
 
         # pca files
-        X_TRAIN_CLEAN_PCA_FILE_NAME,
-        X_TEST_CLEAN_PCA_FILE_NAME,
+        #X_TRAIN_CLEAN_PCA_FILE_NAME,
+        #X_TEST_CLEAN_PCA_FILE_NAME,
 
         # kpca files
         X_TRAIN_CLEAN_KPCA_FILE_NAME,
         X_TEST_CLEAN_KPCA_FILE_NAME,
 
         # results file
-        RESULTS_DATAFRAME_FILE_NAME,
+        #RESULTS_DATAFRAME_FILE_NAME,
 
         # feature importance files
-        FEATURE_IMPORTANCE_FILE_NAME,
+        #FEATURE_IMPORTANCE_FILE_NAME,
 
     ]
 

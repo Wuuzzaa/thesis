@@ -42,7 +42,7 @@ def _create_pca_features(
         df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
 
     elif mode == "kpca":
-        # kernel pca uses far too much ram even on mid sized datasets or higher.
+        # kernel pca uses far too much ram even on mid-sized datasets or higher.
         # So we need to use a sample of the train data
 
         sample_size = 10_000

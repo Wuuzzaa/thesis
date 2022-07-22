@@ -56,3 +56,16 @@ CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"
 CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
 
+########################################################################################################################
+# PARAM_GRID_RANDOM_FOREST
+# used for hyperparameter tuning
+########################################################################################################################
+PARAM_GRID_RANDOM_FOREST = {
+    "max_depth": [5, 15],
+    "n_estimators": [50, 100, 200],
+    "max_features": ["sqrt", "log2"],
+    "n_jobs": [-1],
+    "class_weight": ["balanced", None],
+    "random_state": [1, 42, 1337]
+}
+
