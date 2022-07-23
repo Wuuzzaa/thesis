@@ -33,21 +33,28 @@ if __name__ == "__main__":
     filenames = [
         # X and y
         # X_CLEAN_FILE_NAME,
+        # X_FILTERED_FILE_NAME,
         # Y_FILE_NAME,
 
-        # pca files
-        #X_TRAIN_CLEAN_PCA_FILE_NAME,
-        #X_TEST_CLEAN_PCA_FILE_NAME,
+        # # pca files
+        # X_TRAIN_CLEAN_PCA_FILE_NAME,
+        # X_TEST_CLEAN_PCA_FILE_NAME,
 
-        # kpca files
-        X_TRAIN_CLEAN_KPCA_FILE_NAME,
-        X_TEST_CLEAN_KPCA_FILE_NAME,
+        # # kpca files
+        # X_TRAIN_CLEAN_KPCA_FILE_NAME,
+        # X_TEST_CLEAN_KPCA_FILE_NAME,
 
         # results file
-        #RESULTS_DATAFRAME_FILE_NAME,
+        # RESULTS_DATAFRAME_FILE_NAME,
 
-        # feature importance files
-        #FEATURE_IMPORTANCE_FILE_NAME,
+        # # feature importance files
+        # FEATURE_IMPORTANCE_FILE_NAME,
+
+        # temp filenames adjust them later
+        # "baseline_random_forest.joblib",
+        # "kpca_clean_random_forest.joblib",
+        # "pca_and_kpca_clean_random_forest.joblib",
+        # "pca_clean_random_forest.joblib",
 
     ]
 

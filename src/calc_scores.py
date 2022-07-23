@@ -19,16 +19,20 @@ def calc_scores(
         estimator_param_grid: dict,
         cv: int,
         estimator_file_path_suffix: str,
+        X_file_name: str,
+        y_file_name: str,
         X_train_pca_file_name: str = None,
         X_test_pca_file_name: str = None,
 
-):
+    ):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
     the results file.
 
     There is a check if already done, by checking if the new to generate columns are already in the results dataframe.
 
+    :param y_file_name:
+    :param X_file_name:
     :param estimator_file_path_suffix: A str. for the filename like "_random_forest.joblib" do not forget the filetype
     joblib
     :param cv: int. How many cross validation iterations.
@@ -114,9 +118,11 @@ def calc_scores(
         print(f"current folder: {dataset_folder}")
 
         # get X and y train and test splitted
-        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test_clean(
+        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
             dataset_folder=dataset_folder,
-            random_state=random_state
+            random_state=random_state,
+            X_file_name=X_file_name,
+            y_file_name=y_file_name,
         )
 
         if mode == "baseline":
@@ -191,7 +197,7 @@ def calc_scores(
     results_df.to_feather(path_results_file)
 
 
-def get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: int):
+def get_X_train_X_test_y_train_y_test(dataset_folder: Path, random_state: int, X_file_name: str, y_file_name: str):
     """
 
     :param dataset_folder: Path to a dataset with X and y files in it.
@@ -199,8 +205,8 @@ def get_X_train_X_test_y_train_y_test_clean(dataset_folder: Path, random_state: 
     :return: tuple (DataFrame, DataFrame, Series, Series) X_train, X_test, y_train, y_test
     """
     # get X, y
-    path_X = dataset_folder.joinpath(X_CLEAN_FILE_NAME)
-    path_y = dataset_folder.joinpath(Y_FILE_NAME)
+    path_X = dataset_folder.joinpath(X_file_name)
+    path_y = dataset_folder.joinpath(y_file_name)
 
     X = pd.read_feather(path_X)
     y = pd.read_feather(path_y)["y"]

@@ -9,6 +9,7 @@ from extract_datasets_info import extract_datasets_info, extract_amount_ohe_feat
 from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview, analyze_feature_importance
 from src.constants import RANDOM_STATE
+from src.feature_selection import feature_selection
 from src.pca_feature import create_pca_features
 
 if __name__ == "__main__":
@@ -49,7 +50,9 @@ if __name__ == "__main__":
         pca_params=pca_params,
         prefix="pca_",
         mode="pca",
-        random_state=RANDOM_STATE
+        random_state=RANDOM_STATE,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
     )
 
     # kernel pca
@@ -69,7 +72,23 @@ if __name__ == "__main__":
         pca_params=kpca_params,
         prefix="kpca_",
         mode="kpca",
-        random_state=RANDOM_STATE
+        random_state=RANDOM_STATE,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+
+    ####################################################################################################################
+    # FEATURE SELECTION
+    ####################################################################################################################
+    feature_selection(
+        random_state=RANDOM_STATE,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        X_filtered_file_name=X_FILTERED_FILE_NAME,
+        X_clean_file_name=X_CLEAN_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+        max_features=MAX_FEATURES_FEATURE_SELECTION,
+        sample_size=10_000
     )
 
     ####################################################################################################################
@@ -87,6 +106,8 @@ if __name__ == "__main__":
         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
         cv=5,
         estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
     )
 
     ####################################################################################################################
@@ -112,6 +133,8 @@ if __name__ == "__main__":
         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
         cv=5,
         estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
     )
 
     ####################################################################################################################
@@ -132,6 +155,8 @@ if __name__ == "__main__":
         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
         cv=5,
         estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
     )
 
     ####################################################################################################################
@@ -150,6 +175,8 @@ if __name__ == "__main__":
         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
         cv=5,
         estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
     )
 
 

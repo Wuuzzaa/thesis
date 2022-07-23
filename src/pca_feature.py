@@ -4,7 +4,7 @@ import warnings
 from sklearn.decomposition import PCA, KernelPCA
 from tqdm import tqdm
 
-from src.calc_scores import get_X_train_X_test_y_train_y_test_clean
+from src.calc_scores import get_X_train_X_test_y_train_y_test
 
 
 def _create_pca_features(
@@ -85,6 +85,8 @@ def create_pca_features(
         prefix: str,
         mode: str,
         random_state: int,
+        X_file_name: str,
+        y_file_name: str
 ):
     print()
     print("#"*80)
@@ -113,7 +115,12 @@ def create_pca_features(
             continue
 
         # get X and y train and test splitted
-        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test_clean(dataset_folder=dataset_folder, random_state=random_state)
+        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
+            dataset_folder=dataset_folder,
+            random_state=random_state,
+            X_file_name=X_file_name,
+            y_file_name=y_file_name,
+        )
 
         # make the features dataframes for train and test
         df_pca_train, df_pca_test = _create_pca_features(

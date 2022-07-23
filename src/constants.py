@@ -1,7 +1,10 @@
 from pathlib import Path
 
-# RANDOM STATE
+########################################################################################################################
+# INTEGER
+########################################################################################################################
 RANDOM_STATE = 42
+MAX_FEATURES_FEATURE_SELECTION = 100
 
 ########################################################################################################################
 # FILENAMES
@@ -10,6 +13,7 @@ RANDOM_STATE = 42
 ########################################################################################################################
 # X and y
 X_CLEAN_FILE_NAME = "X_clean.feather"
+X_FILTERED_FILE_NAME = "X_filtered.feather"
 Y_FILE_NAME = "y.feather"
 
 # pca
@@ -61,7 +65,7 @@ CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
 # used for hyperparameter tuning
 ########################################################################################################################
 PARAM_GRID_RANDOM_FOREST = {
-    "max_depth": [5, 15],
+    "max_depth": [6, None],
     "n_estimators": [50, 100, 200],
     "max_features": ["sqrt", "log2"],
     "n_jobs": [-1],
