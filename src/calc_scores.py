@@ -115,6 +115,8 @@ def calc_scores(
 
     # score each dataset
     for dataset_folder in tqdm(dataset_folders):
+        print()
+        print("---")
         print(f"current folder: {dataset_folder}")
 
         # get X and y train and test splitted
@@ -159,23 +161,50 @@ def calc_scores(
             X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
             X_test = pd.concat([X_test, df_pca_test, df_kpca_test], axis="columns")
 
-        # search the best hyperparameter
-        # let n_jobs = 1 because estimator will run on all cores -> less memory usage
-        estimator_tuned_grid = GridSearchCV(estimator=estimator, param_grid=estimator_param_grid, n_jobs=-1, cv=cv, verbose=1)
-        estimator_tuned_grid.fit(X_train, y_train)
+        # path to the tuned model
+        estimator_file_path: Path = dataset_folder.joinpath(f"{mode}{estimator_file_path_suffix}")
 
-        # store the estimator (tuned) on disk
-        estimator_file_path = dataset_folder.joinpath(f"{mode}{estimator_file_path_suffix}")
-        print(f"store estimator model to: {estimator_file_path}")
-        joblib.dump(estimator_tuned_grid.best_estimator_, filename=estimator_file_path)
+        # set the n_jobs for the cross validation according to the dataset size. On a huge dataset i ran out of RAM when
+        # i run cross validation in parallel
+        n_jobs_cv = -1
+        if len(X_train) > 10_000:
+            n_jobs_cv = 1
 
-        # score model on test data and cv score for train data
-        test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
+        print(f"n_jobs for cross validation: {n_jobs_cv}")
 
-        # get the train score
-        # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
-        # train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(estimator_tuned_grid, X_train, y_train, cv=cv, n_jobs=1).mean()
-        train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
+        # hyperparameter tuned model already exists
+        if estimator_file_path.exists():
+            print(f"found model @{estimator_file_path} load it and score on it.")
+
+            # load model from disk
+            model = joblib.load(estimator_file_path)
+
+            # score model on test data and cv score for train data
+            test_scores_dict[int(dataset_folder.name)] = model.score(X_test, y_test)
+
+            # get the train score
+            # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
+            train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(model, X_train, y_train, cv=cv, n_jobs=n_jobs_cv).mean()
+
+        # search the best hyperparameter and score with them
+        else:
+            print("no model found. search for best hyperparameter and score on them")
+
+            # let n_jobs = 1 because estimator will run on all cores -> less memory usage
+            estimator_tuned_grid = GridSearchCV(estimator=estimator, param_grid=estimator_param_grid, n_jobs=n_jobs_cv, cv=cv, verbose=1)
+            estimator_tuned_grid.fit(X_train, y_train)
+
+            # store the estimator (tuned) on disk
+            print(f"store estimator model to: {estimator_file_path}")
+            joblib.dump(estimator_tuned_grid.best_estimator_, filename=estimator_file_path)
+
+            # score model on test data and cv score for train data
+            test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
+
+            # get the train score
+            # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
+            # train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(estimator_tuned_grid, X_train, y_train, cv=cv, n_jobs=1).mean()
+            train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
 
     # sort the dicts by keys to get the same order as the dataframe we want to concat with
     test_scores_dict = dict(sorted((test_scores_dict.items())))

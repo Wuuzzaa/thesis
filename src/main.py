@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # pca
     pca_params = {
-        "n_components": 3,
+        "n_components": N_COMPONENTS_PCA,
         "random_state": RANDOM_STATE
     }
 
@@ -51,18 +51,18 @@ if __name__ == "__main__":
         prefix="pca_",
         mode="pca",
         random_state=RANDOM_STATE,
-        X_file_name=X_FILTERED_FILE_NAME,
+        X_file_name=X_CLEAN_FILE_NAME,
         y_file_name=Y_FILE_NAME,
     )
 
     # kernel pca
     kpca_params = {
-        "n_components": 2,
+        "n_components": N_COMPONENTS_PCA,
         "random_state": RANDOM_STATE,
         "kernel": "rbf",
         "n_jobs": -1,
         "copy_X": False,
-        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low.
+        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to sklearn docu/guide.
     }
 
     create_pca_features(
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         prefix="kpca_",
         mode="kpca",
         random_state=RANDOM_STATE,
-        X_file_name=X_FILTERED_FILE_NAME,
+        X_file_name=X_CLEAN_FILE_NAME,
         y_file_name=Y_FILE_NAME,
     )
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
-    # BASELINE
+    # CALC SCORES - BASELINE
     ####################################################################################################################
 
     # calc the train and test scores for the "baseline".
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
-    # PCA
+    # CALC SCORES - PCA
     ####################################################################################################################
 
     # calc the train and test scores for the "pca_clean".
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
-    # KERNEL PCA
+    # CALC SCORES - KERNEL PCA
     ####################################################################################################################
 
     # calc the train and test scores for the "kpca_clean".
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
-    # PCA AND KERNEL PCA TOGETHER
+    # CALC SCORES - PCA AND KERNEL PCA TOGETHER
     ####################################################################################################################
 
     # calc the train and test scores for the "pca_and_kpca_clean".

@@ -53,7 +53,7 @@ def _rfecv_selection(X, y, random_state, max_features=None):
                 n_estimators=2000,
                 max_depth=6,
                 n_jobs=-1,
-                random_state=random_state
+                random_state=random_state,
             )
 
         selector = SelectFromModel(estimator=estimator, threshold=-np.inf, max_features=max_features)
@@ -75,6 +75,7 @@ def _rfecv_selection(X, y, random_state, max_features=None):
         cv=10,
         n_jobs=-1,
         verbose=0,
+        min_features_to_select=2  # cause we use pca with 2 components, so we need at least 2 features
     )
 
     selector.fit(X, y)
