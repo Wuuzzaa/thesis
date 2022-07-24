@@ -7,7 +7,8 @@ import openml
 from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
-from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview, analyze_feature_importance
+from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview, analyze_feature_importance, \
+    extract_tuned_hyperparameter_from_models
 from src.constants import RANDOM_STATE
 from src.feature_selection import feature_selection
 from src.pca_feature import create_pca_features
@@ -188,7 +189,14 @@ if __name__ == "__main__":
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_feature_importance_folder=FEATURE_IMPORTANCE_FOLDER_PATH
     )
+
     add_compare_scores_columns(results_file_path=RESULTS_FILE_PATH)
+    extract_tuned_hyperparameter_from_models(
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        model_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+    )
+
     print_info_pca_performance_overview(results_file_path=RESULTS_FILE_PATH)
 
 

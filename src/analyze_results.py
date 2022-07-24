@@ -229,7 +229,14 @@ def _extract_feature_importance_from_models(path_datasets_folder: Path, path_fea
 
 
 def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_results_file: Path, model_file_path_suffix: str):
+    print("")
+    print("#"*80)
+    print("extract tuned hyperparameter from models".upper())
+    print("#" * 80)
+    print("")
+
     dataset_folders = get_sub_folders(path_datasets_folder)
+    df_results = pd.read_feather(path_results_file)
 
     dataset_folder: Path
     for dataset_folder in tqdm(dataset_folders):
@@ -238,7 +245,30 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             print("---")
             print(f"folder: {dataset_folder}, mode: {mode}")
 
+            columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
+
+            if columnname in df_results.columns:
+                warnings.warn(f"{columnname} already in dataframe. skip")
+                continue
+
             # load the model file
-            model_file_path = dataset_folder.joinpath(mode, model_file_path_suffix)
+            model_file_path = dataset_folder.joinpath(f"{mode}{model_file_path_suffix}")
             model = joblib.load(model_file_path)
-            pass
+
+            # extract the params dict as str to store it in the results dataframe
+            params_str = str(model.get_params())
+
+            # add a new column to the results dataframe with the whole params
+            df_results[columnname] = params_str
+
+            # some info about the depth of the trees
+            try:
+                print("Tree depth informations")
+                print(f"mean depth: {np.mean([estimator.get_depth() for estimator in model.estimators_])}")
+                print(f"min depth: {np.min([estimator.get_depth() for estimator in model.estimators_])}")
+                print(f"max depth: {np.max([estimator.get_depth() for estimator in model.estimators_])}")
+
+            except:
+                pass
+
+    df_results.to_feather(path_results_file)
