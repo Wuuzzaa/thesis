@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split, cross_val_score, GridSearc
 from pathlib import Path
 import joblib
 
+from src.util import get_sub_folders
+
 
 def calc_scores(
         random_state: int,
@@ -105,13 +107,7 @@ def calc_scores(
     train_cv_scores_dict = {}
     test_scores_dict = {}
 
-    # store the dataset folders
-    dataset_folders = []
-
-    # get the dataset folders in the data folder
-    for path in path_datasets_folder.iterdir():
-        if path.is_dir():
-            dataset_folders.append(path)
+    dataset_folders = get_sub_folders(path_datasets_folder)
 
     # score each dataset
     for dataset_folder in tqdm(dataset_folders):

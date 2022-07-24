@@ -5,6 +5,7 @@ from sklearn.decomposition import PCA, KernelPCA
 from tqdm import tqdm
 
 from src.calc_scores import get_X_train_X_test_y_train_y_test
+from src.util import get_sub_folders
 
 
 def _create_pca_features(
@@ -94,13 +95,7 @@ def create_pca_features(
     print("#" * 80)
     print()
 
-    # store the dataset folders
-    dataset_folders = []
-
-    # get the dataset folders in the data folder
-    for path in datasets_folder.iterdir():
-        if path.is_dir():
-            dataset_folders.append(path)
+    dataset_folders = get_sub_folders(datasets_folder)
 
     # make pca features for each dataset
     for dataset_folder in tqdm(dataset_folders):

@@ -9,6 +9,8 @@ from tqdm import tqdm
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
+from src.util import get_sub_folders
+
 
 def _boruta_selection(X, y, random_state):
     """
@@ -136,16 +138,10 @@ def feature_selection(
     print("#" * 80)
     print("")
 
-    # store the dataset folders
-    dataset_folders = []
-
     # dict: key dataset id as int, value int with the amount of selected features
     dict_n_features_filtered = {}
 
-    # get the dataset folders in the data folder
-    for path in path_datasets_folder.iterdir():
-        if path.is_dir():
-            dataset_folders.append(path)
+    dataset_folders = get_sub_folders(path_datasets_folder)
 
     # select features for each dataset
     dataset_folder: Path
@@ -193,45 +189,3 @@ def feature_selection(
     df_results["n_features_filtered"] = dict_n_features_filtered.values()
     df_results.to_feather(path_results_file)
 
-
-if __name__ == "__main__":
-    # import pandas as pd
-    # from pathlib import Path
-    #
-    # from sklearn.model_selection import cross_val_score, train_test_split
-    #
-    # rf = RandomForestClassifier(random_state=42, n_jobs=-1)
-    #
-    # # load X, y
-    # X = pd.read_feather("..//data//datasets//3//X_clean.feather")
-    # y = pd.read_feather("..//data//datasets//3//y.feather")["y"]
-    #
-    # # baseline all features
-    # print(f"X_shape: {X.shape}")
-    # print(f"cross val score baseline {cross_val_score(estimator=rf, X=X, y=y, cv=3).mean()}")
-    # # dataset 40927 : cross val score baseline 0.45611666666666667
-
-    #boruta
-    # X_trans = boruta_selection(X.copy(), y, random_state=42)
-    # print(f"X_shape after boruta: {X_trans.shape}")
-    # print(f"cross val score after boruta {cross_val_score(estimator=rf, X=X_trans, y=y, cv=3).mean()}")
-    # X_shape after boruta: (60000, 1043)
-    # cross val score after boruta 0.44265
-
-    # rfecv
-    # X_trans = rfecv_selection(X.copy(), y, random_state=42, max_features=100)
-    # print(f"X_shape after rfecv: {X_trans.shape}")
-    # print(f"cross val score after rfecv {cross_val_score(estimator=rf, X=X_trans, y=y, cv=3).mean()}")
-    # dataset 40927 :
-    # X_shape after rfecv: (60000, 66)
-    # cross val score after rfecv 0.34328333333333333
-
-    # top_boruta_rfecv_selection
-    # X_trans = top_boruta_rfecv_selection(X.copy(), y, random_state=42, max_features=100)
-    # print(f"X_shape after top_boruta_rfecv_selection: {X_trans.shape}")
-    # print(f"cross val score after top_boruta_rfecv_selection {cross_val_score(estimator=rf, X=X_trans, y=y, cv=3).mean()}")
-    # dataset 40927 :
-    # X_shape after top_boruta_rfecv_selection: (60000, 71)
-    # cross val score after top_boruta_rfecv_selection 0.3569
-
-    pass

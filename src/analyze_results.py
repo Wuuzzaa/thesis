@@ -7,6 +7,8 @@ from constants import *
 import joblib
 import numpy as np
 
+from src.util import get_sub_folders
+
 
 def add_compare_scores_columns(results_file_path: Path):
     # read file into dataframe
@@ -35,7 +37,6 @@ def add_compare_scores_columns(results_file_path: Path):
     df["pca_clean_test_score_change_to_baseline"]           = (df["pca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
-
 
     # store again
     df.to_feather(results_file_path)
@@ -192,13 +193,7 @@ def _extract_feature_importance_from_models(path_datasets_folder: Path, path_fea
         warnings.warn(f"Feature importance folder {path_feature_importance_folder} already exists. Done")
         return
 
-    # store the dataset folders
-    dataset_folders = []
-
-    # get the dataset folders in the data folder
-    for path in path_datasets_folder.iterdir():
-        if path.is_dir():
-            dataset_folders.append(path)
+    dataset_folders = get_sub_folders(path_datasets_folder)
 
     # extract feature importance from each dataset
     dataset_folder: Path
@@ -231,3 +226,19 @@ def _extract_feature_importance_from_models(path_datasets_folder: Path, path_fea
             file_path = folder_path.joinpath(FEATURE_IMPORTANCE_FILE_NAME)
             print(f"store feature importance to: {file_path}")
             df_feature_importance.to_feather(file_path)
+
+
+def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_results_file: Path, model_file_path_suffix: str):
+    dataset_folders = get_sub_folders(path_datasets_folder)
+
+    dataset_folder: Path
+    for dataset_folder in tqdm(dataset_folders):
+        for mode in CALC_SCORES_MODES:
+            print()
+            print("---")
+            print(f"folder: {dataset_folder}, mode: {mode}")
+
+            # load the model file
+            model_file_path = dataset_folder.joinpath(mode, model_file_path_suffix)
+            model = joblib.load(model_file_path)
+            pass
