@@ -241,7 +241,7 @@ def get_X_train_X_test_y_train_y_test(dataset_folder: Path, random_state: int, X
     y = pd.read_feather(path_y)["y"]
 
     # train test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=0.66)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state, train_size=TRAIN_TEST_SPLIT_TRAIN_SIZE)
 
     # drop index to be able to concat on axis columns
     X_train.reset_index(drop=True, inplace=True)
