@@ -235,8 +235,18 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
     print("#" * 80)
     print("")
 
+    # get all dataset folders
     dataset_folders = get_sub_folders(path_datasets_folder)
+
+    # load the result dataframe
     df_results = pd.read_feather(path_results_file)
+
+    # key mode, value dict with key dataset_id and value str of a dict with tuned hyperparameter
+    hyperparameter_dict = {}
+
+    # set empty dicts for each mode
+    for mode in CALC_SCORES_MODES:
+        hyperparameter_dict[mode] = {}
 
     dataset_folder: Path
     for dataset_folder in tqdm(dataset_folders):
@@ -245,12 +255,6 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             print("---")
             print(f"folder: {dataset_folder}, mode: {mode}")
 
-            columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
-
-            if columnname in df_results.columns:
-                warnings.warn(f"{columnname} already in dataframe. skip")
-                continue
-
             # load the model file
             model_file_path = dataset_folder.joinpath(f"{mode}{model_file_path_suffix}")
             model = joblib.load(model_file_path)
@@ -258,12 +262,12 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             # extract the params dict as str to store it in the results dataframe
             params_str = str(model.get_params())
 
-            # add a new column to the results dataframe with the whole params
-            df_results[columnname] = params_str
+            # add params to dict
+            hyperparameter_dict[mode][int(dataset_folder.name)] = params_str
 
-            # some info about the depth of the trees
+            # some info about the depth of the trees when it is a tree based model
             try:
-                print("Tree depth informations")
+                print("Tree depth information")
                 print(f"mean depth: {np.mean([estimator.get_depth() for estimator in model.estimators_])}")
                 print(f"min depth: {np.min([estimator.get_depth() for estimator in model.estimators_])}")
                 print(f"max depth: {np.max([estimator.get_depth() for estimator in model.estimators_])}")
@@ -271,4 +275,17 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             except:
                 pass
 
+    # add new columns to the results dataframe
+    for mode in CALC_SCORES_MODES:
+        # select the dict with the current mode from the hyperparameter dict and sort it
+        temp_dict = hyperparameter_dict[mode]
+        temp_dict = dict(sorted((temp_dict.items())))
+
+        columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
+
+        # add a new column to the results dataframe with the whole params
+        df_results[columnname] = temp_dict.values()
+
+
     df_results.to_feather(path_results_file)
+
