@@ -107,6 +107,7 @@ def calc_scores(
     train_cv_scores_dict = {}
     test_scores_dict = {}
 
+    # get all dataset folders
     dataset_folders = get_sub_folders(path_datasets_folder)
 
     # score each dataset

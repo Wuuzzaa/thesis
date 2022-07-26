@@ -14,7 +14,7 @@ def load_and_clean_suite_datasets(suite, random_state):
     """
     Loads all datasets from an openml suite. Cleans the data and stores dataframes for X and y.
     Cleaning steps:
-        - impute NaN values
+        - impute NaN values (numerical data with mean value, categorical data with "missing")
         - one hot encode
         - standard scale
         - label encode
