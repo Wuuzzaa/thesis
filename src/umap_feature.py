@@ -7,10 +7,11 @@ def _create_umap_features(
     X_test,
     params,
     prefix,
-    y_train,
 ):
     transformer = UMAP(**params)
-    df_train = pd.DataFrame(transformer.fit_transform(X_train, y_train)).add_prefix(prefix)
+
+    # UMAP can use the target info (y_train) too. Seems to overfit too hard so do not use it
+    df_train = pd.DataFrame(transformer.fit_transform(X_train)).add_prefix(prefix)
     df_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)
 
     #todo

@@ -116,6 +116,11 @@ def calc_scores(
             y_file_name=y_file_name,
         )
 
+        # short feedback of the data and classes
+        print("Whiteout new features:")
+        print(f"X_train shape: {X_train.shape}")
+        print(f"target classes: \n{y_train.value_counts()}")
+
         if mode == "baseline":
             pass
 
