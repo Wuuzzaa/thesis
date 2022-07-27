@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split, cross_val_score, GridSearc
 from pathlib import Path
 import joblib
 
-from src.util import get_sub_folders
+from src.util import get_sub_folders, print_function_header
 
 
 def calc_scores(
@@ -49,29 +49,20 @@ def calc_scores(
     :param path_datasets_folder:
     :param path_results_file:
     :param mode:
-        "baseline": Runs a random forest on the cleaned data no additional features no feature selection
+        "baseline": Runs a random forest on the cleaned data no additional features with feature selection
 
-        "pca_clean": Runs a random forest on the cleaned data with pca additional features no feature selection.
-            pca_params = {
-            "n_components": 3,
-            "random_state": random_state
-            }
+        "pca_clean": Runs a random forest on the cleaned data with pca additional features with feature selection.
 
-        "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features no feature selection.
+        "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features with feature selection.
 
-        "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features.
+        "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features with feature selection.
 
     :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :return: None
     """
-
-    print("")
-    print("#"*80)
-    print("calc scores".upper())
-    print(f"mode: {mode}".upper())
-    print("#" * 80)
-    print("")
+    # print header
+    print_function_header(f"calc scores\nmode: {mode}")
 
     modes_pca_parameter_needed = ["pca_clean", "kpca_clean"]
 
@@ -115,6 +106,7 @@ def calc_scores(
         print()
         print("---")
         print(f"current folder: {dataset_folder}")
+        print("---")
 
         # get X and y train and test splitted
         X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
@@ -158,6 +150,18 @@ def calc_scores(
             X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
             X_test = pd.concat([X_test, df_pca_test, df_kpca_test], axis="columns")
 
+        elif mode == "umap_clean":
+            # load umap features
+            df_umap_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_UMAP_FILE_NAME))
+            df_umap_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_UMAP_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_umap_train], axis="columns")
+            X_test = pd.concat([X_test, df_umap_test], axis="columns")
+
+        else:
+            raise NotImplemented(f"{mode} not implemented")
+
         # path to the tuned model
         estimator_file_path: Path = dataset_folder.joinpath(f"{mode}{estimator_file_path_suffix}")
 
@@ -199,8 +203,6 @@ def calc_scores(
             test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
 
             # get the train score
-            # let n_jobs at 1 here to not run out of RAM. The random forest will use all cores so no problem.
-            # train_cv_scores_dict[int(dataset_folder.name)] = cross_val_score(estimator_tuned_grid, X_train, y_train, cv=cv, n_jobs=1).mean()
             train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
 
     # sort the dicts by keys to get the same order as the dataframe we want to concat with

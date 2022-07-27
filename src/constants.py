@@ -5,7 +5,7 @@ from pathlib import Path
 ########################################################################################################################
 RANDOM_STATE = 42
 MAX_FEATURES_FEATURE_SELECTION = 100
-N_COMPONENTS_PCA = 2
+N_COMPONENTS_PCA_UMAP = 2
 
 ########################################################################################################################
 # FLOAT
@@ -29,6 +29,10 @@ X_TEST_CLEAN_PCA_FILE_NAME = "pca_test_clean.feather"
 # kpca
 X_TRAIN_CLEAN_KPCA_FILE_NAME = "kpca_train_clean.feather"
 X_TEST_CLEAN_KPCA_FILE_NAME = "kpca_test_clean.feather"
+
+# umap
+X_TRAIN_CLEAN_UMAP_FILE_NAME    = "umap_train_clean.feather"
+X_TEST_CLEAN_UMAP_FILE_NAME     = "umap_test_clean.feather"
 
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
@@ -60,7 +64,8 @@ CALC_SCORES_MODES = [
         "baseline",
         "pca_clean",
         "kpca_clean",
-        "pca_and_kpca_clean"
+        "pca_and_kpca_clean",
+        "umap_clean",
     ]
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"

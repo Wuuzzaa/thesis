@@ -10,8 +10,8 @@ from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_pca_performance_overview, analyze_feature_importance, \
     extract_tuned_hyperparameter_from_models
 from src.constants import RANDOM_STATE
+from src.create_features import create_features
 from src.feature_selection import feature_selection
-from src.pca_feature import create_pca_features
 
 if __name__ == "__main__":
     ####################################################################################################################
@@ -40,17 +40,18 @@ if __name__ == "__main__":
 
     # pca
     pca_params = {
-        "n_components": N_COMPONENTS_PCA,
+        "n_components": N_COMPONENTS_PCA_UMAP,
         "random_state": RANDOM_STATE
     }
 
-    create_pca_features(
-        pca_train_filename=X_TRAIN_CLEAN_PCA_FILE_NAME,
-        pca_test_filename=X_TEST_CLEAN_PCA_FILE_NAME,
+    create_features(
+        feature_type="pca",
+        train_filename=X_TRAIN_CLEAN_PCA_FILE_NAME,
+        test_filename=X_TEST_CLEAN_PCA_FILE_NAME,
         datasets_folder=DATASETS_FOLDER_PATH,
-        pca_params=pca_params,
+        transformer_params=pca_params,
         prefix="pca_",
-        mode="pca",
+        pca_mode="pca",
         random_state=RANDOM_STATE,
         X_file_name=X_CLEAN_FILE_NAME,
         y_file_name=Y_FILE_NAME,
@@ -58,7 +59,7 @@ if __name__ == "__main__":
 
     # kernel pca
     kpca_params = {
-        "n_components": N_COMPONENTS_PCA,
+        "n_components": N_COMPONENTS_PCA_UMAP,
         "random_state": RANDOM_STATE,
         "kernel": "rbf",
         "n_jobs": -1,
@@ -66,13 +67,37 @@ if __name__ == "__main__":
         "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to sklearn docu/guide.
     }
 
-    create_pca_features(
-        pca_train_filename=X_TRAIN_CLEAN_KPCA_FILE_NAME,
-        pca_test_filename=X_TEST_CLEAN_KPCA_FILE_NAME,
+    create_features(
+        feature_type="pca",
+        train_filename=X_TRAIN_CLEAN_KPCA_FILE_NAME,
+        test_filename=X_TEST_CLEAN_KPCA_FILE_NAME,
         datasets_folder=DATASETS_FOLDER_PATH,
-        pca_params=kpca_params,
+        transformer_params=kpca_params,
         prefix="kpca_",
-        mode="kpca",
+        pca_mode="kpca",
+        random_state=RANDOM_STATE,
+        X_file_name=X_CLEAN_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+    
+    ####################################################################################################################
+    # GENERATE UMAP FEATURES
+    ####################################################################################################################
+    umap_params = { 
+        "n_neighbors": 100,  # default 15
+        "n_components": N_COMPONENTS_PCA_UMAP,
+        "n_jobs": -1,
+        "random_state": RANDOM_STATE,
+        "verbose": True,
+    }
+    
+    create_features(
+        feature_type="umap",
+        train_filename=X_TRAIN_CLEAN_UMAP_FILE_NAME,
+        test_filename=X_TEST_CLEAN_UMAP_FILE_NAME,
+        datasets_folder=DATASETS_FOLDER_PATH,
+        transformer_params=umap_params,
+        prefix="umap_",
         random_state=RANDOM_STATE,
         X_file_name=X_CLEAN_FILE_NAME,
         y_file_name=Y_FILE_NAME,
@@ -172,6 +197,23 @@ if __name__ == "__main__":
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         mode="pca_and_kpca_clean",
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+
+    ####################################################################################################################
+    # CALC SCORES - UMAP
+    ####################################################################################################################
+
+    calc_scores(
+        random_state=RANDOM_STATE,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        mode="umap_clean",
         estimator=RandomForestClassifier(),
         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
         cv=5,

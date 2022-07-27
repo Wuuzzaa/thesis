@@ -11,6 +11,8 @@ from src.util import get_sub_folders
 
 
 def add_compare_scores_columns(results_file_path: Path):
+    #todo add umap
+
     # read file into dataframe
     df = pd.read_feather(results_file_path)
 
@@ -43,6 +45,8 @@ def add_compare_scores_columns(results_file_path: Path):
 
 
 def print_info_pca_performance_overview(results_file_path: Path):
+    # todo add umap
+
     # load results dataframe
     df = pd.read_feather(results_file_path)
 
@@ -136,6 +140,7 @@ def print_info_pca_performance_overview(results_file_path: Path):
 
 
 def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
+    # todo add umap
     # first get the feature importance from each model and store them in files
     _extract_feature_importance_from_models(path_datasets_folder, path_feature_importance_folder)
 
