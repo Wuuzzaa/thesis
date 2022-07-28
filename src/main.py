@@ -143,11 +143,6 @@ if __name__ == "__main__":
     # calc the train and test scores for the "pca_clean".
     # "pca_clean": see calc_scores docu
 
-    pca_params = {
-        "n_components": 2,
-        "random_state": RANDOM_STATE
-    }
-
     calc_scores(
         random_state=RANDOM_STATE,
         path_datasets_folder=DATASETS_FOLDER_PATH,
