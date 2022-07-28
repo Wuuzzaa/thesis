@@ -42,6 +42,9 @@ def add_compare_scores_columns(results_file_path: Path):
     df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["umap_clean_test_score_change_to_baseline"]          = (df["umap_clean_test_score"] / df["baseline_test_score"] - 1) *100
 
+    # check if any new feature type improved the score compared to the baseline
+    df["any_feature_type_test_score > baseline_test_score"] = df[["pca_clean_test_score > baseline_test_score", "kpca_clean_test_score > baseline_test_score", "umap_clean_test_score > baseline_test_score"]].any(axis='columns')
+
     # store again
     df.to_feather(results_file_path)
 
@@ -76,6 +79,10 @@ def print_info_performance_overview(results_file_path: Path):
     # pca and kpca merged test data
     n_pca_kpca_merged_improved_datasets_test = sum(df["pca_kpca_merged_clean_test_score > baseline_test_score"])
     pca_kpca_merged_improved_dataset_percent_test = round(n_pca_kpca_merged_improved_datasets_test / n_datasets * 100, 2)
+
+    # any new feature type improved the score compared to the baseline
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_test_score > baseline_test_score"])
+    any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
 
     ####################################################################################################################
     # TRAIN DATA
@@ -127,6 +134,7 @@ def print_info_performance_overview(results_file_path: Path):
     print("UMAP:")
     print(f"umap on clean data improved the performance on {n_umap_improved_datasets_test} datasets = {umap_improved_dataset_percent_test}%")
     print("")
+    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}%")
 
     # TRAIN DATA
 
@@ -174,10 +182,14 @@ def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Pa
     pca_modes = [mode for mode in CALC_SCORES_MODES if "pca" in mode]
 
     # check if results dataframe has columns if so stop it.
+    all_modes_done = True
     for mode in pca_modes:
-        if f"{mode}_pca_features_importance_mean_factor" in df_results.columns:
-            warnings.warn("Feature importance columns already in results dataframe. Done")
-            break
+        if f"{mode}_pca_features_importance_mean_factor" not in df_results.columns:
+            all_modes_done = False
+
+    if all_modes_done:
+        warnings.warn("Feature importance columns already in results dataframe. Done")
+        return
 
     # containers
     feature_importance_files = []
@@ -283,6 +295,14 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             print("---")
             print(f"folder: {dataset_folder}, mode: {mode}")
 
+            # set the column name to add for the model according to mode
+            columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
+
+            # check if already done
+            if columnname in df_results.columns:
+                warnings.warn(f"{columnname} already in results dataframe. skip")
+                continue
+
             # load the model file
             model_file_path = dataset_folder.joinpath(f"{mode}{model_file_path_suffix}")
             model = joblib.load(model_file_path)
@@ -305,16 +325,13 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
 
     # add new columns to the results dataframe
     for mode in CALC_SCORES_MODES:
-        #todo check if already done and skip
-
         # select the dict with the current mode from the hyperparameter dict and sort it
         temp_dict = hyperparameter_dict[mode]
         temp_dict = dict(sorted((temp_dict.items())))
 
-        columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
-
-        # add a new column to the results dataframe with the whole params
-        df_results[columnname] = temp_dict.values()
+        # add a new column to the results dataframe with the whole params if not already done
+        if columnname not in df_results.columns:
+            df_results[columnname] = temp_dict.values()
 
     df_results.to_feather(path_results_file)
 
