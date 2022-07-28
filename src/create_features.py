@@ -62,11 +62,14 @@ def create_features(
         elif feature_type == "umap":
             # make the features dataframes for train and test
             # do not use y_train even when umap is able to do it -> it just overfits
+            # whole traindata still overfits.
+            # try to give it just a little sample of the train data
             df_train, df_test = _create_umap_features(
                 X_train=X_train,
                 X_test=X_test,
                 params=transformer_params,
                 prefix=prefix,
+                random_state=random_state
             )
 
         else:

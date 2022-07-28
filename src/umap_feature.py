@@ -3,15 +3,21 @@ from umap import UMAP
 
 
 def _create_umap_features(
-    X_train,
-    X_test,
-    params,
-    prefix,
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    params: dict,
+    prefix: str,
+    random_state: int,
 ):
     transformer = UMAP(**params)
 
-    # UMAP can use the target info (y_train) too. Seems to overfit too hard so do not use it
-    df_train = pd.DataFrame(transformer.fit_transform(X_train)).add_prefix(prefix)
+    # UMAP can use the target info (y_train) too. Seems to overfit too hard so do not use it.
+    # When the whole train data is used it overfits just use less data?
+
+    # fit with 10% of the data to avoid overfitting?
+    transformer.fit(X_train.sample(frac=0.1, random_state=random_state))
+
+    df_train = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
     df_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)
 
     #todo

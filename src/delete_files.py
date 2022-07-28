@@ -59,7 +59,7 @@ if __name__ == "__main__":
         # "kpca_clean_random_forest.joblib",
         # "pca_and_kpca_clean_random_forest.joblib",
         # "pca_clean_random_forest.joblib",
-        # "umap_clean_random_forest.joblib",
+        #"umap_clean_random_forest.joblib",
     ]
 
     # traverse the root folder and subfolders and delete all matches

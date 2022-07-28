@@ -11,8 +11,6 @@ from src.util import get_sub_folders
 
 
 def add_compare_scores_columns(results_file_path: Path):
-    #todo add umap
-
     # read file into dataframe
     df = pd.read_feather(results_file_path)
 
@@ -23,6 +21,9 @@ def add_compare_scores_columns(results_file_path: Path):
     # compare kpca with baseline
     df["kpca_clean_train_score > baseline_train_score"]  = df["kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["kpca_clean_test_score > baseline_test_score"]    = df["kpca_clean_test_score"] > df["baseline_test_score"]
+
+    df["umap_clean_train_score > baseline_train_score"] = df["umap_clean_train_cv_score"] > df["baseline_train_cv_score"]
+    df["umap_clean_test_score > baseline_test_score"] = df["umap_clean_test_score"] > df["baseline_train_cv_score"]
 
     # kpca and pca > baseline
     df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] = df["pca_clean_test_score > baseline_test_score"] & df["kpca_clean_test_score > baseline_test_score"]
@@ -39,47 +40,61 @@ def add_compare_scores_columns(results_file_path: Path):
     df["pca_clean_test_score_change_to_baseline"]           = (df["pca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
+    df["umap_clean_test_score_change_to_baseline"]          = (df["umap_clean_test_score"] / df["baseline_test_score"] - 1) *100
 
     # store again
     df.to_feather(results_file_path)
 
 
-def print_info_pca_performance_overview(results_file_path: Path):
-    # todo add umap
-
+def print_info_performance_overview(results_file_path: Path):
     # load results dataframe
     df = pd.read_feather(results_file_path)
 
     # do some statistics
     n_datasets = len(df)
 
+    ####################################################################################################################
+    # TEST DATA
+    ####################################################################################################################
+
     # pca test data
     n_pca_improved_datasets_test = sum(df['pca_clean_test_score > baseline_test_score'])
     pca_improved_dataset_percent_test = round(n_pca_improved_datasets_test / n_datasets * 100, 2)
-
-    # pca train data
-    n_pca_improved_datasets_train = sum(df['pca_clean_train_score > baseline_train_score'])
-    pca_improved_dataset_percent_train = round(n_pca_improved_datasets_train / n_datasets * 100, 2)
 
     # kpca test data
     n_kpca_improved_datasets_test = sum(df['kpca_clean_test_score > baseline_test_score'])
     kpca_improved_dataset_percent_test = round(n_kpca_improved_datasets_test / n_datasets * 100, 2)
 
-    # kpca train data
-    n_kpca_improved_datasets_train = sum(df['kpca_clean_train_score > baseline_train_score'])
-    kpca_improved_dataset_percent_train = round(n_kpca_improved_datasets_train / n_datasets * 100, 2)
+    # umap test data
+    n_umap_improved_datasets_test = sum(df['umap_clean_test_score > baseline_test_score'])
+    umap_improved_dataset_percent_test = round(n_umap_improved_datasets_test / n_datasets * 100, 2)
 
     # pca and kpca baseline (not merged, counted is when pca and kpca improved the score compared to the baseline)
     n_pca_and_kpca_improved_datasets = sum(df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"])
     pca_and_kpca_improved_datasets_percent = round(n_pca_and_kpca_improved_datasets / n_datasets * 100, 2)
 
-    # pca and kpca on train and test improved baseline
-    n_pca_and_kpca_improved_datasets_on_train_and_test = sum(df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"])
-    n_pca_and_kpca_improved_datasets_on_train_and_test_percent = round(n_pca_and_kpca_improved_datasets_on_train_and_test /n_datasets * 100, 2)
-
     # pca and kpca merged test data
     n_pca_kpca_merged_improved_datasets_test = sum(df["pca_kpca_merged_clean_test_score > baseline_test_score"])
     pca_kpca_merged_improved_dataset_percent_test = round(n_pca_kpca_merged_improved_datasets_test / n_datasets * 100, 2)
+
+    ####################################################################################################################
+    # TRAIN DATA
+    ####################################################################################################################
+    # pca train data
+    n_pca_improved_datasets_train = sum(df['pca_clean_train_score > baseline_train_score'])
+    pca_improved_dataset_percent_train = round(n_pca_improved_datasets_train / n_datasets * 100, 2)
+
+    # kpca train data
+    n_kpca_improved_datasets_train = sum(df['kpca_clean_train_score > baseline_train_score'])
+    kpca_improved_dataset_percent_train = round(n_kpca_improved_datasets_train / n_datasets * 100, 2)
+
+    # umap train data
+    n_umap_improved_datasets_train = sum(df['umap_clean_train_score > baseline_train_score'])
+    umap_improved_dataset_percent_train = round(n_umap_improved_datasets_train / n_datasets * 100, 2)
+
+    # pca and kpca on train and test improved baseline
+    n_pca_and_kpca_improved_datasets_on_train_and_test = sum(df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"])
+    n_pca_and_kpca_improved_datasets_on_train_and_test_percent = round(n_pca_and_kpca_improved_datasets_on_train_and_test /n_datasets * 100, 2)
 
     # pca and kpca merged train data
     n_pca_kpca_merged_improved_datasets_train = sum(df["pca_kpca_merged_clean_train_score > baseline_train_score"])
@@ -88,7 +103,7 @@ def print_info_pca_performance_overview(results_file_path: Path):
     # print it out
     print()
     print("#"*80)
-    print("pca performance overview".upper())
+    print("performance overview".upper())
     print("#" * 80)
     print()
     print(f"Amount of datasets tested: {n_datasets}")
@@ -108,6 +123,10 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print("")
     print("PCA AND KPCA MERGED")
     print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_test} datasets = {pca_kpca_merged_improved_dataset_percent_test}%")
+    print("")
+    print("UMAP:")
+    print(f"umap on clean data improved the performance on {n_umap_improved_datasets_test} datasets = {umap_improved_dataset_percent_test}%")
+    print("")
 
     # TRAIN DATA
 
@@ -124,6 +143,10 @@ def print_info_pca_performance_overview(results_file_path: Path):
     print("")
     print("PCA AND KPCA MERGED")
     print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_train} datasets = {pca_kpca_merged_improved_dataset_percent_train}%")
+    print("")
+    print("UMAP:")
+    print(f"umap on clean data improved the performance on {n_umap_improved_datasets_train} datasets = {umap_improved_dataset_percent_train}%")
+    print("")
 
     # OTHER STUFF
 
@@ -282,6 +305,8 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
 
     # add new columns to the results dataframe
     for mode in CALC_SCORES_MODES:
+        #todo check if already done and skip
+
         # select the dict with the current mode from the hyperparameter dict and sort it
         temp_dict = hyperparameter_dict[mode]
         temp_dict = dict(sorted((temp_dict.items())))
@@ -290,7 +315,6 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
 
         # add a new column to the results dataframe with the whole params
         df_results[columnname] = temp_dict.values()
-
 
     df_results.to_feather(path_results_file)
 
