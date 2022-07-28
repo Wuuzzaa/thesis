@@ -1,5 +1,6 @@
 import pandas as pd
 from umap import UMAP
+from sklearn.model_selection import train_test_split
 
 
 def _create_umap_features(
@@ -7,15 +8,15 @@ def _create_umap_features(
     X_test: pd.DataFrame,
     params: dict,
     prefix: str,
-    random_state: int,
+    random_state: int = None,
+    y_train: pd.Series = None,
+
 ):
     transformer = UMAP(**params)
 
     # UMAP can use the target info (y_train) too. Seems to overfit too hard so do not use it.
     # When the whole train data is used it overfits just use less data?
-
-    # fit with 10% of the data to avoid overfitting?
-    transformer.fit(X_train.sample(frac=0.1, random_state=random_state))
+    transformer.fit(X_train)
 
     df_train = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
     df_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)

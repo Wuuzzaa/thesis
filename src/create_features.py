@@ -69,7 +69,8 @@ def create_features(
                 X_test=X_test,
                 params=transformer_params,
                 prefix=prefix,
-                random_state=random_state
+                random_state=random_state,
+                y_train=y_train,
             )
 
         else:
