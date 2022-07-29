@@ -205,26 +205,6 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
-    # CALC SCORES - PCA AND KERNEL PCA TOGETHER
-    ####################################################################################################################
-
-    # calc the train and test scores for the "pca_and_kpca_clean".
-    # "pca_and_kpca_clean": see calc_scores docu
-
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="pca_and_kpca_clean",
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
     # CALC SCORES - UMAP
     ####################################################################################################################
 

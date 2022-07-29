@@ -68,7 +68,6 @@ CALC_SCORES_MODES = [
     "baseline",
     "pca_clean",
     "kpca_clean",
-    "pca_and_kpca_clean",
     "umap_clean",
     "kmeans_clean",
     "pca_kpca_umap_kmeans_clean",

@@ -41,14 +41,9 @@ def add_compare_scores_columns(results_file_path: Path):
     # kpca and pca > baseline on train and test at the same time
     df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"] = df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] & df["pca_clean_train_score & kpca_clean_train_score > baseline_train_score"]
 
-    # pca and kpca MERGED
-    df["pca_kpca_merged_clean_train_score > baseline_train_score"] = df["pca_and_kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["pca_kpca_merged_clean_test_score > baseline_test_score"] = df["pca_and_kpca_clean_test_score"] > df["baseline_test_score"]
-
     # change in percent
     df["pca_clean_test_score_change_to_baseline"]           = (df["pca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
-    df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["umap_clean_test_score_change_to_baseline"]          = (df["umap_clean_test_score"] / df["baseline_test_score"] - 1) *100
     df["kmeans_clean_test_score_change_to_baseline"]          = (df["kmeans_clean_test_score"] / df["baseline_test_score"] - 1) *100
     df["pca_kpca_umap_kmeans_clean_test_score_change_to_baseline"]          = (df["pca_kpca_umap_kmeans_clean_test_score"] / df["baseline_test_score"] - 1) *100
@@ -99,14 +94,6 @@ def print_info_performance_overview(results_file_path: Path):
     n_pca_kpca_umap_kmeans_clean_improved_datasets_test = sum(df['pca_kpca_umap_kmeans_clean_test_score > baseline_test_score'])
     pca_kpca_umap_kmeans_clean_improved_dataset_percent_test = round(n_pca_kpca_umap_kmeans_clean_improved_datasets_test / n_datasets * 100, 2)
 
-    # pca and kpca baseline (not merged, counted is when pca and kpca improved the score compared to the baseline)
-    n_pca_and_kpca_improved_datasets = sum(df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"])
-    pca_and_kpca_improved_datasets_percent = round(n_pca_and_kpca_improved_datasets / n_datasets * 100, 2)
-
-    # pca and kpca merged test data
-    n_pca_kpca_merged_improved_datasets_test = sum(df["pca_kpca_merged_clean_test_score > baseline_test_score"])
-    pca_kpca_merged_improved_dataset_percent_test = round(n_pca_kpca_merged_improved_datasets_test / n_datasets * 100, 2)
-
     # any new feature type improved the score compared to the baseline
     n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_test_score > baseline_test_score"])
     any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
@@ -134,14 +121,6 @@ def print_info_performance_overview(results_file_path: Path):
     n_pca_kpca_umap_kmeans_clean_improved_datasets_train = sum(df['pca_kpca_umap_kmeans_clean_train_score > baseline_train_score'])
     pca_kpca_umap_kmeans_clean_improved_dataset_percent_train = round(n_pca_kpca_umap_kmeans_clean_improved_datasets_train / n_datasets * 100, 2)
 
-    # pca and kpca on train and test improved baseline
-    n_pca_and_kpca_improved_datasets_on_train_and_test = sum(df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"])
-    n_pca_and_kpca_improved_datasets_on_train_and_test_percent = round(n_pca_and_kpca_improved_datasets_on_train_and_test /n_datasets * 100, 2)
-
-    # pca and kpca merged train data
-    n_pca_kpca_merged_improved_datasets_train = sum(df["pca_kpca_merged_clean_train_score > baseline_train_score"])
-    pca_kpca_merged_improved_dataset_percent_train = round(n_pca_kpca_merged_improved_datasets_train / n_datasets * 100, 2)
-
     # print it out
     print()
     print("#"*80)
@@ -162,9 +141,6 @@ def print_info_performance_overview(results_file_path: Path):
     print("")
     print("KPCA:")
     print(f"kpca on clean data improved the performance on {n_kpca_improved_datasets_test} datasets = {kpca_improved_dataset_percent_test}%")
-    print("")
-    print("PCA AND KPCA MERGED")
-    print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_test} datasets = {pca_kpca_merged_improved_dataset_percent_test}%")
     print("")
     print("UMAP:")
     print(f"umap on clean data improved the performance on {n_umap_improved_datasets_test} datasets = {umap_improved_dataset_percent_test}%")
@@ -190,9 +166,6 @@ def print_info_performance_overview(results_file_path: Path):
     print("KPCA:")
     print(f"kpca on clean data improved the cross validation performance on {n_kpca_improved_datasets_train} datasets = {kpca_improved_dataset_percent_train}%")
     print("")
-    print("PCA AND KPCA MERGED")
-    print(f"pca and kpca merged on clean data improved the performance on {n_pca_kpca_merged_improved_datasets_train} datasets = {pca_kpca_merged_improved_dataset_percent_train}%")
-    print("")
     print("UMAP:")
     print(f"umap on clean data improved the performance on {n_umap_improved_datasets_train} datasets = {umap_improved_dataset_percent_train}%")
     print("")
@@ -202,19 +175,6 @@ def print_info_performance_overview(results_file_path: Path):
     print("PCA KPCA UMAP KMEANS TOGETHER:")
     print(f"all together on clean data improved the performance on {n_pca_kpca_umap_kmeans_clean_improved_datasets_train} datasets = {pca_kpca_umap_kmeans_clean_improved_dataset_percent_train}%")
     print("")
-
-    # OTHER STUFF
-
-    print("")
-    print("#" * 80)
-    print("PCA AND KPCA AT THE SAME TIME EACH ON ITS OWN AGAINST  (NOT MERGED)")
-    print("#" * 80)
-    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets} datasets = {pca_and_kpca_improved_datasets_percent}%")
-    print("")
-    print("#" * 80)
-    print("TRAIN AND TEST OF PCA AND KPCA (NOT MERGED)")
-    print("#" * 80)
-    print(f"pca and kpca on clean data improved the performance on {n_pca_and_kpca_improved_datasets_on_train_and_test} datasets = {n_pca_and_kpca_improved_datasets_on_train_and_test_percent}%")
 
 
 def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):

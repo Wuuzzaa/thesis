@@ -57,9 +57,6 @@ def calc_scores(
         "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
-        "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features with feature selection.
-        The new features were generated on clean data not on filtered data.
-
         "umap_clean": Runs a random forest on the cleaned data with umap additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
@@ -70,8 +67,8 @@ def calc_scores(
         additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
-    :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
-    :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
+    :param X_train_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
+    :param X_test_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
     :return: None
     """
     # print header
@@ -154,19 +151,6 @@ def calc_scores(
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_kpca_train], axis="columns")
             X_test = pd.concat([X_test, df_kpca_test], axis="columns")
-
-        elif mode == "pca_and_kpca_clean":
-            # load pca features
-            df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
-            df_pca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME))
-
-            # load kpca features
-            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KPCA_FILE_NAME))
-            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KPCA_FILE_NAME))
-
-            # concat the new features to the old ones
-            X_train = pd.concat([X_train, df_pca_train, df_kpca_train], axis="columns")
-            X_test = pd.concat([X_test, df_pca_test, df_kpca_test], axis="columns")
 
         elif mode == "umap_clean":
             # load umap features
