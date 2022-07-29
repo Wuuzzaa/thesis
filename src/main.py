@@ -241,6 +241,22 @@ if __name__ == "__main__":
         y_file_name=Y_FILE_NAME,
     )
 
+    ####################################################################################################################
+    # CALC SCORES - KMEANS
+    ####################################################################################################################
+    calc_scores(
+        random_state=RANDOM_STATE,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        mode="kmeans_clean",
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+
 
     ####################################################################################################################
     # RESULTS STATISTICS
@@ -252,6 +268,7 @@ if __name__ == "__main__":
     )
 
     add_compare_scores_columns(results_file_path=RESULTS_FILE_PATH)
+
     extract_tuned_hyperparameter_from_models(
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,

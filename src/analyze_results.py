@@ -22,8 +22,13 @@ def add_compare_scores_columns(results_file_path: Path):
     df["kpca_clean_train_score > baseline_train_score"]  = df["kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
     df["kpca_clean_test_score > baseline_test_score"]    = df["kpca_clean_test_score"] > df["baseline_test_score"]
 
+    # compare umap with baseline
     df["umap_clean_train_score > baseline_train_score"] = df["umap_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["umap_clean_test_score > baseline_test_score"] = df["umap_clean_test_score"] > df["baseline_train_cv_score"]
+    df["umap_clean_test_score > baseline_test_score"] = df["umap_clean_test_score"] > df["baseline_test_score"]
+
+    # compare kmeans with baseline
+    df["kmeans_clean_train_score > baseline_train_score"]   = df["kmeans_clean_train_cv_score"] > df["baseline_train_cv_score"]
+    df["kmeans_clean_test_score > baseline_test_score"]     = df["kmeans_clean_test_score"] > df["baseline_test_score"]
 
     # kpca and pca > baseline
     df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] = df["pca_clean_test_score > baseline_test_score"] & df["kpca_clean_test_score > baseline_test_score"]
@@ -41,9 +46,17 @@ def add_compare_scores_columns(results_file_path: Path):
     df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["pca_and_kpca_clean_test_score_change_to_baseline"]  = (df["pca_and_kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
     df["umap_clean_test_score_change_to_baseline"]          = (df["umap_clean_test_score"] / df["baseline_test_score"] - 1) *100
+    df["kmeans_clean_test_score_change_to_baseline"]          = (df["kmeans_clean_test_score"] / df["baseline_test_score"] - 1) *100
 
     # check if any new feature type improved the score compared to the baseline
-    df["any_feature_type_test_score > baseline_test_score"] = df[["pca_clean_test_score > baseline_test_score", "kpca_clean_test_score > baseline_test_score", "umap_clean_test_score > baseline_test_score"]].any(axis='columns')
+    df["any_feature_type_test_score > baseline_test_score"] = df[
+        [
+            "pca_clean_test_score > baseline_test_score",
+            "kpca_clean_test_score > baseline_test_score",
+            "umap_clean_test_score > baseline_test_score",
+            "kmeans_clean_test_score_change_to_baseline",
+        ]
+    ].any(axis='columns')
 
     # store again
     df.to_feather(results_file_path)
@@ -72,6 +85,10 @@ def print_info_performance_overview(results_file_path: Path):
     n_umap_improved_datasets_test = sum(df['umap_clean_test_score > baseline_test_score'])
     umap_improved_dataset_percent_test = round(n_umap_improved_datasets_test / n_datasets * 100, 2)
 
+    # kmeans test data
+    n_kmeans_improved_datasets_test = sum(df['kmeans_clean_test_score > baseline_test_score'])
+    kmeans_improved_dataset_percent_test = round(n_kmeans_improved_datasets_test / n_datasets * 100, 2)
+
     # pca and kpca baseline (not merged, counted is when pca and kpca improved the score compared to the baseline)
     n_pca_and_kpca_improved_datasets = sum(df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"])
     pca_and_kpca_improved_datasets_percent = round(n_pca_and_kpca_improved_datasets / n_datasets * 100, 2)
@@ -98,6 +115,10 @@ def print_info_performance_overview(results_file_path: Path):
     # umap train data
     n_umap_improved_datasets_train = sum(df['umap_clean_train_score > baseline_train_score'])
     umap_improved_dataset_percent_train = round(n_umap_improved_datasets_train / n_datasets * 100, 2)
+
+    # kmeans train data
+    n_kmeans_improved_datasets_train = sum(df['kmeans_clean_train_score > baseline_train_score'])
+    kmeans_improved_dataset_percent_train = round(n_kmeans_improved_datasets_train / n_datasets * 100, 2)
 
     # pca and kpca on train and test improved baseline
     n_pca_and_kpca_improved_datasets_on_train_and_test = sum(df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"])
@@ -134,7 +155,10 @@ def print_info_performance_overview(results_file_path: Path):
     print("UMAP:")
     print(f"umap on clean data improved the performance on {n_umap_improved_datasets_test} datasets = {umap_improved_dataset_percent_test}%")
     print("")
-    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}%")
+    print("KMEANS:")
+    print(f"kmeans on clean data improved the performance on {n_kmeans_improved_datasets_test} datasets = {kmeans_improved_dataset_percent_test}%")
+    print("")
+    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least on new featuretype")
 
     # TRAIN DATA
 
@@ -155,6 +179,9 @@ def print_info_performance_overview(results_file_path: Path):
     print("UMAP:")
     print(f"umap on clean data improved the performance on {n_umap_improved_datasets_train} datasets = {umap_improved_dataset_percent_train}%")
     print("")
+    print("KMEANS:")
+    print(f"kmeans on clean data improved the performance on {n_kmeans_improved_datasets_train} datasets = {kmeans_improved_dataset_percent_train}%")
+    print("")
 
     # OTHER STUFF
 
@@ -172,6 +199,7 @@ def print_info_performance_overview(results_file_path: Path):
 
 def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
     # todo add umap
+    # todo add kmeans
     # first get the feature importance from each model and store them in files
     _extract_feature_importance_from_models(path_datasets_folder, path_feature_importance_folder)
 
@@ -328,6 +356,9 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
         # select the dict with the current mode from the hyperparameter dict and sort it
         temp_dict = hyperparameter_dict[mode]
         temp_dict = dict(sorted((temp_dict.items())))
+
+        # set the column name to add for the model according to mode
+        columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
 
         # add a new column to the results dataframe with the whole params if not already done
         if columnname not in df_results.columns:

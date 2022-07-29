@@ -65,12 +65,13 @@ RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 ########################################################################################################################
 
 CALC_SCORES_MODES = [
-        "baseline",
-        "pca_clean",
-        "kpca_clean",
-        "pca_and_kpca_clean",
-        "umap_clean",
-    ]
+    "baseline",
+    "pca_clean",
+    "kpca_clean",
+    "pca_and_kpca_clean",
+    "umap_clean",
+    "kmeans_clean",
+]
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"
 CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"

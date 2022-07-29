@@ -52,10 +52,19 @@ def calc_scores(
         "baseline": Runs a random forest on the cleaned data no additional features with feature selection
 
         "pca_clean": Runs a random forest on the cleaned data with pca additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
 
         "kpca_clean": Runs a rondom forest on the cleaned data with kernel pca additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
 
         "pca_and_kpca_clean": Merges the pca and kpca features on clean data as additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
+
+        "umap_clean": Runs a random forest on the cleaned data with umap additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
+
+        "kmeans_clean": Runs a random forest on the cleaned data with kmeans additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
 
     :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
@@ -163,6 +172,15 @@ def calc_scores(
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_umap_train], axis="columns")
             X_test = pd.concat([X_test, df_umap_test], axis="columns")
+
+        elif mode == "kmeans_clean":
+            # load kmeans features
+            df_kmeans_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KMEANS_FILE_NAME))
+            df_kmeans_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KMEANS_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_kmeans_train], axis="columns")
+            X_test = pd.concat([X_test, df_kmeans_test], axis="columns")
 
         else:
             raise NotImplemented(f"{mode} not implemented")
