@@ -104,6 +104,30 @@ if __name__ == "__main__":
     )
 
     ####################################################################################################################
+    # GENERATE KMEANS FEATURES
+    ####################################################################################################################
+
+    kmeans_params = {
+        # "n_clusters": 8, # DO NOT SET THIS BECAUSE WE USE BRUTE FORCE TO DETERMIN THIS VALUE
+        "batch_size": 256 * 16,  # 256 * cpu threads is suggested in sklearn docu
+        "verbose": 0,
+        "random_state": RANDOM_STATE,
+    }
+
+    create_features(
+        feature_type="kmeans",
+        train_filename=X_TRAIN_CLEAN_KMEANS_FILE_NAME,
+        test_filename=X_TEST_CLEAN_KMEANS_FILE_NAME,
+        datasets_folder=DATASETS_FOLDER_PATH,
+        transformer_params=kmeans_params,
+        prefix="kmeans_",
+        random_state=RANDOM_STATE,
+        X_file_name=X_CLEAN_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+        kmeans_n_cluster_range=range(2, 11)
+    )
+
+    ####################################################################################################################
     # FEATURE SELECTION
     ####################################################################################################################
     feature_selection(

@@ -1,6 +1,5 @@
 import pandas as pd
 from umap import UMAP
-from sklearn.model_selection import train_test_split
 
 
 def _create_umap_features(
@@ -8,9 +7,6 @@ def _create_umap_features(
     X_test: pd.DataFrame,
     params: dict,
     prefix: str,
-    random_state: int = None,
-    y_train: pd.Series = None,
-
 ):
     transformer = UMAP(**params)
 

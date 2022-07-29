@@ -34,6 +34,10 @@ X_TEST_CLEAN_KPCA_FILE_NAME = "kpca_test_clean.feather"
 X_TRAIN_CLEAN_UMAP_FILE_NAME    = "umap_train_clean.feather"
 X_TEST_CLEAN_UMAP_FILE_NAME     = "umap_test_clean.feather"
 
+# kmeans
+X_TRAIN_CLEAN_KMEANS_FILE_NAME    = "kmeans_train_clean.feather"
+X_TEST_CLEAN_KMEANS_FILE_NAME     = "kmeans_test_clean.feather"
+
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 

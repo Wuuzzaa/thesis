@@ -1,5 +1,6 @@
 import warnings
 from src.calc_scores import get_X_train_X_test_y_train_y_test
+from src.kmeans_feature import _create_kmeans_features
 from src.pca_feature import _create_pca_features
 from src.umap_feature import _create_umap_features
 from src.util import print_function_header, get_sub_folders
@@ -18,6 +19,7 @@ def create_features(
         X_file_name: str,
         y_file_name: str,
         pca_mode: str=None,
+        kmeans_n_cluster_range: range = None,
 ):
     # print header
     print_function_header(f"create {feature_type} features")
@@ -48,6 +50,9 @@ def create_features(
             y_file_name=y_file_name,
         )
 
+        print(f"X_train shape: {X_train.shape}")
+        print(f"target classes: \n{y_train.value_counts()}")
+
         if feature_type == "pca":
             # make the features dataframes for train and test
             df_train, df_test = _create_pca_features(
@@ -62,15 +67,21 @@ def create_features(
         elif feature_type == "umap":
             # make the features dataframes for train and test
             # do not use y_train even when umap is able to do it -> it just overfits
-            # whole traindata still overfits.
-            # try to give it just a little sample of the train data
             df_train, df_test = _create_umap_features(
                 X_train=X_train,
                 X_test=X_test,
                 params=transformer_params,
                 prefix=prefix,
+            )
+
+        elif feature_type == "kmeans":
+            df_train, df_test = _create_kmeans_features(
+                X_train=X_train,
+                X_test=X_test,
+                params=transformer_params,
+                prefix=prefix,
+                n_cluster_range=kmeans_n_cluster_range,
                 random_state=random_state,
-                y_train=y_train,
             )
 
         else:

@@ -48,6 +48,10 @@ if __name__ == "__main__":
         # X_TRAIN_CLEAN_UMAP_FILE_NAME,
         # X_TEST_CLEAN_UMAP_FILE_NAME,
 
+        ## kmeans files
+        # X_TRAIN_CLEAN_KMEANS_FILE_NAME,
+        # X_TEST_CLEAN_KMEANS_FILE_NAME,
+
         # # results file
         # RESULTS_DATAFRAME_FILE_NAME,
 
