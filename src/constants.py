@@ -71,6 +71,7 @@ CALC_SCORES_MODES = [
     "pca_and_kpca_clean",
     "umap_clean",
     "kmeans_clean",
+    "pca_kpca_umap_kmeans_clean",
 ]
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"

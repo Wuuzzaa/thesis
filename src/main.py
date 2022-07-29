@@ -257,15 +257,31 @@ if __name__ == "__main__":
         y_file_name=Y_FILE_NAME,
     )
 
+    ####################################################################################################################
+    # CALC SCORES - PCA, KPCA, UMAP, KMEANS All TOGETHER
+    ####################################################################################################################
+    calc_scores(
+        random_state=RANDOM_STATE,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        mode="pca_kpca_umap_kmeans_clean",
+        estimator=RandomForestClassifier(),
+        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+        cv=5,
+        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+        X_file_name=X_FILTERED_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+
 
     ####################################################################################################################
     # RESULTS STATISTICS
     ####################################################################################################################
-    analyze_feature_importance(
-        path_results_file=RESULTS_FILE_PATH,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_feature_importance_folder=FEATURE_IMPORTANCE_FOLDER_PATH
-    )
+    # analyze_feature_importance(
+    #     path_results_file=RESULTS_FILE_PATH,
+    #     path_datasets_folder=DATASETS_FOLDER_PATH,
+    #     path_feature_importance_folder=FEATURE_IMPORTANCE_FOLDER_PATH
+    # )
 
     add_compare_scores_columns(results_file_path=RESULTS_FILE_PATH)
 

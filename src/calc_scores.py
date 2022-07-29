@@ -66,6 +66,10 @@ def calc_scores(
         "kmeans_clean": Runs a random forest on the cleaned data with kmeans additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
+        "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
+        additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
+
     :param X_train_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :param X_test_pca_file_name: Needed for any mode with "pca" exept "pca_and_kpca_clean". Just the filename not the path.
     :return: None
@@ -182,6 +186,27 @@ def calc_scores(
             X_train = pd.concat([X_train, df_kmeans_train], axis="columns")
             X_test = pd.concat([X_test, df_kmeans_test], axis="columns")
 
+        elif mode == "pca_kpca_umap_kmeans_clean":
+            # load pca features
+            df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
+            df_pca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME))
+
+            # load kpca features
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KPCA_FILE_NAME))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KPCA_FILE_NAME))
+
+            # load umap features
+            df_umap_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_UMAP_FILE_NAME))
+            df_umap_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_UMAP_FILE_NAME))
+
+            # load kmeans features
+            df_kmeans_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KMEANS_FILE_NAME))
+            df_kmeans_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KMEANS_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_pca_train, df_kpca_train, df_umap_train, df_kmeans_train], axis="columns")
+            X_test = pd.concat([X_test, df_pca_test, df_kpca_test, df_umap_test, df_kmeans_test], axis="columns")
+
         else:
             raise NotImplemented(f"{mode} not implemented")
 
@@ -227,6 +252,12 @@ def calc_scores(
 
             # get the train score
             train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
+
+        # give feedback of the train and test score
+        print("-")
+        print(f"train score: {train_cv_scores_dict[int(dataset_folder.name)]}")
+        print(f"test score: {test_scores_dict[int(dataset_folder.name)]}")
+        print("-\n")
 
     # sort the dicts by keys to get the same order as the dataframe we want to concat with
     test_scores_dict = dict(sorted((test_scores_dict.items())))
