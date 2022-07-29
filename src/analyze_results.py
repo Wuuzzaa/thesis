@@ -198,8 +198,8 @@ def print_info_performance_overview(results_file_path: Path):
 
 
 def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
-    # todo add umap
-    # todo add kmeans
+    # todo add umap analyze_feature_importance?
+    # todo add kmeans analyze_feature_importance?
     # first get the feature importance from each model and store them in files
     _extract_feature_importance_from_models(path_datasets_folder, path_feature_importance_folder)
 

@@ -17,7 +17,8 @@ def _create_umap_features(
     df_train = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
     df_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)
 
-    #todo
+    #todo POSSIBLE BUG BUT NOT ON THOSE DATASETS SO LET IT RUN ;-)
+
     # Traceback (most recent call last):
     #   File "C:\Program Files\JetBrains\PyCharm 2022.1.3\plugins\python\helpers\pydev\pydevd.py", line 1491, in _exec
     #     pydev_imports.execfile(file, globals, locals)  # execute the script
