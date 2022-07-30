@@ -140,119 +140,22 @@ if __name__ == "__main__":
         max_features=MAX_FEATURES_FEATURE_SELECTION,
         sample_size=10_000
     )
-
     ####################################################################################################################
-    # CALC SCORES - BASELINE
+    # CALC SCORES
     ####################################################################################################################
-
-    # calc the train and test scores for the "baseline".
-    # "baseline": see calc_scores docu
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="baseline",
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # CALC SCORES - PCA
-    ####################################################################################################################
-
-    # calc the train and test scores for the "pca_clean".
-    # "pca_clean": see calc_scores docu
-
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="pca_clean",
-        X_train_pca_file_name=X_TRAIN_CLEAN_PCA_FILE_NAME,
-        X_test_pca_file_name=X_TEST_CLEAN_PCA_FILE_NAME,
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # CALC SCORES - KERNEL PCA
-    ####################################################################################################################
-
-    # calc the train and test scores for the "kpca_clean".
-    # "kpca_clean": see calc_scores docu
-
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="kpca_clean",
-        X_train_pca_file_name=X_TRAIN_CLEAN_KPCA_FILE_NAME,
-        X_test_pca_file_name=X_TEST_CLEAN_KPCA_FILE_NAME,
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # CALC SCORES - UMAP
-    ####################################################################################################################
-
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="umap_clean",
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # CALC SCORES - KMEANS
-    ####################################################################################################################
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="kmeans_clean",
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # CALC SCORES - PCA, KPCA, UMAP, KMEANS All TOGETHER
-    ####################################################################################################################
-    calc_scores(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        mode="pca_kpca_umap_kmeans_clean",
-        estimator=RandomForestClassifier(),
-        estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-        cv=5,
-        estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-        X_file_name=X_FILTERED_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
+    for mode in CALC_SCORES_MODES:
+        calc_scores(
+            random_state=RANDOM_STATE,
+            path_datasets_folder=DATASETS_FOLDER_PATH,
+            path_results_file=RESULTS_FILE_PATH,
+            mode=mode,
+            estimator=RandomForestClassifier(),
+            estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+            cv=5,
+            estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+            X_file_name=X_FILTERED_FILE_NAME,
+            y_file_name=Y_FILE_NAME,
+        )
 
     ####################################################################################################################
     # RESULTS STATISTICS

@@ -23,9 +23,6 @@ def calc_scores(
         estimator_file_path_suffix: str,
         X_file_name: str,
         y_file_name: str,
-        X_train_pca_file_name: str = None,
-        X_test_pca_file_name: str = None,
-
     ):
     """
     Function to calc cross validation score for the train data and score for the test data. The scores are appended to
@@ -66,25 +63,10 @@ def calc_scores(
         "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
         additional features with feature selection.
         The new features were generated on clean data not on filtered data.
-
-    :param X_train_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
-    :param X_test_pca_file_name: Needed for any mode with "pca". Just the filename not the path.
     :return: None
     """
     # print header
     print_function_header(f"calc scores\nmode: {mode}")
-
-    modes_pca_parameter_needed = ["pca_clean", "kpca_clean"]
-
-    # check needed parameters are not None
-    if mode in modes_pca_parameter_needed:
-        needed_pca_parameters = [
-            X_train_pca_file_name,
-            X_test_pca_file_name,
-        ]
-
-        if None in needed_pca_parameters:
-            raise ValueError(f"One or more parameter for pca is None. Give it a value.")
 
     # check if mode is valid
     if mode not in CALC_SCORES_MODES:
