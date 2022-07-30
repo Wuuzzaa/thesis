@@ -132,6 +132,7 @@ def calc_scores(
         print(f"target classes: \n{y_train.value_counts()}")
 
         if mode == "baseline":
+            # no features to add
             pass
 
         elif mode == "pca_clean":

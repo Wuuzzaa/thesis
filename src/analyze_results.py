@@ -14,50 +14,24 @@ def add_compare_scores_columns(results_file_path: Path):
     # read file into dataframe
     df = pd.read_feather(results_file_path)
 
-    # compare pca with baseline
-    df["pca_clean_train_score > baseline_train_score"]  = df["pca_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["pca_clean_test_score > baseline_test_score"]    = df["pca_clean_test_score"] > df["baseline_test_score"]
+    mode_test_score_better_baseline_columns = []
 
-    # compare kpca with baseline
-    df["kpca_clean_train_score > baseline_train_score"]  = df["kpca_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["kpca_clean_test_score > baseline_test_score"]    = df["kpca_clean_test_score"] > df["baseline_test_score"]
+    for mode in CALC_SCORES_MODES:
+        if mode == "baseline":
+            continue
 
-    # compare umap with baseline
-    df["umap_clean_train_score > baseline_train_score"] = df["umap_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["umap_clean_test_score > baseline_test_score"] = df["umap_clean_test_score"] > df["baseline_test_score"]
+        # train score vs baseline
+        df[f"{mode}_train_score > baseline_train_score"] = df[f"{mode}_train_cv_score"] > df["baseline_train_cv_score"]
 
-    # compare kmeans with baseline
-    df["kmeans_clean_train_score > baseline_train_score"]   = df["kmeans_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["kmeans_clean_test_score > baseline_test_score"]     = df["kmeans_clean_test_score"] > df["baseline_test_score"]
+        # test score vs baseline
+        df[f"{mode}_test_score > baseline_test_score"] = df[f"{mode}_test_score"] > df["baseline_test_score"]
+        mode_test_score_better_baseline_columns.append(f"{mode}_test_score > baseline_test_score")
 
-    # compare pca_kpca_umap_kmeans_clean with baseline
-    df["pca_kpca_umap_kmeans_clean_train_score > baseline_train_score"]   = df["pca_kpca_umap_kmeans_clean_train_cv_score"] > df["baseline_train_cv_score"]
-    df["pca_kpca_umap_kmeans_clean_test_score > baseline_test_score"]     = df["pca_kpca_umap_kmeans_clean_test_score"] > df["baseline_test_score"]
-
-    # kpca and pca > baseline
-    df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] = df["pca_clean_test_score > baseline_test_score"] & df["kpca_clean_test_score > baseline_test_score"]
-    df["pca_clean_train_score & kpca_clean_train_score > baseline_train_score"] = df["pca_clean_train_score > baseline_train_score"] & df["kpca_clean_train_score > baseline_train_score"]
-    
-    # kpca and pca > baseline on train and test at the same time
-    df["pca_kpca_clean_train_and_test_score > baseline_train_and_test_score"] = df["pca_clean_test_score & kpca_clean_test_score > baseline_test_score"] & df["pca_clean_train_score & kpca_clean_train_score > baseline_train_score"]
-
-    # change in percent
-    df["pca_clean_test_score_change_to_baseline"]           = (df["pca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
-    df["kpca_clean_test_score_change_to_baseline"]          = (df["kpca_clean_test_score"] / df["baseline_test_score"] - 1) * 100
-    df["umap_clean_test_score_change_to_baseline"]          = (df["umap_clean_test_score"] / df["baseline_test_score"] - 1) *100
-    df["kmeans_clean_test_score_change_to_baseline"]          = (df["kmeans_clean_test_score"] / df["baseline_test_score"] - 1) *100
-    df["pca_kpca_umap_kmeans_clean_test_score_change_to_baseline"]          = (df["pca_kpca_umap_kmeans_clean_test_score"] / df["baseline_test_score"] - 1) *100
+        # test score change in percent vs baseline
+        df[f"{mode}_test_score_change_to_baseline"] = (df[f"{mode}_test_score"] / df["baseline_test_score"] - 1) * 100
 
     # check if any new feature type improved the score compared to the baseline
-    df["any_feature_type_test_score > baseline_test_score"] = df[
-        [
-            "pca_clean_test_score > baseline_test_score",
-            "kpca_clean_test_score > baseline_test_score",
-            "umap_clean_test_score > baseline_test_score",
-            "kmeans_clean_test_score_change_to_baseline",
-            "pca_kpca_umap_kmeans_clean_test_score_change_to_baseline",
-        ]
-    ].any(axis='columns')
+    df["any_feature_type_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns].any(axis='columns')
 
     # store again
     df.to_feather(results_file_path)
@@ -71,110 +45,51 @@ def print_info_performance_overview(results_file_path: Path):
     n_datasets = len(df)
 
     ####################################################################################################################
-    # TEST DATA
+    # test data
     ####################################################################################################################
-
-    # pca test data
-    n_pca_improved_datasets_test = sum(df['pca_clean_test_score > baseline_test_score'])
-    pca_improved_dataset_percent_test = round(n_pca_improved_datasets_test / n_datasets * 100, 2)
-
-    # kpca test data
-    n_kpca_improved_datasets_test = sum(df['kpca_clean_test_score > baseline_test_score'])
-    kpca_improved_dataset_percent_test = round(n_kpca_improved_datasets_test / n_datasets * 100, 2)
-
-    # umap test data
-    n_umap_improved_datasets_test = sum(df['umap_clean_test_score > baseline_test_score'])
-    umap_improved_dataset_percent_test = round(n_umap_improved_datasets_test / n_datasets * 100, 2)
-
-    # kmeans test data
-    n_kmeans_improved_datasets_test = sum(df['kmeans_clean_test_score > baseline_test_score'])
-    kmeans_improved_dataset_percent_test = round(n_kmeans_improved_datasets_test / n_datasets * 100, 2)
-
-    # pca_kpca_umap_kmeans_clean test data
-    n_pca_kpca_umap_kmeans_clean_improved_datasets_test = sum(df['pca_kpca_umap_kmeans_clean_test_score > baseline_test_score'])
-    pca_kpca_umap_kmeans_clean_improved_dataset_percent_test = round(n_pca_kpca_umap_kmeans_clean_improved_datasets_test / n_datasets * 100, 2)
-
-    # any new feature type improved the score compared to the baseline
-    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_test_score > baseline_test_score"])
-    any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
-
-    ####################################################################################################################
-    # TRAIN DATA
-    ####################################################################################################################
-    # pca train data
-    n_pca_improved_datasets_train = sum(df['pca_clean_train_score > baseline_train_score'])
-    pca_improved_dataset_percent_train = round(n_pca_improved_datasets_train / n_datasets * 100, 2)
-
-    # kpca train data
-    n_kpca_improved_datasets_train = sum(df['kpca_clean_train_score > baseline_train_score'])
-    kpca_improved_dataset_percent_train = round(n_kpca_improved_datasets_train / n_datasets * 100, 2)
-
-    # umap train data
-    n_umap_improved_datasets_train = sum(df['umap_clean_train_score > baseline_train_score'])
-    umap_improved_dataset_percent_train = round(n_umap_improved_datasets_train / n_datasets * 100, 2)
-
-    # kmeans train data
-    n_kmeans_improved_datasets_train = sum(df['kmeans_clean_train_score > baseline_train_score'])
-    kmeans_improved_dataset_percent_train = round(n_kmeans_improved_datasets_train / n_datasets * 100, 2)
-
-    # pca_kpca_umap_kmeans_clean train data
-    n_pca_kpca_umap_kmeans_clean_improved_datasets_train = sum(df['pca_kpca_umap_kmeans_clean_train_score > baseline_train_score'])
-    pca_kpca_umap_kmeans_clean_improved_dataset_percent_train = round(n_pca_kpca_umap_kmeans_clean_improved_datasets_train / n_datasets * 100, 2)
-
-    # print it out
-    print()
-    print("#"*80)
-    print("performance overview".upper())
     print("#" * 80)
-    print()
-    print(f"Amount of datasets tested: {n_datasets}")
-    print("")
-    print("#"*80)
-
-    # TEST DATA
-
     print("Statistics on test data".upper())
     print("#" * 80)
     print("")
-    print("PCA:")
-    print(f"pca on clean data improved the performance on {n_pca_improved_datasets_test} datasets = {pca_improved_dataset_percent_test}%")
-    print("")
-    print("KPCA:")
-    print(f"kpca on clean data improved the performance on {n_kpca_improved_datasets_test} datasets = {kpca_improved_dataset_percent_test}%")
-    print("")
-    print("UMAP:")
-    print(f"umap on clean data improved the performance on {n_umap_improved_datasets_test} datasets = {umap_improved_dataset_percent_test}%")
-    print("")
-    print("KMEANS:")
-    print(f"kmeans on clean data improved the performance on {n_kmeans_improved_datasets_test} datasets = {kmeans_improved_dataset_percent_test}%")
-    print("")
-    print("PCA KPCA UMAP KMEANS TOGETHER:")
-    print(f"all together on clean data improved the performance on {n_pca_kpca_umap_kmeans_clean_improved_datasets_test} datasets = {pca_kpca_umap_kmeans_clean_improved_dataset_percent_test}%")
-    print("")
+
+    for mode in CALC_SCORES_MODES:
+        if mode == "baseline":
+            continue
+
+        n_improved_datasets = sum(df[f'{mode}_test_score > baseline_test_score'])
+        improved_dataset_percent = round(n_improved_datasets / n_datasets * 100, 2)
+
+        print(f"{mode}:".upper())
+        print(f"{mode} data improved the performance on {n_improved_datasets} datasets = {improved_dataset_percent}%")
+        print("")
+
+    # All feature modes together
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_test_score > baseline_test_score"])
+    any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
+
+    print("---")
     print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least on new featuretype")
+    print("---")
 
-    # TRAIN DATA
-
+    ####################################################################################################################
+    # train data
+    ####################################################################################################################
     print("")
     print("#"*80)
     print("Statistics on train data".upper())
     print("#"*80)
     print("")
-    print("PCA:")
-    print(f"pca on clean data improved the cross validation performance on {n_pca_improved_datasets_train} datasets = {pca_improved_dataset_percent_train}%")
-    print("")
-    print("KPCA:")
-    print(f"kpca on clean data improved the cross validation performance on {n_kpca_improved_datasets_train} datasets = {kpca_improved_dataset_percent_train}%")
-    print("")
-    print("UMAP:")
-    print(f"umap on clean data improved the performance on {n_umap_improved_datasets_train} datasets = {umap_improved_dataset_percent_train}%")
-    print("")
-    print("KMEANS:")
-    print(f"kmeans on clean data improved the performance on {n_kmeans_improved_datasets_train} datasets = {kmeans_improved_dataset_percent_train}%")
-    print("")
-    print("PCA KPCA UMAP KMEANS TOGETHER:")
-    print(f"all together on clean data improved the performance on {n_pca_kpca_umap_kmeans_clean_improved_datasets_train} datasets = {pca_kpca_umap_kmeans_clean_improved_dataset_percent_train}%")
-    print("")
+
+    for mode in CALC_SCORES_MODES:
+        if mode == "baseline":
+            continue
+
+        n_improved_datasets = sum(df[f'{mode}_train_score > baseline_train_score'])
+        improved_dataset_percent = round(n_improved_datasets / n_datasets * 100, 2)
+
+        print(f"{mode}:".upper())
+        print(f"{mode} data improved the performance on {n_improved_datasets} datasets = {improved_dataset_percent}%")
+        print("")
 
 
 def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
