@@ -34,98 +34,6 @@ if __name__ == "__main__":
         path_results_file=RESULTS_FILE_PATH,
     )
 
-    ####################################################################################################################
-    # GENERATE PCA FEATURES
-    ####################################################################################################################
-
-    # pca
-    pca_params = {
-        "n_components": N_COMPONENTS_PCA_UMAP,
-        "random_state": RANDOM_STATE
-    }
-
-    create_features(
-        feature_type="pca",
-        train_filename=X_TRAIN_CLEAN_PCA_FILE_NAME,
-        test_filename=X_TEST_CLEAN_PCA_FILE_NAME,
-        datasets_folder=DATASETS_FOLDER_PATH,
-        transformer_params=pca_params,
-        prefix="pca_",
-        pca_mode="pca",
-        random_state=RANDOM_STATE,
-        X_file_name=X_CLEAN_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    # kernel pca
-    kpca_params = {
-        "n_components": N_COMPONENTS_PCA_UMAP,
-        "random_state": RANDOM_STATE,
-        "kernel": "rbf",
-        "n_jobs": -1,
-        "copy_X": False,
-        "eigen_solver": "randomized"  # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to sklearn docu/guide.
-    }
-
-    create_features(
-        feature_type="pca",
-        train_filename=X_TRAIN_CLEAN_KPCA_FILE_NAME,
-        test_filename=X_TEST_CLEAN_KPCA_FILE_NAME,
-        datasets_folder=DATASETS_FOLDER_PATH,
-        transformer_params=kpca_params,
-        prefix="kpca_",
-        pca_mode="kpca",
-        random_state=RANDOM_STATE,
-        X_file_name=X_CLEAN_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-    
-    ####################################################################################################################
-    # GENERATE UMAP FEATURES
-    ####################################################################################################################
-    umap_params = { 
-        "n_neighbors": 100,  # default 15
-        "n_components": N_COMPONENTS_PCA_UMAP,
-        "n_jobs": -1,
-        "random_state": RANDOM_STATE,
-        "verbose": True,
-    }
-    
-    create_features(
-        feature_type="umap",
-        train_filename=X_TRAIN_CLEAN_UMAP_FILE_NAME,
-        test_filename=X_TEST_CLEAN_UMAP_FILE_NAME,
-        datasets_folder=DATASETS_FOLDER_PATH,
-        transformer_params=umap_params,
-        prefix="umap_",
-        random_state=RANDOM_STATE,
-        X_file_name=X_CLEAN_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-    )
-
-    ####################################################################################################################
-    # GENERATE KMEANS FEATURES
-    ####################################################################################################################
-
-    kmeans_params = {
-        # "n_clusters": 8, # DO NOT SET THIS BECAUSE WE USE BRUTE FORCE TO DETERMIN THIS VALUE
-        "batch_size": 256 * 16,  # 256 * cpu threads is suggested in sklearn docu
-        "verbose": 0,
-        "random_state": RANDOM_STATE,
-    }
-
-    create_features(
-        feature_type="kmeans",
-        train_filename=X_TRAIN_CLEAN_KMEANS_FILE_NAME,
-        test_filename=X_TEST_CLEAN_KMEANS_FILE_NAME,
-        datasets_folder=DATASETS_FOLDER_PATH,
-        transformer_params=kmeans_params,
-        prefix="kmeans_",
-        random_state=RANDOM_STATE,
-        X_file_name=X_CLEAN_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-        kmeans_n_cluster_range=range(2, 11)
-    )
 
     ####################################################################################################################
     # FEATURE SELECTION
@@ -140,6 +48,154 @@ if __name__ == "__main__":
         max_features=MAX_FEATURES_FEATURE_SELECTION,
         sample_size=10_000
     )
+
+    ####################################################################################################################
+    # GENERATE FEATURES
+    ####################################################################################################################
+
+    for X_file_name in [X_CLEAN_FILE_NAME, X_FILTERED_FILE_NAME]:
+        ################################################################################################################
+        # GENERATE PCA FEATURES ON CLEAN DATA
+        ################################################################################################################
+
+        # pca
+        pca_params = {
+            "n_components": N_COMPONENTS_PCA_UMAP,
+            "random_state": RANDOM_STATE
+        }
+
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_PCA_FILE_NAME
+            test_filename = X_TEST_CLEAN_PCA_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_PCA_FILE_NAME
+
+        else:
+            raise(NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="pca",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=pca_params,
+            prefix="pca_",
+            pca_mode="pca",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+        )
+
+        # kernel pca
+        kpca_params = {
+            "n_components": N_COMPONENTS_PCA_UMAP,
+            "random_state": RANDOM_STATE,
+            "kernel": "rbf",
+            "n_jobs": -1,
+            "copy_X": False,
+            "eigen_solver": "randomized"
+            # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to sklearn docu/guide.
+        }
+        
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_KPCA_FILE_NAME
+            test_filename = X_TEST_CLEAN_KPCA_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_KPCA_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME
+
+        else:
+            raise(NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="pca",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=kpca_params,
+            prefix="kpca_",
+            pca_mode="kpca",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+        )
+
+        ################################################################################################################
+        # GENERATE UMAP FEATURES ON CLEAN DATA
+        ################################################################################################################
+        umap_params = {
+            "n_neighbors": 100,  # default 15
+            "n_components": N_COMPONENTS_PCA_UMAP,
+            "n_jobs": -1,
+            "random_state": RANDOM_STATE,
+            "verbose": True,
+        }
+        
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_UMAP_FILE_NAME
+            test_filename = X_TEST_CLEAN_UMAP_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME
+
+        else:
+            raise(NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="umap",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=umap_params,
+            prefix="umap_",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+        )
+
+        ################################################################################################################
+        # GENERATE KMEANS FEATURES ON CLEAN DATA
+        ################################################################################################################
+
+        kmeans_params = {
+            # "n_clusters": 8, # DO NOT SET THIS BECAUSE WE USE BRUTE FORCE TO DETERMIN THIS VALUE
+            "batch_size": 256 * 16,  # 256 * cpu threads is suggested in sklearn docu
+            "verbose": 0,
+            "random_state": RANDOM_STATE,
+        }
+        
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_KMEANS_FILE_NAME
+            test_filename = X_TEST_CLEAN_KMEANS_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME
+
+        else:
+            raise(NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="kmeans",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=kmeans_params,
+            prefix="kmeans_",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+            kmeans_n_cluster_range=range(2, 11)
+        )
+
     ####################################################################################################################
     # CALC SCORES
     ####################################################################################################################
@@ -160,6 +216,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # RESULTS STATISTICS
     ####################################################################################################################
+    # todo refactor if needed at all?
     # analyze_feature_importance(
     #     path_results_file=RESULTS_FILE_PATH,
     #     path_datasets_folder=DATASETS_FOLDER_PATH,

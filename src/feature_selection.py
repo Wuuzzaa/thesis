@@ -77,7 +77,7 @@ def _rfecv_selection(X, y, random_state, max_features=None):
         cv=10,
         n_jobs=-1,
         verbose=0,
-        min_features_to_select=2  # cause we use pca with 2 components, so we need at least 2 features
+        min_features_to_select=10  # cause we use pca with 2 components, so we need at least 2 features.
     )
 
     selector.fit(X, y)
@@ -112,9 +112,22 @@ def _top_boruta_rfecv_selection(X: pd.DataFrame, y: pd.Series, random_state: int
     print(f"run boruta start with {len(X.columns)} features")
     X_trans = _boruta_selection(X_select, y_select, random_state=random_state)
 
-    # then recursive feature elimination
-    print(f"run recursive feature elimination start with {len(X_trans.columns)} features")
-    X_trans = _rfecv_selection(X_trans, y_select, random_state=random_state, max_features=max_features)
+    boruta_failed_one_feature_only_left = False
+
+    # pca needs at least 2 features so make sure we get at least 2 otherwise let it crash
+    if len(X_trans.columns) < 2:
+        warnings.warn(f"boruta filtered shit. Just one feature left. Try recursive feature elimination")
+        X_trans = _rfecv_selection(X_select, y_select, random_state=random_state, max_features=max_features)
+        boruta_failed_one_feature_only_left = True
+
+    # To avoid this return all featuers when there a just a few left
+    if len(X_trans.columns) > 10 and not boruta_failed_one_feature_only_left:
+        # then recursive feature elimination
+        print(f"run recursive feature elimination start with {len(X_trans.columns)} features")
+        X_trans = _rfecv_selection(X_trans, y_select, random_state=random_state, max_features=max_features)
+
+    else:
+        print(f"Only {len(X_trans.columns)} features left. Do not use recursive feature elimination.")
 
     selected_features = X_trans.columns
 

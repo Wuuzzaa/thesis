@@ -25,18 +25,26 @@ Y_FILE_NAME = "y.feather"
 # pca
 X_TRAIN_CLEAN_PCA_FILE_NAME = "pca_train_clean.feather"
 X_TEST_CLEAN_PCA_FILE_NAME = "pca_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME = "pca_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_PCA_FILE_NAME = "pca_test_clean_filtered.feather"
 
 # kpca
 X_TRAIN_CLEAN_KPCA_FILE_NAME = "kpca_train_clean.feather"
 X_TEST_CLEAN_KPCA_FILE_NAME = "kpca_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_KPCA_FILE_NAME = "kpca_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME = "kpca_test_clean_filtered.feather"
 
 # umap
 X_TRAIN_CLEAN_UMAP_FILE_NAME    = "umap_train_clean.feather"
 X_TEST_CLEAN_UMAP_FILE_NAME     = "umap_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME    = "umap_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME     = "umap_test_clean_filtered.feather"
 
 # kmeans
 X_TRAIN_CLEAN_KMEANS_FILE_NAME    = "kmeans_train_clean.feather"
 X_TEST_CLEAN_KMEANS_FILE_NAME     = "kmeans_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME    = "kmeans_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME     = "kmeans_test_clean_filtered.feather"
 
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
