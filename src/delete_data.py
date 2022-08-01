@@ -145,6 +145,7 @@ if __name__ == "__main__":
         #     "kmeans_clean_test_score > baseline_test_score",
         #     "kmeans_clean_test_score_change_to_baseline",
         #     "model_hyperparameter_kmeans_clean_random_forest",
+        #     'any_feature_type_test_score > baseline_test_score'
     ]
 
     if len(columns_to_delete) > 0:

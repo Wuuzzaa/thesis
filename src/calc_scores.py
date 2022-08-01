@@ -48,6 +48,10 @@ def calc_scores(
     :param mode:
         "baseline": Runs a random forest on the cleaned data no additional features with feature selection
 
+        ---
+        MODES WITH NEW FEATURES ON CLEANED DATA (NOT FILTERED)
+        ---
+
         "pca_clean": Runs a random forest on the cleaned data with pca additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
@@ -63,6 +67,27 @@ def calc_scores(
         "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
         additional features with feature selection.
         The new features were generated on clean data not on filtered data.
+
+        ---
+        MODES WITH NEW FEATURES ON CLEANED AND FILTERED DATA
+        ---
+
+        "pca_clean_filtered": Runs a random forest on the cleaned data with pca additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
+        "kpca_clean_filtered": Runs a rondom forest on the cleaned data with kernel pca additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
+        "umap_clean_filtered": Runs a random forest on the cleaned data with umap additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
+        "kmeans_clean_filtered_filtered": Runs a random forest on the cleaned data with kmeans additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
+        "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
+        additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
     :return: None
     """
     # print header
@@ -117,6 +142,9 @@ def calc_scores(
             # no features to add
             pass
 
+        # ---
+        # MODES WITH NEW FEATURES ON CLEANED DATA (NOT FILTERED)
+        # ---
         elif mode == "pca_clean":
             # load pca features
             df_pca_train    = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
@@ -169,6 +197,67 @@ def calc_scores(
             # load kmeans features
             df_kmeans_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KMEANS_FILE_NAME))
             df_kmeans_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KMEANS_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_pca_train, df_kpca_train, df_umap_train, df_kmeans_train], axis="columns")
+            X_test = pd.concat([X_test, df_pca_test, df_kpca_test, df_umap_test, df_kmeans_test], axis="columns")
+
+        # ---
+        # MODES WITH NEW FEATURES ON CLEANED AND FILTERED DATA
+        # ---
+
+        elif mode == "pca_clean_filtered":
+            # load pca features
+            df_pca_train    = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME))
+            df_pca_test     = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_PCA_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_pca_train], axis="columns")
+            X_test = pd.concat([X_test, df_pca_test], axis="columns")
+
+        elif mode == "kpca_clean_filtered":
+            # load kpca features
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KPCA_FILE_NAME))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_kpca_train], axis="columns")
+            X_test = pd.concat([X_test, df_kpca_test], axis="columns")
+
+        elif mode == "umap_clean_filtered":
+            # load umap features
+            df_umap_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME))
+            df_umap_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_umap_train], axis="columns")
+            X_test = pd.concat([X_test, df_umap_test], axis="columns")
+
+        elif mode == "kmeans_clean_filtered":
+            # load kmeans features
+            df_kmeans_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME))
+            df_kmeans_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_kmeans_train], axis="columns")
+            X_test = pd.concat([X_test, df_kmeans_test], axis="columns")
+
+        elif mode == "pca_kpca_umap_kmeans_clean_filtered":
+            # load pca features
+            df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME))
+            df_pca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_PCA_FILE_NAME))
+
+            # load kpca features
+            df_kpca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KPCA_FILE_NAME))
+            df_kpca_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME))
+
+            # load umap features
+            df_umap_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME))
+            df_umap_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME))
+
+            # load kmeans features
+            df_kmeans_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME))
+            df_kmeans_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME))
 
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_pca_train, df_kpca_train, df_umap_train, df_kmeans_train], axis="columns")

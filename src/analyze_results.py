@@ -14,7 +14,8 @@ def add_compare_scores_columns(results_file_path: Path):
     # read file into dataframe
     df = pd.read_feather(results_file_path)
 
-    mode_test_score_better_baseline_columns = []
+    mode_test_score_better_baseline_columns_clean = []
+    mode_test_score_better_baseline_columns_clean_filtered = []
 
     for mode in CALC_SCORES_MODES:
         if mode == "baseline":
@@ -25,13 +26,19 @@ def add_compare_scores_columns(results_file_path: Path):
 
         # test score vs baseline
         df[f"{mode}_test_score > baseline_test_score"] = df[f"{mode}_test_score"] > df["baseline_test_score"]
-        mode_test_score_better_baseline_columns.append(f"{mode}_test_score > baseline_test_score")
+
+        # at the moment we have features on clean data and features on clean and filtered data
+        if "_clean_filtered" in mode:
+            mode_test_score_better_baseline_columns_clean_filtered.append(f"{mode}_test_score > baseline_test_score")
+        else:
+            mode_test_score_better_baseline_columns_clean.append(f"{mode}_test_score > baseline_test_score")
 
         # test score change in percent vs baseline
         df[f"{mode}_test_score_change_to_baseline"] = (df[f"{mode}_test_score"] / df["baseline_test_score"] - 1) * 100
 
     # check if any new feature type improved the score compared to the baseline
-    df["any_feature_type_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns].any(axis='columns')
+    df["any_feature_type_clean_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns_clean].any(axis='columns')
+    df["any_feature_type_clean_filtered_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns_clean_filtered].any(axis='columns')
 
     # store again
     df.to_feather(results_file_path)
@@ -63,12 +70,20 @@ def print_info_performance_overview(results_file_path: Path):
         print(f"{mode} data improved the performance on {n_improved_datasets} datasets = {improved_dataset_percent}%")
         print("")
 
-    # All feature modes together
-    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_test_score > baseline_test_score"])
+    # All feature modes together on clean data (not filtered)
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_test_score > baseline_test_score"])
     any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
 
     print("---")
-    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least one new featuretype mode")
+    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least one new featuretype mode. Features were generated on cleaned data NOT filtered")
+    print("---")
+
+    # All feature modes together on clean data and filtered
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_filtered_test_score > baseline_test_score"])
+    any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
+
+    print("---")
+    print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least one new featuretype mode. Features were generated on cleaned and filtered data")
     print("---")
 
     ####################################################################################################################

@@ -74,11 +74,21 @@ RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 
 CALC_SCORES_MODES = [
     "baseline",
+
+    # features generated on clean data (NOT filtered)
     "pca_clean",
     "kpca_clean",
     "umap_clean",
     "kmeans_clean",
     "pca_kpca_umap_kmeans_clean",
+
+    # features generated on clean and filtered data
+    "pca_clean_filtered",
+    "kpca_clean_filtered",
+    "umap_clean_filtered",
+    "kmeans_clean_filtered",
+    "pca_kpca_umap_kmeans_clean_filtered",
+
 ]
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"
