@@ -13,11 +13,8 @@ from src.constants import RANDOM_STATE
 from src.create_features import create_features
 from src.feature_selection import feature_selection
 
-if __name__ == "__main__":
-    ####################################################################################################################
-    # LOAD DATA PREPROCESSING
-    ####################################################################################################################
 
+def _preprocessing():
     # load suite
     # https://openml.github.io/openml-python/main/examples/20_basic/simple_suites_tutorial.html#sphx-glr-examples-20-basic-simple-suites-tutorial-py
     suite = openml.study.get_suite(99)
@@ -35,20 +32,7 @@ if __name__ == "__main__":
     )
 
 
-    ####################################################################################################################
-    # FEATURE SELECTION
-    ####################################################################################################################
-    feature_selection(
-        random_state=RANDOM_STATE,
-        path_datasets_folder=DATASETS_FOLDER_PATH,
-        path_results_file=RESULTS_FILE_PATH,
-        X_filtered_file_name=X_FILTERED_FILE_NAME,
-        X_clean_file_name=X_CLEAN_FILE_NAME,
-        y_file_name=Y_FILE_NAME,
-        max_features=MAX_FEATURES_FEATURE_SELECTION,
-        sample_size=10_000
-    )
-
+def _generate_features():
     ####################################################################################################################
     # GENERATE FEATURES
     ####################################################################################################################
@@ -74,7 +58,7 @@ if __name__ == "__main__":
             test_filename = X_TEST_CLEAN_FILTERED_PCA_FILE_NAME
 
         else:
-            raise(NotImplemented(f"{X_file_name} not implemented"))
+            raise (NotImplemented(f"{X_file_name} not implemented"))
 
         create_features(
             feature_type="pca",
@@ -99,7 +83,7 @@ if __name__ == "__main__":
             "eigen_solver": "randomized"
             # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to sklearn docu/guide.
         }
-        
+
         # set train, test filenames according to the Type of X (clean, filtered, etc.)
         if X_file_name == X_CLEAN_FILE_NAME:
             train_filename = X_TRAIN_CLEAN_KPCA_FILE_NAME
@@ -110,7 +94,7 @@ if __name__ == "__main__":
             test_filename = X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME
 
         else:
-            raise(NotImplemented(f"{X_file_name} not implemented"))
+            raise (NotImplemented(f"{X_file_name} not implemented"))
 
         create_features(
             feature_type="pca",
@@ -135,7 +119,7 @@ if __name__ == "__main__":
             "random_state": RANDOM_STATE,
             "verbose": True,
         }
-        
+
         # set train, test filenames according to the Type of X (clean, filtered, etc.)
         if X_file_name == X_CLEAN_FILE_NAME:
             train_filename = X_TRAIN_CLEAN_UMAP_FILE_NAME
@@ -146,7 +130,7 @@ if __name__ == "__main__":
             test_filename = X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME
 
         else:
-            raise(NotImplemented(f"{X_file_name} not implemented"))
+            raise (NotImplemented(f"{X_file_name} not implemented"))
 
         create_features(
             feature_type="umap",
@@ -170,7 +154,7 @@ if __name__ == "__main__":
             "verbose": 0,
             "random_state": RANDOM_STATE,
         }
-        
+
         # set train, test filenames according to the Type of X (clean, filtered, etc.)
         if X_file_name == X_CLEAN_FILE_NAME:
             train_filename = X_TRAIN_CLEAN_KMEANS_FILE_NAME
@@ -181,7 +165,7 @@ if __name__ == "__main__":
             test_filename = X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME
 
         else:
-            raise(NotImplemented(f"{X_file_name} not implemented"))
+            raise (NotImplemented(f"{X_file_name} not implemented"))
 
         create_features(
             feature_type="kmeans",
@@ -196,9 +180,23 @@ if __name__ == "__main__":
             kmeans_n_cluster_range=range(2, 11)
         )
 
-    ####################################################################################################################
-    # CALC SCORES
-    ####################################################################################################################
+
+if __name__ == "__main__":
+    _preprocessing()
+
+    feature_selection(
+        random_state=RANDOM_STATE,
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        path_results_file=RESULTS_FILE_PATH,
+        X_filtered_file_name=X_FILTERED_FILE_NAME,
+        X_clean_file_name=X_CLEAN_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+        max_features=MAX_FEATURES_FEATURE_SELECTION,
+        sample_size=10_000
+    )
+
+    _generate_features()
+
     for mode in CALC_SCORES_MODES:
         calc_scores(
             random_state=RANDOM_STATE,
