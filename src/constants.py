@@ -5,7 +5,7 @@ from pathlib import Path
 ########################################################################################################################
 RANDOM_STATE = 42
 MAX_FEATURES_FEATURE_SELECTION = 100
-N_COMPONENTS_PCA_UMAP = 2
+N_COMPONENTS_PCA_UMAP_LDA = 2
 
 ########################################################################################################################
 # FLOAT
@@ -46,6 +46,12 @@ X_TEST_CLEAN_KMEANS_FILE_NAME     = "kmeans_test_clean.feather"
 X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME    = "kmeans_train_clean_filtered.feather"
 X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME     = "kmeans_test_clean_filtered.feather"
 
+# lda
+X_TRAIN_CLEAN_LDA_FILE_NAME    = "lda_train_clean.feather"
+X_TEST_CLEAN_LDA_FILE_NAME     = "lda_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME    = "lda_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_LDA_FILE_NAME     = "lda_test_clean_filtered.feather"
+
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 
@@ -73,6 +79,7 @@ RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 ########################################################################################################################
 
 CALC_SCORES_MODES = [
+    #todo replace pca_kpca_umap_kmeans and add lda to both modes
     "baseline",
 
     # features generated on clean data (NOT filtered)
@@ -80,6 +87,7 @@ CALC_SCORES_MODES = [
     "kpca_clean",
     "umap_clean",
     "kmeans_clean",
+    "lda_clean",
     "pca_kpca_umap_kmeans_clean",
 
     # features generated on clean and filtered data
@@ -87,6 +95,7 @@ CALC_SCORES_MODES = [
     "kpca_clean_filtered",
     "umap_clean_filtered",
     "kmeans_clean_filtered",
+    "lda_clean_filtered",
     "pca_kpca_umap_kmeans_clean_filtered",
 
 ]

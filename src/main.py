@@ -33,18 +33,14 @@ def _preprocessing():
 
 
 def _generate_features():
-    ####################################################################################################################
-    # GENERATE FEATURES
-    ####################################################################################################################
-
     for X_file_name in [X_CLEAN_FILE_NAME, X_FILTERED_FILE_NAME]:
         ################################################################################################################
-        # GENERATE PCA FEATURES ON CLEAN DATA
+        # GENERATE PCA FEATURES
         ################################################################################################################
 
         # pca
         pca_params = {
-            "n_components": N_COMPONENTS_PCA_UMAP,
+            "n_components": N_COMPONENTS_PCA_UMAP_LDA,
             "random_state": RANDOM_STATE
         }
 
@@ -75,7 +71,7 @@ def _generate_features():
 
         # kernel pca
         kpca_params = {
-            "n_components": N_COMPONENTS_PCA_UMAP,
+            "n_components": N_COMPONENTS_PCA_UMAP_LDA,
             "random_state": RANDOM_STATE,
             "kernel": "rbf",
             "n_jobs": -1,
@@ -110,11 +106,11 @@ def _generate_features():
         )
 
         ################################################################################################################
-        # GENERATE UMAP FEATURES ON CLEAN DATA
+        # GENERATE UMAP FEATURES
         ################################################################################################################
         umap_params = {
             "n_neighbors": 100,  # default 15
-            "n_components": N_COMPONENTS_PCA_UMAP,
+            "n_components": N_COMPONENTS_PCA_UMAP_LDA,
             "n_jobs": -1,
             "random_state": RANDOM_STATE,
             "verbose": True,
@@ -145,7 +141,7 @@ def _generate_features():
         )
 
         ################################################################################################################
-        # GENERATE KMEANS FEATURES ON CLEAN DATA
+        # GENERATE KMEANS FEATURES
         ################################################################################################################
 
         kmeans_params = {
@@ -178,6 +174,36 @@ def _generate_features():
             X_file_name=X_file_name,
             y_file_name=Y_FILE_NAME,
             kmeans_n_cluster_range=range(2, 11)
+        )
+
+        ################################################################################################################
+        # GENERATE LDA FEATURES
+        ################################################################################################################
+
+        lda_params = {"n_components": N_COMPONENTS_PCA_UMAP_LDA}
+
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_LDA_FILE_NAME
+            test_filename = X_TEST_CLEAN_LDA_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_LDA_FILE_NAME
+
+        else:
+            raise (NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="lda",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=lda_params,
+            prefix="lda_",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
         )
 
 
