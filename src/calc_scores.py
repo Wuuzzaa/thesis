@@ -67,6 +67,9 @@ def calc_scores(
         "lda_clean" Runs a random forest on the cleaned data with lda additional features with feature selection.
         The new features were generated on clean data not on filtered data.
 
+        "stacking_clean" Runs a random forest on the cleaned data with stacking additional features with feature selection.
+        The new features were generated on clean data not on filtered data.
+
         "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
         additional features with feature selection.
         The new features were generated on clean data not on filtered data.
@@ -88,6 +91,9 @@ def calc_scores(
         The new features were generated on cleaned and filtered data.
 
         "lda_clean_filtered": Runs a random forest on the cleaned data with lda additional features with feature selection.
+        The new features were generated on cleaned and filtered data.
+
+        "stacking_clean_filtered": Runs a random forest on the cleaned data with stacking additional features with feature selection.
         The new features were generated on cleaned and filtered data.
 
         "pca_kpca_umap_kmeans_clean". Runs a random forest on the cleaned data with pca, kpca, umap and kmeans
@@ -196,6 +202,15 @@ def calc_scores(
             X_train = pd.concat([X_train, df_lda_train], axis="columns")
             X_test = pd.concat([X_test, df_lda_test], axis="columns")
 
+        elif mode == "stacking_clean":
+            # load lda features
+            df_stacking_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_STACKING_FILE_NAME))
+            df_stacking_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_STACKING_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_stacking_train], axis="columns")
+            X_test = pd.concat([X_test, df_stacking_test], axis="columns")
+
         elif mode == "pca_kpca_umap_kmeans_clean":
             # load pca features
             df_pca_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME))
@@ -265,6 +280,15 @@ def calc_scores(
             # concat the new features to the old ones
             X_train = pd.concat([X_train, df_lda_train], axis="columns")
             X_test = pd.concat([X_test, df_lda_test], axis="columns")
+
+        elif mode == "stacking_clean_filtered":
+            # load lda features
+            df_stacking_train = pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_STACKING_FILE_NAME))
+            df_stacking_test = pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME))
+
+            # concat the new features to the old ones
+            X_train = pd.concat([X_train, df_stacking_train], axis="columns")
+            X_test = pd.concat([X_test, df_stacking_test], axis="columns")
 
         elif mode == "pca_kpca_umap_kmeans_clean_filtered":
             # load pca features

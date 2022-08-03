@@ -52,6 +52,13 @@ X_TEST_CLEAN_LDA_FILE_NAME     = "lda_test_clean.feather"
 X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME    = "lda_train_clean_filtered.feather"
 X_TEST_CLEAN_FILTERED_LDA_FILE_NAME     = "lda_test_clean_filtered.feather"
 
+# stacking
+X_TRAIN_CLEAN_STACKING_FILE_NAME    = "stacking_train_clean.feather"
+X_TEST_CLEAN_STACKING_FILE_NAME     = "stacking_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_STACKING_FILE_NAME    = "stacking_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME     = "stacking_test_clean_filtered.feather"
+
+
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 
@@ -88,6 +95,7 @@ CALC_SCORES_MODES = [
     "umap_clean",
     "kmeans_clean",
     "lda_clean",
+    #"stacking_clean",
     "pca_kpca_umap_kmeans_clean",
 
     # features generated on clean and filtered data
@@ -96,6 +104,7 @@ CALC_SCORES_MODES = [
     "umap_clean_filtered",
     "kmeans_clean_filtered",
     "lda_clean_filtered",
+    "stacking_clean_filtered",
     "pca_kpca_umap_kmeans_clean_filtered",
 
 ]

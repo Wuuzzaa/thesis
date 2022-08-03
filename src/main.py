@@ -1,4 +1,8 @@
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 from constants import *
 from pathlib import Path
@@ -156,6 +160,7 @@ def _generate_features():
             train_filename = X_TRAIN_CLEAN_KMEANS_FILE_NAME
             test_filename = X_TEST_CLEAN_KMEANS_FILE_NAME
 
+
         elif X_file_name == X_FILTERED_FILE_NAME:
             train_filename = X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME
             test_filename = X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME
@@ -201,6 +206,56 @@ def _generate_features():
             datasets_folder=DATASETS_FOLDER_PATH,
             transformer_params=lda_params,
             prefix="lda_",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+        )
+
+        ################################################################################################################
+        # GENERATE STACKING FEATURES
+        ################################################################################################################
+
+        # todo not ideal to skip so stupid maybe rewrite all of this function
+        # skip clean features. just takes to long to generate
+        if X_file_name == X_CLEAN_FILE_NAME:
+            continue
+
+        # make params dict for stacked classifier
+        params_dict = {
+            "estimators": [
+                ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
+                ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1)),
+                ("knn", KNeighborsClassifier(n_jobs=-1)),
+                ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+                ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
+                ("mlp", MLPClassifier(random_state=RANDOM_STATE))
+            ],
+            "final_estimator": LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1),
+            "cv": 5,
+            "n_jobs": -1,
+            "passthrough": False,
+            "verbose": 2,
+        }
+
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_STACKING_FILE_NAME
+            test_filename = X_TEST_CLEAN_STACKING_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_STACKING_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME
+
+        else:
+            raise (NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="stacking",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=params_dict,
+            prefix="stacking_",
             random_state=RANDOM_STATE,
             X_file_name=X_file_name,
             y_file_name=Y_FILE_NAME,

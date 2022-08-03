@@ -3,6 +3,7 @@ from src.calc_scores import get_X_train_X_test_y_train_y_test
 from src.kmeans_feature import _create_kmeans_features
 from src.lda_feature import _create_lda_features
 from src.pca_feature import _create_pca_features
+from src.stacking_feature import _create_stacking_features
 from src.umap_feature import _create_umap_features
 from src.util import print_function_header, get_sub_folders
 from pathlib import Path
@@ -87,6 +88,15 @@ def create_features(
 
         elif feature_type == "lda":
             df_train, df_test = _create_lda_features(
+                X_train=X_train,
+                X_test=X_test,
+                y_train=y_train,
+                params=transformer_params,
+                prefix=prefix,
+            )
+
+        elif feature_type == "stacking":
+            df_train, df_test = _create_stacking_features(
                 X_train=X_train,
                 X_test=X_test,
                 y_train=y_train,
