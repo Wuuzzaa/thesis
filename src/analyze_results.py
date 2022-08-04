@@ -7,6 +7,7 @@ from constants import *
 import joblib
 import numpy as np
 
+from src.calc_scores import get_X_train_X_test_y_train_y_test
 from src.util import get_sub_folders
 
 
@@ -276,4 +277,68 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             df_results[columnname] = temp_dict.values()
 
     df_results.to_feather(path_results_file)
+
+
+def compare_stacking_prediction_with_stacking_features(
+        path_datasets_folder: Path,
+        feature_file_name: str,
+        path_results_file: Path
+) -> None:
+    # todo features are only present for clean_filtered. Takes to long for clean mode
+
+    # get all dataset folders
+    dataset_folders = get_sub_folders(path_datasets_folder)
+
+    # load results dataframe
+    df_results = pd.read_feather(path_results_file)
+
+    # accuracy dict:
+    #   key dataset_id: int
+    #   value accuracy score: float
+    accuracy_dict = {}
+
+    dataset_folder: Path
+    for dataset_folder in tqdm(dataset_folders):
+        feature_file_path = dataset_folder.joinpath(feature_file_name)
+
+        df_features: pd.DataFrame
+        df_features = pd.read_feather(feature_file_path)
+
+        # get the highest probability as prediction by identifying the columnname and extract the the prediction from it.
+        # Also convert str to int.
+        df_features["prediction"] = df_features.\
+            idxmax(axis="columns").\
+            str.replace(pat="stacking_", repl="").\
+            astype("int")
+
+        # get X and y train and test splitted
+        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
+            dataset_folder=dataset_folder,
+            random_state=RANDOM_STATE,
+            X_file_name=X_CLEAN_FILE_NAME,
+            y_file_name=Y_FILE_NAME,
+        )
+
+        # reset index
+        y_test.reset_index(drop=True, inplace=True)
+
+        # get predictions and actual class in on dataframe
+        df_features["y_test"] = y_test
+
+        # calculate the accuracy
+        accuracy = (df_features["prediction"] == df_features["y_test"]).sum() / len(df_features)
+
+        # store in dict
+        accuracy_dict[int(dataset_folder.name)] = accuracy
+
+    accuracy_dict = dict(sorted((accuracy_dict.items())))
+
+    df_results["stacking_test_score"] = accuracy_dict.values()
+    pass
+    df_results.to_feather(path_results_file)
+
+
+
+
+
 

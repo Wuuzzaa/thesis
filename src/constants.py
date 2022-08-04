@@ -95,7 +95,7 @@ CALC_SCORES_MODES = [
     "umap_clean",
     "kmeans_clean",
     "lda_clean",
-    #"stacking_clean",
+    #"stacking_clean",  # needs to long to create features do not use it.
     "pca_kpca_umap_kmeans_clean",
 
     # features generated on clean and filtered data

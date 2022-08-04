@@ -12,7 +12,7 @@ from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_performance_overview, analyze_feature_importance, \
-    extract_tuned_hyperparameter_from_models
+    extract_tuned_hyperparameter_from_models, compare_stacking_prediction_with_stacking_features
 from src.constants import RANDOM_STATE
 from src.create_features import create_features
 from src.feature_selection import feature_selection
@@ -308,6 +308,12 @@ if __name__ == "__main__":
         path_datasets_folder=DATASETS_FOLDER_PATH,
         path_results_file=RESULTS_FILE_PATH,
         model_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+    )
+
+    compare_stacking_prediction_with_stacking_features(
+        path_datasets_folder=DATASETS_FOLDER_PATH,
+        feature_file_name=X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME,
+        path_results_file=RESULTS_FILE_PATH,
     )
 
     print_info_performance_overview(results_file_path=RESULTS_FILE_PATH)
