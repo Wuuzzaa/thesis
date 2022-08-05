@@ -22,43 +22,44 @@ def _create_pca_features(
     :param random_state:
     :return:
     """
+    # kernel pca uses far too much ram even on mid-sized datasets or higher.
+    # So we need to use a sample of the train data
+    # pca gets slow too. just sample.
+
     # make a pca instance
     if mode == "pca":
         pca = PCA(**params)
+        sample_size = 10_000
+        print("pca mode is pca")
 
     elif mode == "kpca":
         pca = KernelPCA(**params)
+        sample_size = 1_000
+        print("pca mode is kpca")
 
     else:
         raise ValueError(f"mode {mode} is not implemented")
 
-    # X_train pca features dataframe
-    if mode == "pca":
-        print("pca fit transform train")
-        df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
-
-    elif mode == "kpca":
-        # kernel pca uses far too much ram even on mid-sized datasets or higher.
-        # So we need to use a sample of the train data
-
-        sample_size = 10_000
-
-        if len(X_train) > sample_size:
-            warnings.warn("Dataset is huge. Kernel PCA needs huge memory with too much rows. -> Sample of 10000 rows is used")
-            X_train_sample = X_train.sample(n=sample_size, random_state=random_state)
-
-            print("pca fit")
-            pca.fit(X_train_sample)
-
-            print("pca transform train")
-            df_pca_train = pd.DataFrame(pca.transform(X_train)).add_prefix(prefix)
-
-        else:
-            print("pca fit transform train")
-            df_pca_train = pd.DataFrame(pca.fit_transform(X_train)).add_prefix(prefix)
+    if len(X_train) > sample_size:
+        warnings.warn(
+            f"Dataset is huge. Kernel PCA needs huge memory with too much rows. PCA gets slow. Sample is used of {sample_size}")
+        X_train_sample = X_train.sample(n=sample_size, random_state=random_state)
 
     else:
-        raise ValueError(f"unkown mode {mode}")
+        X_train_sample = X_train
+
+    # X_train pca features dataframe
+    if mode == "pca":
+        if params["n_components"] == "mle" and X_train.shape[1] > X_train.shape[0]:
+            warnings.warn("n_components='mle' is only supported if n_samples >= n_features. Fall back to n_components=0.8")
+            pca.set_params(**{"n_components": 0.8})
+
+    print("pca fit")
+    pca.fit(X_train_sample)
+
+    # X_train pca features dataframe
+    print("pca transform train")
+    df_pca_train = pd.DataFrame(pca.transform(X_train)).add_prefix(prefix)
 
     # X_test pca features dataframe
     print("pca transform test")

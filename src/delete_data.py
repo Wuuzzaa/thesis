@@ -58,6 +58,10 @@ if __name__ == "__main__":
         # X_TRAIN_CLEAN_KPCA_FILE_NAME,
         # X_TEST_CLEAN_KPCA_FILE_NAME,
 
+        # # lda files
+        # X_TRAIN_CLEAN_LDA_FILE_NAME,
+        # X_TEST_CLEAN_LDA_FILE_NAME,
+
         # # umap files
         # X_TRAIN_CLEAN_UMAP_FILE_NAME,
         # X_TEST_CLEAN_UMAP_FILE_NAME,

@@ -1,14 +1,13 @@
 from pathlib import Path
 
 ########################################################################################################################
-# INTEGER
+# INTEGERS
 ########################################################################################################################
 RANDOM_STATE = 42
 MAX_FEATURES_FEATURE_SELECTION = 100
-N_COMPONENTS_PCA_UMAP_LDA = 2
 
 ########################################################################################################################
-# FLOAT
+# FLOATS
 ########################################################################################################################
 TRAIN_TEST_SPLIT_TRAIN_SIZE = 0.66
 
@@ -86,7 +85,6 @@ RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 ########################################################################################################################
 
 CALC_SCORES_MODES = [
-    #todo replace pca_kpca_umap_kmeans and add lda to both modes
     "baseline",
 
     # features generated on clean data (NOT filtered)
@@ -117,11 +115,44 @@ CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
 # used for hyperparameter tuning
 ########################################################################################################################
 PARAM_GRID_RANDOM_FOREST = {
-    "max_depth": [6, None],
-    "n_estimators": [50, 100, 200],
-    "max_features": ["sqrt", "log2"],
+    "max_depth": [6, 20, None],
+    "n_estimators": [100],
+    "max_features": ["sqrt"],
     "n_jobs": [-1],
-    "class_weight": ["balanced", None],
-    "random_state": [1, 42, 1337]
+    "class_weight": [None],
+    "random_state": [42]
 }
 
+########################################################################################################################
+#  FEATURE GENERATION PARAMETER DICTS
+########################################################################################################################
+# pca
+PCA_PARAMS = {
+    "n_components": 0.8,  # "mle",
+    "random_state": RANDOM_STATE,
+    "svd_solver": "full",  #"arpack",
+}
+
+# kernel pca
+KPCA_PARAMS = {
+    "n_components": None,
+    "random_state": RANDOM_STATE,
+    "kernel": "rbf",
+    "n_jobs": -1,
+    "copy_X": False,
+
+    # "auto" did run in a first test. "randomized" is faster and should be used when n_components is low according to
+    # sklearn docu/guide.
+    "eigen_solver": "randomized"
+}
+
+# kmeans
+KMEANS_PARAMS = {
+    # "n_clusters": 8, # DO NOT SET THIS BECAUSE WE USE BRUTE FORCE TO DETERMINE THIS VALUE
+    "batch_size": 256 * 16,  # 256 * cpu threads is suggested in sklearn docu
+    "verbose": 0,
+    "random_state": RANDOM_STATE,
+}
+
+# lda
+LDA_PARAMS = {}
