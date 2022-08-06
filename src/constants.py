@@ -85,30 +85,45 @@ RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
 ########################################################################################################################
 
 CALC_SCORES_MODES = [
-    "baseline",
+    # """
+    # Baseline means the cleaned features after one hot encoding.
+    # Filtered means after feature selection.
+    #
+    # featuremode_filtered means that the filter was generated on filtered basefeatures otherwise all basefeatures were used
+    # """
+    
+    # baseline features
+    "baseline_filtered",
 
-    # features generated on clean data (NOT filtered)
-    "pca_clean",
-    "kpca_clean",
-    "umap_clean",
-    "kmeans_clean",
-    "lda_clean",
-    #"stacking_clean",  # needs to long to create features do not use it.
-    "pca_kpca_umap_kmeans_clean",
+    # only new features without baseline features
+    "only_pca",
+    "only_kpca",
+    "only_kmeans",
+    "only_lda",
 
-    # features generated on clean and filtered data
-    "pca_clean_filtered",
-    "kpca_clean_filtered",
-    "umap_clean_filtered",
-    "kmeans_clean_filtered",
-    "lda_clean_filtered",
-    "stacking_clean_filtered",
-    "pca_kpca_umap_kmeans_clean_filtered",
+    "only_pca_filtered",
+    "only_kpca_filtered",
+    "only_kmeans_filtered",
+    "only_lda_filtered",
 
+    # baseline features and new features
+    "baseline_filtered_pca",
+    "baseline_filtered_kpca",
+    "baseline_filtered_kmeans",
+    "baseline_filtered_lda",
+
+    "baseline_filtered_pca_filtered",
+    "baseline_filtered_kpca_filtered",
+    "baseline_filtered_kmeans_filtered",
+    "baseline_filtered_lda_filtered",
+
+    # todo one mode with all features and feature selection on it
 ]
+
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"
 CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
+CALC_SCORES_TRAIN_TIME_COLUMN_NAME_SUFFIX = "_train_time_in_seconds"
 
 ########################################################################################################################
 # PARAM_GRID_RANDOM_FOREST

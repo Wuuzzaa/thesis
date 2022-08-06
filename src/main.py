@@ -257,20 +257,20 @@ if __name__ == "__main__":
 
     _generate_features()
 
-    # for mode in CALC_SCORES_MODES:
-    #     calc_scores(
-    #         random_state=RANDOM_STATE,
-    #         path_datasets_folder=DATASETS_FOLDER_PATH,
-    #         path_results_file=RESULTS_FILE_PATH,
-    #         mode=mode,
-    #         estimator=RandomForestClassifier(),
-    #         estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
-    #         cv=5,
-    #         estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
-    #         X_file_name=X_FILTERED_FILE_NAME,
-    #         y_file_name=Y_FILE_NAME,
-    #     )
-    #
+    for mode in CALC_SCORES_MODES:
+        calc_scores(
+            random_state=RANDOM_STATE,
+            path_datasets_folder=DATASETS_FOLDER_PATH,
+            path_results_file=RESULTS_FILE_PATH,
+            mode=mode,
+            estimator=RandomForestClassifier(),
+            estimator_param_grid=PARAM_GRID_RANDOM_FOREST,
+            cv=5,
+            estimator_file_path_suffix=CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX,
+            X_file_name=X_FILTERED_FILE_NAME,
+            y_file_name=Y_FILE_NAME,
+        )
+
     # ####################################################################################################################
     # # RESULTS STATISTICS
     # ####################################################################################################################
