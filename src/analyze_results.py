@@ -8,10 +8,13 @@ import joblib
 import numpy as np
 
 from src.calc_scores import get_X_train_X_test_y_train_y_test
-from src.util import get_sub_folders
+from src.util import get_sub_folders, print_function_header
 
 
 def add_compare_scores_columns(results_file_path: Path):
+    # print header
+    print_function_header(f"add compare scores columns to results dataframe")
+
     # read file into dataframe
     df = pd.read_feather(results_file_path)
 
@@ -19,27 +22,27 @@ def add_compare_scores_columns(results_file_path: Path):
     mode_test_score_better_baseline_columns_clean_filtered = []
 
     for mode in CALC_SCORES_MODES:
-        if mode == "baseline":
+        if mode == "baseline_filtered":
             continue
 
         # train score vs baseline
-        df[f"{mode}_train_score > baseline_train_score"] = df[f"{mode}_train_cv_score"] > df["baseline_train_cv_score"]
+        df[f"{mode}_train_score > baseline_filtered_train_score"] = df[f"{mode}_train_cv_score"] > df["baseline_filtered_train_cv_score"]
 
         # test score vs baseline
-        df[f"{mode}_test_score > baseline_test_score"] = df[f"{mode}_test_score"] > df["baseline_test_score"]
+        df[f"{mode}_test_score > baseline_filtered_test_score"] = df[f"{mode}_test_score"] > df["baseline_filtered_test_score"]
 
         # at the moment we have features on clean data and features on clean and filtered data
-        if "_clean_filtered" in mode:
-            mode_test_score_better_baseline_columns_clean_filtered.append(f"{mode}_test_score > baseline_test_score")
+        if "_filtered" in mode and not "baseline_filtered" in mode:
+            mode_test_score_better_baseline_columns_clean_filtered.append(f"{mode}_test_score > baseline_filtered_test_score")
         else:
-            mode_test_score_better_baseline_columns_clean.append(f"{mode}_test_score > baseline_test_score")
+            mode_test_score_better_baseline_columns_clean.append(f"{mode}_test_score > baseline_filtered_test_score")
 
         # test score change in percent vs baseline
-        df[f"{mode}_test_score_change_to_baseline"] = (df[f"{mode}_test_score"] / df["baseline_test_score"] - 1) * 100
+        df[f"{mode}_test_score_change_to_baseline_filtered"] = (df[f"{mode}_test_score"] / df["baseline_filtered_test_score"] - 1) * 100
 
     # check if any new feature type improved the score compared to the baseline
-    df["any_feature_type_clean_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns_clean].any(axis='columns')
-    df["any_feature_type_clean_filtered_test_score > baseline_test_score"] = df[mode_test_score_better_baseline_columns_clean_filtered].any(axis='columns')
+    df["any_feature_type_clean_test_score > baseline_filtered_test_score"] = df[mode_test_score_better_baseline_columns_clean].any(axis='columns')
+    df["any_feature_type_clean_filtered_test_score > baseline_filtered_test_score"] = df[mode_test_score_better_baseline_columns_clean_filtered].any(axis='columns')
 
     # store again
     df.to_feather(results_file_path)
@@ -61,10 +64,10 @@ def print_info_performance_overview(results_file_path: Path):
     print("")
 
     for mode in CALC_SCORES_MODES:
-        if mode == "baseline":
+        if mode == "baseline_filtered":
             continue
 
-        n_improved_datasets = sum(df[f'{mode}_test_score > baseline_test_score'])
+        n_improved_datasets = sum(df[f'{mode}_test_score > baseline_filtered_test_score'])
         improved_dataset_percent = round(n_improved_datasets / n_datasets * 100, 2)
 
         print(f"{mode}:".upper())
@@ -72,7 +75,7 @@ def print_info_performance_overview(results_file_path: Path):
         print("")
 
     # All feature modes together on clean data (not filtered)
-    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_test_score > baseline_test_score"])
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_test_score > baseline_filtered_test_score"])
     any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
 
     print("---")
@@ -80,7 +83,7 @@ def print_info_performance_overview(results_file_path: Path):
     print("---")
 
     # All feature modes together on clean data and filtered
-    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_filtered_test_score > baseline_test_score"])
+    n_any_new_feature_type_improved_test_score_compared_to_baseline = sum(df["any_feature_type_clean_filtered_test_score > baseline_filtered_test_score"])
     any_new_feature_type_improved_test_score_compared_to_baseline_percent = round(n_any_new_feature_type_improved_test_score_compared_to_baseline / n_datasets * 100, 2)
 
     print("---")
@@ -97,10 +100,10 @@ def print_info_performance_overview(results_file_path: Path):
     print("")
 
     for mode in CALC_SCORES_MODES:
-        if mode == "baseline":
+        if mode == "baseline_filtered":
             continue
 
-        n_improved_datasets = sum(df[f'{mode}_train_score > baseline_train_score'])
+        n_improved_datasets = sum(df[f'{mode}_train_score > baseline_filtered_train_score'])
         improved_dataset_percent = round(n_improved_datasets / n_datasets * 100, 2)
 
         print(f"{mode}:".upper())
@@ -334,7 +337,6 @@ def compare_stacking_prediction_with_stacking_features(
     accuracy_dict = dict(sorted((accuracy_dict.items())))
 
     df_results["stacking_test_score"] = accuracy_dict.values()
-    pass
     df_results.to_feather(path_results_file)
 
 
