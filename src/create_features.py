@@ -97,10 +97,13 @@ def create_features(
             df_train, df_test = _create_pca_features(
                 X_train=X_train,
                 X_test=X_test,
+                y_train=y_train,
                 params=transformer_params,
                 prefix=prefix,
                 mode=pca_mode,
                 random_state=random_state,
+                early_stopping=10,
+                max_n_components_to_create=100,
             )
 
         # elif feature_type == "umap":

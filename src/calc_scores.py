@@ -103,7 +103,7 @@ def calc_scores(
             X_test_dfs.append(X_test_baseline)
 
         # pca
-        if "pca" in mode:
+        if "pca" in mode and "kpca" not in mode:
             if "pca_filtered" not in mode:
                 print("add pca dataframes")
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME)))
