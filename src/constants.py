@@ -119,6 +119,10 @@ CALC_SCORES_MODES = [
     # best features selected from basefeatures and new features
     "selected_features",
     "selected_features_filtered",
+
+    # all features used without feature selection
+    "all_features",
+    "all_features_filtered",
 ]
 
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"

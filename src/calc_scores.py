@@ -152,12 +152,12 @@ def calc_scores(
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_LDA_FILE_NAME)))
 
         # modes with all features used (at least before possible feature selection)
-        if "selected_features" in mode:
+        if any([x in mode for x in ["selected_features", "all_features"]]):
             print("add baseline dataframes")
             X_train_dfs.append(X_train_baseline)
             X_test_dfs.append(X_test_baseline)
 
-            if "selected_features_filtered" not in mode:
+            if "_filtered" not in mode:
                 print("add pca dataframes")
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME)))
