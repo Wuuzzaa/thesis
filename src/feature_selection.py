@@ -202,3 +202,28 @@ def feature_selection(
     df_results["n_features_filtered"] = dict_n_features_filtered.values()
     df_results.to_feather(path_results_file)
 
+
+def feature_selection_rfecv(X_train, X_test, y_train, random_state, sample_size=None):
+    # sample
+    if sample_size is not None and len(X_train) > sample_size:
+        print(f"use sample size of {sample_size}")
+        X_select, _, y_select, _ = train_test_split(X_train, y_train, train_size=sample_size, random_state=random_state)
+
+    else:
+        X_select = X_train.copy()
+        y_select = y_train.copy()
+
+    # select the best features recursive with cross validation
+    selector = RFECV(
+        estimator=RandomForestClassifier(random_state=random_state, n_jobs=-1, max_depth=12),
+        step=1,
+        cv=5,
+        n_jobs=-1,
+        verbose=0,
+        #min_features_to_select=10
+    )
+
+    selector.fit(X_select, y_select)
+    selected_features = list(selector.get_feature_names_out())
+
+    return X_train[selected_features], X_test[selected_features]

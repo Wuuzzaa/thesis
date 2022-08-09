@@ -57,7 +57,6 @@ X_TEST_CLEAN_STACKING_FILE_NAME     = "stacking_test_clean.feather"
 X_TRAIN_CLEAN_FILTERED_STACKING_FILE_NAME    = "stacking_train_clean_filtered.feather"
 X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME     = "stacking_test_clean_filtered.feather"
 
-
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 
@@ -117,7 +116,9 @@ CALC_SCORES_MODES = [
     "baseline_filtered_kmeans_filtered",
     "baseline_filtered_lda_filtered",
 
-    # todo one mode with all features and feature selection on it
+    # best features selected from basefeatures and new features
+    "selected_features",
+    "selected_features_filtered",
 ]
 
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"

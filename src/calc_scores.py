@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split, cross_val_score, GridSearc
 from pathlib import Path
 import joblib
 
+from src.feature_selection import feature_selection_rfecv
 from src.util import get_sub_folders, print_function_header
 
 
@@ -150,9 +151,58 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_LDA_FILE_NAME)))
 
+        # modes with all features used (at least before possible feature selection)
+        if "selected_features" in mode:
+            print("add baseline dataframes")
+            X_train_dfs.append(X_train_baseline)
+            X_test_dfs.append(X_test_baseline)
+
+            if "selected_features_filtered" not in mode:
+                print("add pca dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_PCA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_PCA_FILE_NAME)))
+
+                print("add kpca dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KPCA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KPCA_FILE_NAME)))
+
+                print("add kmeans dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_KMEANS_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_KMEANS_FILE_NAME)))
+
+                print("add lda dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_LDA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_LDA_FILE_NAME)))
+
+            else:
+                print("add pca filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_PCA_FILE_NAME)))
+
+                print("add kpca filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KPCA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KPCA_FILE_NAME)))
+
+                print("add kmeans filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_KMEANS_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_KMEANS_FILE_NAME)))
+
+                print("add lda filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_LDA_FILE_NAME)))
+
         # concat all needed dataframes for train and test data
         X_train = pd.concat(X_train_dfs, axis="columns")
         X_test = pd.concat(X_test_dfs, axis="columns")
+
+        # run feature selection when needed
+        if "selected_features" in mode:
+            print("\n---")
+            print("select the best features with recursive feature elimination cross validation")
+            print(f"features before selection: {len(X_train.columns)}")
+            X_train, X_test = feature_selection_rfecv(X_train, X_test, y_train, random_state, sample_size=10_000)
+            print(f"features after selection: {len(X_train.columns)}")
+            print("---\n")
 
         # short feedback of the data and classes
         print(f"X_train shape: {X_train.shape}")
