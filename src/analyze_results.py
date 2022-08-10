@@ -7,8 +7,8 @@ from constants import *
 import joblib
 import numpy as np
 
-from src.calc_scores import get_X_train_X_test_y_train_y_test
-from src.util import get_sub_folders, print_function_header
+from calc_scores import get_X_train_X_test_y_train_y_test
+from util import get_sub_folders, print_function_header
 
 
 def add_compare_scores_columns(results_file_path: Path):

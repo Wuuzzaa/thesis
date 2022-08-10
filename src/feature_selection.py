@@ -9,7 +9,7 @@ from tqdm import tqdm
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-from src.util import get_sub_folders
+from util import get_sub_folders
 
 
 def _boruta_selection(X, y, random_state):

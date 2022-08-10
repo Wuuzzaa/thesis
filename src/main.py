@@ -13,9 +13,9 @@ from extract_datasets_info import extract_datasets_info, extract_amount_ohe_feat
 from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_performance_overview, analyze_feature_importance, \
     extract_tuned_hyperparameter_from_models, compare_stacking_prediction_with_stacking_features
-from src.constants import RANDOM_STATE
-from src.create_features import create_features
-from src.feature_selection import feature_selection
+from constants import RANDOM_STATE
+from create_features import create_features
+from feature_selection import feature_selection
 
 
 def _preprocessing():

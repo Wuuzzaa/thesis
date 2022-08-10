@@ -2,13 +2,13 @@ import warnings
 
 import pandas as pd
 
-from src.calc_scores import get_X_train_X_test_y_train_y_test
-from src.kmeans_feature import _create_kmeans_features
-from src.lda_feature import _create_lda_features
-from src.pca_feature import _create_pca_features
-from src.stacking_feature import _create_stacking_features
-from src.umap_feature import _create_umap_features
-from src.util import print_function_header, get_sub_folders
+from calc_scores import get_X_train_X_test_y_train_y_test
+from kmeans_feature import _create_kmeans_features
+from lda_feature import _create_lda_features
+from pca_feature import _create_pca_features
+from stacking_feature import _create_stacking_features
+from umap_feature import _create_umap_features
+from util import print_function_header, get_sub_folders
 from pathlib import Path
 from tqdm import tqdm
 from time import time

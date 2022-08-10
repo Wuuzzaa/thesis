@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split, cross_val_score, GridSearc
 from pathlib import Path
 import joblib
 
-from src.feature_selection import feature_selection_rfecv
-from src.util import get_sub_folders, print_function_header
+from feature_selection import feature_selection_rfecv
+from util import get_sub_folders, print_function_header
 
 
 def calc_scores(
