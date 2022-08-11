@@ -1,4 +1,9 @@
 from pathlib import Path
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 ########################################################################################################################
 # INTEGERS
@@ -50,12 +55,6 @@ X_TRAIN_CLEAN_LDA_FILE_NAME    = "lda_train_clean.feather"
 X_TEST_CLEAN_LDA_FILE_NAME     = "lda_test_clean.feather"
 X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME    = "lda_train_clean_filtered.feather"
 X_TEST_CLEAN_FILTERED_LDA_FILE_NAME     = "lda_test_clean_filtered.feather"
-
-# stacking
-X_TRAIN_CLEAN_STACKING_FILE_NAME    = "stacking_train_clean.feather"
-X_TEST_CLEAN_STACKING_FILE_NAME     = "stacking_test_clean.feather"
-X_TRAIN_CLEAN_FILTERED_STACKING_FILE_NAME    = "stacking_train_clean_filtered.feather"
-X_TEST_CLEAN_FILTERED_STACKING_FILE_NAME     = "stacking_test_clean_filtered.feather"
 
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
@@ -123,11 +122,16 @@ CALC_SCORES_MODES = [
     # all features used without feature selection
     "all_features",
     "all_features_filtered",
+
+    # stacking
+    "stacking_baseline_filtered",
+    "stacking_all_features",  # basefeatures filtered, pca, kpca etc. not filtered
 ]
 
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"
 CALC_SCORES_TEST_SCORE_COLUMN_NAME_SUFFIX = "_test_score"
 CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
+CALC_SCORES_STACKING_FILE_PATH_SUFFIX = "_stacking.joblib"
 CALC_SCORES_TRAIN_TIME_COLUMN_NAME_SUFFIX = "_train_time_in_seconds"
 
 ########################################################################################################################
@@ -141,6 +145,24 @@ PARAM_GRID_RANDOM_FOREST = {
     "n_jobs": [-1],
     "class_weight": [None],
     "random_state": [42]
+}
+
+PARAM_GRID_STACKING_PARAMS = {
+    "estimators": [
+        [
+            ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
+            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=200)),
+            ("knn", KNeighborsClassifier(n_jobs=-1)),
+            ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+            ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
+            #("mlp", MLPClassifier(random_state=RANDOM_STATE)),
+        ]
+    ],
+    "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=200)],
+    "cv": [5],
+    "n_jobs": [-1],
+    "passthrough": [False],
+    "verbose": [0],
 }
 
 ########################################################################################################################
@@ -176,3 +198,22 @@ KMEANS_PARAMS = {
 
 # lda
 LDA_PARAMS = {}
+
+########################################################################################################################
+#  STACKING PARAMETER DICT
+########################################################################################################################
+# STACKING_PARAMS = {
+#     "estimators": [
+#         ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
+#         ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=1000)),
+#         ("knn", KNeighborsClassifier(n_jobs=-1)),
+#         ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+#         ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
+#         ("mlp", MLPClassifier(random_state=RANDOM_STATE))
+#     ],
+#     "final_estimator": LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=1000),
+#     "cv": 5,
+#     "n_jobs": -1,
+#     "passthrough": False,
+#     "verbose": 2,
+# }

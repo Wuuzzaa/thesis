@@ -136,15 +136,6 @@ def create_features(
                 random_state=random_state,
             )
 
-        # elif feature_type == "stacking":
-        #     df_train, df_test = _create_stacking_features(
-        #         X_train=X_train,
-        #         X_test=X_test,
-        #         y_train=y_train,
-        #         params=transformer_params,
-        #         prefix=prefix,
-        #     )
-
         else:
             raise NotImplemented(f"{feature_type} is not implemented.")
 

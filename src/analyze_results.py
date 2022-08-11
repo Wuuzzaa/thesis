@@ -111,107 +111,10 @@ def print_info_performance_overview(results_file_path: Path):
         print("")
 
 
-def analyze_feature_importance(path_results_file: Path, path_datasets_folder: Path, path_feature_importance_folder: Path):
-    # todo add umap analyze_feature_importance?
-    # todo add kmeans analyze_feature_importance?
-    # todo add pca_kpca_umap_kmeans_clean analyze_feature_importance?
-    # first get the feature importance from each model and store them in files
-    _extract_feature_importance_from_models(path_datasets_folder, path_feature_importance_folder)
-
-    # load results dataframe
-    df_results = pd.read_feather(path_results_file)
-
-    # we just care for modes which have pca features
-    pca_modes = [mode for mode in CALC_SCORES_MODES if "pca" in mode]
-
-    # check if results dataframe has columns if so stop it.
-    all_modes_done = True
-    for mode in pca_modes:
-        if f"{mode}_pca_features_importance_mean_factor" not in df_results.columns:
-            all_modes_done = False
-
-    if all_modes_done:
-        warnings.warn("Feature importance columns already in results dataframe. Done")
-        return
-
-    # containers
-    feature_importance_files = []
-
-    # key mode, value dict with key dataset_id and value pca relative feature importance to mean
-    feature_importance_dict = {}
-
-    # set empty dicts for each mode
-    for mode in pca_modes:
-        if ("pca" in mode) and (mode != "pca_kpca_umap_kmeans_clean"):
-            feature_importance_dict[mode] = {}
-
-    # get each feature importance file path
-    for path in path_feature_importance_folder.iterdir():
-        for mode in pca_modes:
-            feature_importance_files.append(path.joinpath(mode, FEATURE_IMPORTANCE_FILE_NAME))
-
-    # calculate the factor how much more important pca features are compared to the others
-    for file in feature_importance_files:
-        df = pd.read_feather(file)
-        mode = file.parts[-2]
-        dataset_id = int(file.parts[-3]) # need int of the dataset id for sorting on
-
-        mean_importance = df["importance"].mean()
-        mean_pca_importance = df[df['feature'].str.contains('pca')]["importance"].mean()
-        feature_importance_dict[mode][dataset_id] = mean_pca_importance / mean_importance
-
-    # add columns to the results dataframe
-    for mode in pca_modes:
-        temp_dict = feature_importance_dict[mode]
-        temp_dict = dict(sorted((temp_dict.items())))
-
-        df_results[f"{mode}_pca_features_importance_mean_factor"] = temp_dict.values()
-
-    # store the results dataframe
-    df_results.to_feather(path_results_file)
-
-
-def _extract_feature_importance_from_models(path_datasets_folder: Path, path_feature_importance_folder: Path):
-    if path_feature_importance_folder.exists():
-        warnings.warn(f"Feature importance folder {path_feature_importance_folder} already exists. Done")
-        return
-
-    dataset_folders = get_sub_folders(path_datasets_folder)
-
-    # extract feature importance from each dataset
-    dataset_folder: Path
-    for dataset_folder in tqdm(dataset_folders):
-        print(f"current folder: {dataset_folder}")
-
-        # each mode has its own feature importance
-        for mode in CALC_SCORES_MODES:
-            # set the path to the random forest model
-            model_file_path = dataset_folder.joinpath(f"{mode}{CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX}")
-
-            # load the model
-            rf: RandomForestClassifier = joblib.load(model_file_path)
-
-            # make a dataframe with the features and the importance sorted
-            data = {
-                "feature": np.array(rf.feature_names_in_),
-                "importance": np.array(rf.feature_importances_)
-            }
-
-            df_feature_importance = pd.DataFrame(data). \
-                sort_values(by=["importance"], ascending=False). \
-                reset_index(drop=True)
-
-            # create feature importance folder
-            folder_path = path_feature_importance_folder.joinpath(dataset_folder.name, mode)
-            folder_path.mkdir(parents=True, exist_ok=True)
-
-            # make the feather file
-            file_path = folder_path.joinpath(FEATURE_IMPORTANCE_FILE_NAME)
-            print(f"store feature importance to: {file_path}")
-            df_feature_importance.to_feather(file_path)
-
-
-def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_results_file: Path, model_file_path_suffix: str):
+def extract_tuned_hyperparameter_from_models(
+        path_datasets_folder: Path,
+        path_results_file: Path,
+):
     print("")
     print("#"*80)
     print("extract tuned hyperparameter from models".upper())
@@ -237,6 +140,13 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
             print()
             print("---")
             print(f"folder: {dataset_folder}, mode: {mode}")
+
+            # set the model file path suffix
+            if "stacking" in mode:
+                model_file_path_suffix = CALC_SCORES_STACKING_FILE_PATH_SUFFIX
+
+            else:
+                model_file_path_suffix = CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX
 
             # set the column name to add for the model according to mode
             columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
@@ -281,63 +191,6 @@ def extract_tuned_hyperparameter_from_models(path_datasets_folder: Path, path_re
 
     df_results.to_feather(path_results_file)
 
-
-def compare_stacking_prediction_with_stacking_features(
-        path_datasets_folder: Path,
-        feature_file_name: str,
-        path_results_file: Path
-) -> None:
-    # todo features are only present for clean_filtered. Takes to long for clean mode
-
-    # get all dataset folders
-    dataset_folders = get_sub_folders(path_datasets_folder)
-
-    # load results dataframe
-    df_results = pd.read_feather(path_results_file)
-
-    # accuracy dict:
-    #   key dataset_id: int
-    #   value accuracy score: float
-    accuracy_dict = {}
-
-    dataset_folder: Path
-    for dataset_folder in tqdm(dataset_folders):
-        feature_file_path = dataset_folder.joinpath(feature_file_name)
-
-        df_features: pd.DataFrame
-        df_features = pd.read_feather(feature_file_path)
-
-        # get the highest probability as prediction by identifying the columnname and extract the the prediction from it.
-        # Also convert str to int.
-        df_features["prediction"] = df_features.\
-            idxmax(axis="columns").\
-            str.replace(pat="stacking_", repl="").\
-            astype("int")
-
-        # get X and y train and test splitted
-        X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
-            dataset_folder=dataset_folder,
-            random_state=RANDOM_STATE,
-            X_file_name=X_CLEAN_FILE_NAME,
-            y_file_name=Y_FILE_NAME,
-        )
-
-        # reset index
-        y_test.reset_index(drop=True, inplace=True)
-
-        # get predictions and actual class in on dataframe
-        df_features["y_test"] = y_test
-
-        # calculate the accuracy
-        accuracy = (df_features["prediction"] == df_features["y_test"]).sum() / len(df_features)
-
-        # store in dict
-        accuracy_dict[int(dataset_folder.name)] = accuracy
-
-    accuracy_dict = dict(sorted((accuracy_dict.items())))
-
-    df_results["stacking_test_score"] = accuracy_dict.values()
-    df_results.to_feather(path_results_file)
 
 
 
