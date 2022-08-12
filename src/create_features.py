@@ -6,7 +6,6 @@ from calc_scores import get_X_train_X_test_y_train_y_test
 from kmeans_feature import _create_kmeans_features
 from lda_feature import _create_lda_features
 from pca_feature import _create_pca_features
-from stacking_feature import _create_stacking_features
 from umap_feature import _create_umap_features
 from util import print_function_header, get_sub_folders
 from pathlib import Path
@@ -27,6 +26,7 @@ def create_features(
         path_results_file: Path,
         pca_mode: str = None,
         kmeans_n_cluster_range: range = None,
+        umap_range_n_components: range = None,
 ):
     # set the feature_name_column accoring to the type of feature created and the kind of train data like cleaned or filtered
     feature_type_column_name = feature_type
@@ -106,15 +106,16 @@ def create_features(
                 max_n_components_to_create=100,
             )
 
-        # elif feature_type == "umap":
-        #     # make the features dataframes for train and test
-        #     # do not use y_train even when umap is able to do it -> it just overfits
-        #     df_train, df_test = _create_umap_features(
-        #         X_train=X_train,
-        #         X_test=X_test,
-        #         params=transformer_params,
-        #         prefix=prefix,
-        #     )
+        elif feature_type == "umap":
+            df_train, df_test = _create_umap_features(
+                X_train=X_train,
+                X_test=X_test,
+                params=transformer_params,
+                prefix=prefix,
+                random_state=random_state,
+                range_n_components=umap_range_n_components,
+                y_train=y_train
+            )
 
         elif feature_type == "kmeans":
             df_train, df_test = _create_kmeans_features(

@@ -1,5 +1,9 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import silhouette_score
+from sklearn.model_selection import cross_val_score
 from umap import UMAP
+from src.pca_feature import _search_optimal_n_components
 
 
 def _create_umap_features(
@@ -7,15 +11,89 @@ def _create_umap_features(
     X_test: pd.DataFrame,
     params: dict,
     prefix: str,
+    random_state: int,
+    y_train: pd.Series,
+    range_n_components: range = range(1, 6),
 ):
+    # set params
     transformer = UMAP(**params)
 
+    # make a random forest instance
+    rf = RandomForestClassifier(random_state=random_state, n_jobs=-1, max_depth=10)
+
+    # cv_scores_dict
+    # key n_components: int
+    # value cv_score: float
+    cv_scores_dict = {}
+
+    # check if we use a subset when X is huge
+    X_train_sample = X_train.copy()
+    y_train_sample = y_train.copy()
+
+    max_train_size = 10_000
+    if len(X_train) > max_train_size:
+        print(f"X is too huge use a subset for computational speed. {max_train_size} instead of {len(X_train)} samples are used.")
+        X_train_sample["y"] = y_train_sample
+        X_train_sample = X_train_sample.sample(n=max_train_size, random_state=random_state)
+
+        # reset index
+        X_train_sample = X_train_sample.reset_index(drop=True)
+
+        y_train_sample = X_train_sample["y"]
+        X_train_sample = X_train_sample.drop(columns="y")
+
+    # just use a half of the data to avoid overfitting
+    size = int(len(X_train_sample) / 3)
+
+    print(f"just use one third of the data {size} samples to avoid overfitting")
+    X_train_sample = X_train_sample.head(size)
+    y_train_sample = y_train_sample.head(size)
+
+    # just for feedback in the traintime print baseline score
+    print("\n---")
+    print("Cross validation score without umap features:")
+    print(cross_val_score(rf, X_train, y_train, cv=5, n_jobs=-1).mean())
+    print("---\n")
+
+    # search best n_components with brute force and cross validation score
+    for n_components in range_n_components:
+        print(f"calculate cross validation score for n_components: {n_components}")
+        transformer.set_params(**{"n_components": n_components})
+
+        transformer.fit(X_train_sample, y_train_sample)
+        X_train_trans = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
+
+        # concat baseline features with umap features
+        X_train_trans_baseline = pd.concat([X_train, X_train_trans], axis="columns")
+
+        # calc cross validation score using umap and baseline features
+        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5).mean()
+
+        cv_scores_dict[n_components] = cv_score
+        print(f"Cross validation score: {cv_score}\n")
+
+    # get the optimal n_components
+    optimal_n_components_by_cv_score = max(cv_scores_dict, key=cv_scores_dict.get)
+    print(f"optimal n_components: {optimal_n_components_by_cv_score}")
+
+    # set the optimal n_components
+    transformer.set_params(**{"n_components": optimal_n_components_by_cv_score})
+
+    print("umap fit")
+    # fit with optimal k
     # UMAP can use the target info (y_train) too. Seems to overfit too hard so do not use it.
     # When the whole train data is used it overfits just use less data?
-    transformer.fit(X_train)
+    transformer.fit(X_train_sample)
 
-    df_train = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
-    df_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)
+    # X_train umap features dataframe
+    print("umap transform train")
+    df_umap_train = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
+
+    # X_test pca features dataframe
+    print("umap transform test")
+    df_umap_test = pd.DataFrame(transformer.transform(X_test)).add_prefix(prefix)
+
+    return df_umap_train, df_umap_test
 
     #todo POSSIBLE BUG BUT NOT ON THOSE DATASETS SO LET IT RUN ;-)
 

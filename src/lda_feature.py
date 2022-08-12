@@ -29,7 +29,7 @@ def _create_lda_features(
 
     # lda restrictions:
     # n_components cannot be larger than min(n_features, n_classes - 1)
-    upper_bound_n_components = min(len(X_train.columns), n_classes)  # not -1 cause we run a for loop till -1 anyway
+    upper_bound_n_components = min(len(X_train.columns), n_classes)  # not -1 because we run a for loop till -1 anyway
 
     # not +1 because lda restrictions
     for n_components in range(1, upper_bound_n_components):
@@ -40,7 +40,10 @@ def _create_lda_features(
 
         X_temp_train = transformer.fit_transform(X_train.copy(), y_train)
 
-        cv_score = cross_val_score(estimator=rf, X=X_temp_train, y=y_train, cv=5, n_jobs=-1).mean()
+        # use baseline features and lda features for the cross validation score calculation
+        X_temp_train_baseline = pd.concat([X_temp_train, X_train], axis="columns")
+
+        cv_score = cross_val_score(estimator=rf, X=X_temp_train_baseline, y=y_train, cv=5, n_jobs=-1).mean()
         print(f"cv_score: {cv_score}")
 
         cv_scores_dict[n_components] = cv_score

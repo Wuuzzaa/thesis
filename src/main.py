@@ -93,40 +93,34 @@ def _generate_features():
             path_results_file=RESULTS_FILE_PATH,
         )
 
-        # ################################################################################################################
-        # # GENERATE UMAP FEATURES
-        # ################################################################################################################
-        # umap_params = {
-        #     "n_neighbors": 100,  # default 15
-        #     "n_components": N_COMPONENTS_PCA_UMAP_LDA,
-        #     "n_jobs": -1,
-        #     "random_state": RANDOM_STATE,
-        #     "verbose": True,
-        # }
-        #
-        # # set train, test filenames according to the Type of X (clean, filtered, etc.)
-        # if X_file_name == X_CLEAN_FILE_NAME:
-        #     train_filename = X_TRAIN_CLEAN_UMAP_FILE_NAME
-        #     test_filename = X_TEST_CLEAN_UMAP_FILE_NAME
-        #
-        # elif X_file_name == X_FILTERED_FILE_NAME:
-        #     train_filename = X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME
-        #     test_filename = X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME
-        #
-        # else:
-        #     raise (NotImplemented(f"{X_file_name} not implemented"))
-        #
-        # create_features(
-        #     feature_type="umap",
-        #     train_filename=train_filename,
-        #     test_filename=test_filename,
-        #     datasets_folder=DATASETS_FOLDER_PATH,
-        #     transformer_params=umap_params,
-        #     prefix="umap_",
-        #     random_state=RANDOM_STATE,
-        #     X_file_name=X_file_name,
-        #     y_file_name=Y_FILE_NAME,
-        # )
+        ################################################################################################################
+        # GENERATE UMAP FEATURES
+        ################################################################################################################
+        # set train, test filenames according to the Type of X (clean, filtered, etc.)
+        if X_file_name == X_CLEAN_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_UMAP_FILE_NAME
+            test_filename = X_TEST_CLEAN_UMAP_FILE_NAME
+
+        elif X_file_name == X_FILTERED_FILE_NAME:
+            train_filename = X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME
+            test_filename = X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME
+
+        else:
+            raise (NotImplemented(f"{X_file_name} not implemented"))
+
+        create_features(
+            feature_type="umap",
+            train_filename=train_filename,
+            test_filename=test_filename,
+            datasets_folder=DATASETS_FOLDER_PATH,
+            transformer_params=UMAP_PARAMS,
+            prefix="umap_",
+            random_state=RANDOM_STATE,
+            X_file_name=X_file_name,
+            y_file_name=Y_FILE_NAME,
+            path_results_file=RESULTS_FILE_PATH,
+            umap_range_n_components=range(1, 6)
+        )
 
         ################################################################################################################
         # GENERATE KMEANS FEATURES

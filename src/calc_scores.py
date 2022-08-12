@@ -151,6 +151,18 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_LDA_FILE_NAME)))
 
+        # umap
+        if "umap" in mode:
+            if "umap_filtered" not in mode:
+                print("add umap dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_UMAP_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_UMAP_FILE_NAME)))
+
+            else:
+                print("add umap filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME)))
+
         # modes with all features used (at least before possible feature selection)
         if any([x in mode for x in ["selected_features", "all_features"]]):
             print("add baseline dataframes")
@@ -288,5 +300,8 @@ def get_X_train_X_test_y_train_y_test(dataset_folder: Path, random_state: int, X
     # drop index to be able to concat on axis columns
     X_train.reset_index(drop=True, inplace=True)
     X_test.reset_index(drop=True, inplace=True)
+
+    y_train.reset_index(drop=True, inplace=True)
+    y_test.reset_index(drop=True, inplace=True)
 
     return X_train, X_test, y_train, y_test

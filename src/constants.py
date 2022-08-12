@@ -98,22 +98,26 @@ CALC_SCORES_MODES = [
     "only_kpca",
     "only_kmeans",
     "only_lda",
+    "only_umap",
 
     "only_pca_filtered",
     "only_kpca_filtered",
     "only_kmeans_filtered",
     "only_lda_filtered",
+    "only_umap_filtered",
 
     # baseline features and new features
     "baseline_filtered_pca",
     "baseline_filtered_kpca",
     "baseline_filtered_kmeans",
     "baseline_filtered_lda",
+    "baseline_filtered_umap",
 
     "baseline_filtered_pca_filtered",
     "baseline_filtered_kpca_filtered",
     "baseline_filtered_kmeans_filtered",
     "baseline_filtered_lda_filtered",
+    "baseline_filtered_umap_filtered",
 
     # best features selected from basefeatures and new features
     "selected_features",
@@ -198,6 +202,16 @@ KMEANS_PARAMS = {
 
 # lda
 LDA_PARAMS = {}
+
+# umap
+UMAP_PARAMS = {
+    # for clustering https://umap-learn.readthedocs.io/en/latest/clustering.html
+    "n_neighbors": 30,  # default 15. Should be increased to 30
+    "n_jobs": -1,
+    "random_state": RANDOM_STATE,
+    "verbose": False,
+    "min_dist": 0,
+}
 
 ########################################################################################################################
 #  STACKING PARAMETER DICT

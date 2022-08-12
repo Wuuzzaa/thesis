@@ -55,13 +55,14 @@ def _create_pca_features(
         X_train_sample = X_train.copy()
 
     optimal_n_components = _search_optimal_n_components(
-        pca=pca,
+        transformer=pca,
         random_state=random_state,
         X_train=X_train,
         max_n_components_to_create=max_n_components_to_create,
         X_train_sample=X_train_sample,
         y_train=y_train,
         early_stopping=early_stopping,
+        prefix=prefix,
     )
 
     pca.set_params(**{"n_components": optimal_n_components})
@@ -81,25 +82,16 @@ def _create_pca_features(
 
 
 def _search_optimal_n_components(
-        pca,
+        transformer,
         random_state,
         X_train,
         max_n_components_to_create,
         X_train_sample,
         y_train,
         early_stopping,
+        prefix,
 ) -> int:
-    """
 
-    :param pca:
-    :param random_state:
-    :param X_train:
-    :param max_n_components_to_create:
-    :param X_train_sample:
-    :param y_train:
-    :param early_stopping:
-    :return: int
-    """
     # make a random forest instance
     rf = RandomForestClassifier(random_state=random_state, n_jobs=-1)
 
@@ -118,19 +110,22 @@ def _search_optimal_n_components(
     for n_components in range(1, range_upper_bound):
         print("\n---")
         print(f"test n_components = {n_components}")
-        pca.set_params(**{"n_components": n_components})
+        transformer.set_params(**{"n_components": n_components})
 
         print("fit...")
-        pca.fit(X_train_sample)
+        transformer.fit(X_train_sample)
 
         print("transform train data...")
-        X_train_trans = pd.DataFrame(pca.transform(X_train)).add_prefix("pca_")
+        X_train_trans = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
 
-        cv_score = cross_val_score(rf, X_train_trans, y_train, cv=5).mean()
+        # calc cross validation score using pca and baseline features
+        X_train_trans_baseline = pd.concat([X_train, X_train_trans], axis="columns")
+
+        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5).mean()
 
         cv_scores_dict[n_components] = cv_score
 
-        print(f"Cross validation score pca: {cv_score}")
+        print(f"Cross validation score: {cv_score}")
 
         # condition of a knee is at least two points
         if len(cv_scores_dict) > 1:
