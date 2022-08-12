@@ -22,7 +22,8 @@ def add_compare_scores_columns(results_file_path: Path):
     mode_test_score_better_baseline_columns_clean_filtered = []
 
     for mode in CALC_SCORES_MODES:
-        if mode == "baseline_filtered":
+        # skip baseline and stacking modes
+        if mode == "baseline_filtered" or "stacking" in mode:
             continue
 
         # train score vs baseline
@@ -178,15 +179,21 @@ def extract_tuned_hyperparameter_from_models(
 
     # add new columns to the results dataframe
     for mode in CALC_SCORES_MODES:
-        # select the dict with the current mode from the hyperparameter dict and sort it
-        temp_dict = hyperparameter_dict[mode]
-        temp_dict = dict(sorted((temp_dict.items())))
+        # set the model file path suffix
+        if "stacking" in mode:
+            model_file_path_suffix = CALC_SCORES_STACKING_FILE_PATH_SUFFIX
+
+        else:
+            model_file_path_suffix = CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX
 
         # set the column name to add for the model according to mode
         columnname = f"model_hyperparameter_{mode}{model_file_path_suffix}".replace(".joblib", "")
 
         # add a new column to the results dataframe with the whole params if not already done
         if columnname not in df_results.columns:
+            # select the dict with the current mode from the hyperparameter dict and sort it
+            temp_dict = hyperparameter_dict[mode]
+            temp_dict = dict(sorted((temp_dict.items())))
             df_results[columnname] = temp_dict.values()
 
     df_results.to_feather(path_results_file)
