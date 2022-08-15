@@ -3,7 +3,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import silhouette_score
 from sklearn.model_selection import cross_val_score
 from umap import UMAP
-from src.pca_feature import _search_optimal_n_components
 
 
 def _create_umap_features(
