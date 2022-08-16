@@ -147,7 +147,7 @@ def _generate_features():
             random_state=RANDOM_STATE,
             X_file_name=X_file_name,
             y_file_name=Y_FILE_NAME,
-            kmeans_n_cluster_range=range(2, 101),
+            kmeans_n_cluster_range=KMEANS_N_CLUSTER_RANGE,
             path_results_file=RESULTS_FILE_PATH,
         )
 

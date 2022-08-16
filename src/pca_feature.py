@@ -121,7 +121,7 @@ def _search_optimal_n_components(
         # calc cross validation score using pca and baseline features
         X_train_trans_baseline = pd.concat([X_train, X_train_trans], axis="columns")
 
-        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5).mean()
+        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5, n_jobs=-1).mean()
 
         cv_scores_dict[n_components] = cv_score
 
