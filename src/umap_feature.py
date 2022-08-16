@@ -29,26 +29,28 @@ def _create_umap_features(
     X_train_sample = X_train.copy()
     y_train_sample = y_train.copy()
 
-    max_train_size = 10_000
-    if len(X_train) > max_train_size:
-        print(f"X is too huge use a subset for computational speed. {max_train_size} instead of {len(X_train)} samples are used.")
-        X_train_sample["y"] = y_train_sample
-        X_train_sample = X_train_sample.sample(n=max_train_size, random_state=random_state)
+    # ignore the train size seems to run slower with fewer samples wtf see test in umap main
 
-        # reset index
-        X_train_sample = X_train_sample.reset_index(drop=True)
+    # max_train_size = 10_000
+    # if len(X_train) > max_train_size:
+    #     print(f"X is too huge use a subset for computational speed. {max_train_size} instead of {len(X_train)} samples are used.")
+    #     X_train_sample["y"] = y_train_sample
+    #     X_train_sample = X_train_sample.sample(n=max_train_size, random_state=random_state)
+    #
+    #     # reset index
+    #     X_train_sample = X_train_sample.reset_index(drop=True)
+    #
+    #     y_train_sample = X_train_sample["y"]
+    #     X_train_sample = X_train_sample.drop(columns="y")
 
-        y_train_sample = X_train_sample["y"]
-        X_train_sample = X_train_sample.drop(columns="y")
-
-    # just use a half of the data to avoid overfitting
+    # just use a part of the data to avoid overfitting
     size = int(len(X_train_sample) / 3)
 
     print(f"just use one third of the data {size} samples to avoid overfitting")
     X_train_sample = X_train_sample.head(size)
     y_train_sample = y_train_sample.head(size)
 
-    # just for feedback in the traintime print baseline score
+    # just for feedback in the train time print baseline score
     print("\n---")
     print("Cross validation score without umap features:")
     print(cross_val_score(rf, X_train, y_train, cv=5, n_jobs=-1).mean())
@@ -66,7 +68,7 @@ def _create_umap_features(
         X_train_trans_baseline = pd.concat([X_train, X_train_trans], axis="columns")
 
         # calc cross validation score using umap and baseline features
-        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5).mean()
+        cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5, n_jobs=-1).mean()
 
         cv_scores_dict[n_components] = cv_score
         print(f"Cross validation score: {cv_score}\n")
@@ -118,3 +120,40 @@ def _create_umap_features(
     # ValueError: No hyperplanes of adequate size were found!
 
     return df_train, df_test
+
+
+if __name__ == "__main__":
+    from calc_scores import get_X_train_X_test_y_train_y_test
+    from pathlib import Path
+    from constants import *
+
+    # load some data
+    X_train, X_test, y_train, y_test = get_X_train_X_test_y_train_y_test(
+        dataset_folder=Path(r"C:\Users\jonas\PycharmProjects\thesis\data\datasets\40927"),
+        random_state=42,
+        X_file_name=X_CLEAN_FILE_NAME,
+        y_file_name=Y_FILE_NAME,
+    )
+
+    # make umap instance
+    UMAP_PARAMS = {
+        # for clustering https://umap-learn.readthedocs.io/en/latest/clustering.html
+        "n_neighbors": 30,  # default 15. Should be increased to 30
+        "n_jobs": -1,
+        "random_state": RANDOM_STATE,
+        "verbose": False,
+        "min_dist": 0,
+        "n_components": 2,
+    }
+
+    transformer = UMAP(**UMAP_PARAMS)
+
+    # fit
+    n_head = 1000
+    transformer.fit(X_train.head(n_head), y_train.head(n_head))
+
+    # transform
+    X_train_trans = transformer.transform(X_train)
+
+
+
