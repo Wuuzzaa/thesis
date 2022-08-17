@@ -38,7 +38,7 @@ def _create_lda_features(
         # set n_components
         transformer.set_params(**{"n_components": n_components})
 
-        X_temp_train = transformer.fit_transform(X_train.copy(), y_train)
+        X_temp_train = pd.DataFrame(transformer.fit_transform(X_train.copy(), y_train)).add_prefix(prefix)
 
         # use baseline features and lda features for the cross validation score calculation
         X_temp_train_baseline = pd.concat([X_temp_train, X_train], axis="columns")
