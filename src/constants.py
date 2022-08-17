@@ -155,15 +155,15 @@ PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
             ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
-            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=200)),
+            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")),
             ("knn", KNeighborsClassifier(n_jobs=-1)),
             ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
             ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
             #("mlp", MLPClassifier(random_state=RANDOM_STATE)),
         ]
     ],
-    "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=200)],
-    "cv": [5],
+    "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")],
+    "cv": [3],
     "n_jobs": [-1],
     "passthrough": [False],
     "verbose": [0],
