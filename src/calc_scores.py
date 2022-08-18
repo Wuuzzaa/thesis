@@ -186,6 +186,11 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_LDA_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_LDA_FILE_NAME)))
 
+                print("add umap dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_UMAP_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_UMAP_FILE_NAME)))
+
+
             else:
                 print("add pca filtered dataframes")
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_PCA_FILE_NAME)))
@@ -202,6 +207,11 @@ def calc_scores(
                 print("add lda filtered dataframes")
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_LDA_FILE_NAME)))
+
+                print("add umap filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME)))
+
 
         # concat all needed dataframes for train and test data
         X_train = pd.concat(X_train_dfs, axis="columns")
@@ -227,7 +237,7 @@ def calc_scores(
         # set the n_jobs for the cross validation according to the dataset size. On a huge dataset i ran out of RAM when
         # i run cross validation in parallel
         n_jobs_cv = -1
-        if len(X_train) > 10_000:
+        if len(X_train) > 10_000 and not CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH:
             n_jobs_cv = 1
 
         print(f"n_jobs for cross validation: {n_jobs_cv}")

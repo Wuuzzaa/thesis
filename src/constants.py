@@ -1,6 +1,8 @@
 from pathlib import Path
+
+import psutil
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -138,6 +140,10 @@ CALC_SCORES_RANDOM_FOREST_FILE_PATH_SUFFIX = "_random_forest.joblib"
 CALC_SCORES_STACKING_FILE_PATH_SUFFIX = "_stacking.joblib"
 CALC_SCORES_TRAIN_TIME_COLUMN_NAME_SUFFIX = "_train_time_in_seconds"
 
+# On my pc there are only 16 gb of ram so i run out of ram when using all cores.
+# just test it like this here. psutil... gives the ram size of the pc in gb.
+CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH = 31 < (psutil.virtual_memory().total / float(1.074e+9))
+
 ########################################################################################################################
 # PARAM_GRID_RANDOM_FOREST
 # used for hyperparameter tuning
@@ -154,12 +160,15 @@ PARAM_GRID_RANDOM_FOREST = {
 PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
-            ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
-            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")),
+            ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
+            ("random_forest_shallow ", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=6)),
+            # ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")), # seems to be slow on huge n_features and or classes
             ("knn", KNeighborsClassifier(n_jobs=-1)),
-            ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
-            ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
-            #("mlp", MLPClassifier(random_state=RANDOM_STATE)),
+            ("dt_deep", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+            ("dt_shallow", DecisionTreeClassifier(random_state=RANDOM_STATE, max_depth=6)),
+            ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
+            ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
+            ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)),
         ]
     ],
     "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")],
@@ -174,14 +183,14 @@ PARAM_GRID_STACKING_PARAMS = {
 ########################################################################################################################
 # pca
 PCA_PARAMS = {
-    "n_components": 0.8,  # "mle",
+    #"n_components": 0.8,  # "mle",
     "random_state": RANDOM_STATE,
     "svd_solver": "full",  #"arpack",
 }
 
 # kernel pca
 KPCA_PARAMS = {
-    "n_components": None,
+    #"n_components": None,
     "random_state": RANDOM_STATE,
     "kernel": "rbf",
     "n_jobs": -1,
@@ -217,7 +226,6 @@ UMAP_PARAMS = {
 #  FEATURE GENERATION RANGES
 ########################################################################################################################
 KMEANS_N_CLUSTER_RANGE = range(2, 51)
-
 
 ########################################################################################################################
 #  STACKING PARAMETER DICT
