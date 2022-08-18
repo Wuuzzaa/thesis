@@ -65,7 +65,7 @@ def print_info_performance_overview(results_file_path: Path):
     print("")
 
     for mode in CALC_SCORES_MODES:
-        if mode == "baseline_filtered":
+        if mode == "baseline_filtered" or "stacking" in mode:
             continue
 
         n_improved_datasets = sum(df[f'{mode}_test_score > baseline_filtered_test_score'])
