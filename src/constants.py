@@ -168,7 +168,7 @@ PARAM_GRID_STACKING_PARAMS = {
             ("dt_shallow", DecisionTreeClassifier(random_state=RANDOM_STATE, max_depth=6)),
             ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
             ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
-            ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)),
+            #("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
         ]
     ],
     "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")],
