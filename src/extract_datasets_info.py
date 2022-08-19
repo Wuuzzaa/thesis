@@ -45,6 +45,12 @@ def extract_datasets_info(suite):
 
     for task_id in tasks:
         task = openml.tasks.get_task(task_id)
+
+        # check for test mode with just a subset of the datasets
+        if USE_TESTMODE and task.dataset_id not in TESTMODE_DATASET_ID_LIST:
+            print(f"Dataset with dataset id: {task.dataset_id} is not in the subset for test datasets. Skip")
+            continue
+
         dataset = task.get_dataset()
 
         # get X as Dataframe and y as Series
@@ -52,7 +58,7 @@ def extract_datasets_info(suite):
         X, y, categorical_indicator, attribute_names = dataset.get_data(target=target)
 
         dataset_ids.append(dataset.id)
-        task_ids.append(task_id)
+        task_ids.append(task.task_id)
         n_classes.append(len(task.class_labels))
         n_features.append(len(dataset.features) - 1)  # -1 because the target is in the list of features
         name_datasets.append(dataset.name)

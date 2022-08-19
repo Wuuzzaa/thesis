@@ -8,6 +8,24 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 ########################################################################################################################
+# TEST MODE
+########################################################################################################################
+"""
+Test mode is used for running the whole script against a few subset of all datasets.
+Use the flag to set the Testmode to active.
+Specify the dataset ids to use for the test in a list.
+Make sure to run the test mode on a clear folder without any data downloaded so far. 
+Otherwise all downloaded datasets will be used as usual
+"""
+USE_TESTMODE = True
+TESTMODE_DATASET_ID_LIST = [
+    40923,  # huge and many classes 92k samples 1k ohe features, 46 classes
+    3,      # small 2 classes 3k samples 73 features ohe
+    1489,   # random selected just want 3 datasets
+]
+
+
+########################################################################################################################
 # INTEGERS
 ########################################################################################################################
 RANDOM_STATE = 42
@@ -142,7 +160,7 @@ CALC_SCORES_TRAIN_TIME_COLUMN_NAME_SUFFIX = "_train_time_in_seconds"
 
 # On my pc there are only 16 gb of ram so i run out of ram when using all cores.
 # just test it like this here. psutil... gives the ram size of the pc in gb.
-CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH = 31 < (psutil.virtual_memory().total / float(1.074e+9))
+CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH = 8 < (psutil.virtual_memory().total / float(1.074e+9))
 
 ########################################################################################################################
 # PARAM_GRID_RANDOM_FOREST
@@ -160,22 +178,28 @@ PARAM_GRID_RANDOM_FOREST = {
 PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
-            ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
-            ("random_forest_shallow ", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=6)),
             # ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")), # seems to be slow on huge n_features and or classes
-            ("knn", KNeighborsClassifier(n_jobs=-1)),
-            ("dt_deep", DecisionTreeClassifier(random_state=RANDOM_STATE)),
-            ("dt_shallow", DecisionTreeClassifier(random_state=RANDOM_STATE, max_depth=6)),
-            ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
-            ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
-            #("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
+            # ("knn", KNeighborsClassifier(n_jobs=-1)),
+            # ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
+
+            # ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
+            # ("random_forest_shallow ", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=6)),
+            # ("dt_deep", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+            #("dt_shallow", DecisionTreeClassifier(random_state=RANDOM_STATE, max_depth=6)),
+            # ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
+            # ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
         ]
     ],
-    "final_estimator": [LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")],
+    "final_estimator": [LogisticRegression(
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+        max_iter=100,
+        solver="saga"
+    )],
     "cv": [3],
     "n_jobs": [-1],
     "passthrough": [False],
-    "verbose": [0],
+    "verbose": [1],
 }
 
 ########################################################################################################################
@@ -217,7 +241,7 @@ UMAP_PARAMS = {
     # for clustering https://umap-learn.readthedocs.io/en/latest/clustering.html
     "n_neighbors": 30,  # default 15. Should be increased to 30
     "n_jobs": -1,
-    "random_state": RANDOM_STATE,
+    #"random_state": RANDOM_STATE, # do not use a random state if you want to run umap on all cores according to to faq https://umap-learn.readthedocs.io/en/latest/faq.html
     "verbose": False,
     "min_dist": 0,
 }

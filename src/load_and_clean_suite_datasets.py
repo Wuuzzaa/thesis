@@ -40,6 +40,11 @@ def load_and_clean_suite_datasets(suite, random_state):
         print()
         task = openml.tasks.get_task(task_id)
 
+        # check for test mode with just a subset of the datasets
+        if USE_TESTMODE and task.dataset_id not in TESTMODE_DATASET_ID_LIST:
+            print(f"Dataset with dataset id: {task.dataset_id} is not in the subset for test datasets. Skip")
+            continue
+
         # show dataset id is not equal the taskid
         print()
         print(f"dataset_id: {str(task.dataset_id)}")

@@ -181,6 +181,18 @@ def _generate_features():
 
 
 if __name__ == "__main__":
+    if USE_TESTMODE:
+        print("#"*80)
+        print("-"*80)
+        print("#" * 80)
+        print("")
+        print("WARNING: TESTMODE IS ACTIVATED. SCRIPT RUNS ON A SUBSET OF ALL DATASETS!")
+        print("")
+        print("#" * 80)
+        print("-" * 80)
+        print("#" * 80)
+        print("")
+
     _preprocessing()
 
     feature_selection(
