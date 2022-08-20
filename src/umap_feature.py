@@ -58,16 +58,19 @@ def _create_umap_features(
 
     # search best n_components with brute force and cross validation score
     for n_components in range_n_components:
-        print(f"calculate cross validation score for n_components: {n_components}")
         transformer.set_params(**{"n_components": n_components})
 
+        print("fit")
         transformer.fit(X_train_sample, y_train_sample)
+
+        print("transform train")
         X_train_trans = pd.DataFrame(transformer.transform(X_train)).add_prefix(prefix)
 
         # concat baseline features with umap features
         X_train_trans_baseline = pd.concat([X_train, X_train_trans], axis="columns")
 
         # calc cross validation score using umap and baseline features
+        print(f"calculate cross validation score for n_components: {n_components}")
         cv_score = cross_val_score(rf, X_train_trans_baseline, y_train, cv=5, n_jobs=-1).mean()
 
         cv_scores_dict[n_components] = cv_score

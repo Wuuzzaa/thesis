@@ -178,16 +178,20 @@ PARAM_GRID_RANDOM_FOREST = {
 PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
-            # ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="saga")), # seems to be slow on huge n_features and or classes
-            # ("knn", KNeighborsClassifier(n_jobs=-1)),
-            # ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
+            # seems to be slow on huge n_features and or classes "saga" is for this datasets slower than the default of "lbfgs"
+            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
+            ("knn_1", KNeighborsClassifier(n_jobs=-1, n_neighbors=1)),
+            ("knn_5", KNeighborsClassifier(n_jobs=-1)),
+            ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
+            ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
+            ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
+            ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
 
-            # ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
-            # ("random_forest_shallow ", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=6)),
-            # ("dt_deep", DecisionTreeClassifier(random_state=RANDOM_STATE)),
-            #("dt_shallow", DecisionTreeClassifier(random_state=RANDOM_STATE, max_depth=6)),
-            # ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
-            # ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
+            # do not use too slow on many classes. Soo no boosting. SVC sucks anyway.
+            # "hist_gradient_boosting_classifier": HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True),
+            # "SVC": SVC(random_state=RANDOM_STATE),  # only 1 core SVC totally useless.
+            # "xgboost": XGBClassifier(random_state=RANDOM_STATE, n_jobs=-1),
+            # "LGBMClassifier": LGBMClassifier(random_state=RANDOM_STATE, n_jobs=-1),
         ]
     ],
     "final_estimator": [LogisticRegression(
@@ -241,7 +245,11 @@ UMAP_PARAMS = {
     # for clustering https://umap-learn.readthedocs.io/en/latest/clustering.html
     "n_neighbors": 30,  # default 15. Should be increased to 30
     "n_jobs": -1,
-    #"random_state": RANDOM_STATE, # do not use a random state if you want to run umap on all cores according to to faq https://umap-learn.readthedocs.io/en/latest/faq.html
+
+    # do not use a random state if you want to run umap on all cores according to faq
+    # https://umap-learn.readthedocs.io/en/latest/faq.html
+    # tested this and it makes no difference for me
+    "random_state": RANDOM_STATE,
     "verbose": False,
     "min_dist": 0,
 }
@@ -251,21 +259,3 @@ UMAP_PARAMS = {
 ########################################################################################################################
 KMEANS_N_CLUSTER_RANGE = range(2, 51)
 
-########################################################################################################################
-#  STACKING PARAMETER DICT
-########################################################################################################################
-# STACKING_PARAMS = {
-#     "estimators": [
-#         ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
-#         ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=1000)),
-#         ("knn", KNeighborsClassifier(n_jobs=-1)),
-#         ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
-#         ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE)),
-#         ("mlp", MLPClassifier(random_state=RANDOM_STATE))
-#     ],
-#     "final_estimator": LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=1000),
-#     "cv": 5,
-#     "n_jobs": -1,
-#     "passthrough": False,
-#     "verbose": 2,
-# }
