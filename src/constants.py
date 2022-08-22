@@ -76,6 +76,12 @@ X_TEST_CLEAN_LDA_FILE_NAME     = "lda_test_clean.feather"
 X_TRAIN_CLEAN_FILTERED_LDA_FILE_NAME    = "lda_train_clean_filtered.feather"
 X_TEST_CLEAN_FILTERED_LDA_FILE_NAME     = "lda_test_clean_filtered.feather"
 
+# autoencoder
+X_TRAIN_CLEAN_AUTOENCODER_FILE_NAME    = "autoencoder_train_clean.feather"
+X_TEST_CLEAN_AUTOENCODER_FILE_NAME     = "autoencoder_test_clean.feather"
+X_TRAIN_CLEAN_FILTERED_AUTOENCODER_FILE_NAME    = "autoencoder_train_clean_filtered.feather"
+X_TEST_CLEAN_FILTERED_AUTOENCODER_FILE_NAME     = "autoencoder_test_clean_filtered.feather"
+
 # results dataframe file
 RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 
@@ -119,12 +125,14 @@ CALC_SCORES_MODES = [
     "only_kmeans",
     "only_lda",
     "only_umap",
+    "only_autoencoder",
 
     "only_pca_filtered",
     "only_kpca_filtered",
     "only_kmeans_filtered",
     "only_lda_filtered",
     "only_umap_filtered",
+    "only_autoencoder_filtered",
 
     # baseline features and new features
     "baseline_filtered_pca",
@@ -132,12 +140,14 @@ CALC_SCORES_MODES = [
     "baseline_filtered_kmeans",
     "baseline_filtered_lda",
     "baseline_filtered_umap",
+    "baseline_filtered_autoencoder",
 
     "baseline_filtered_pca_filtered",
     "baseline_filtered_kpca_filtered",
     "baseline_filtered_kmeans_filtered",
     "baseline_filtered_lda_filtered",
     "baseline_filtered_umap_filtered",
+    "baseline_filtered_autoencoder_filtered",
 
     # best features selected from basefeatures and new features
     "selected_features",
@@ -243,7 +253,7 @@ LDA_PARAMS = {}
 # umap
 UMAP_PARAMS = {
     # for clustering https://umap-learn.readthedocs.io/en/latest/clustering.html
-    "n_neighbors": 30,  # default 15. Should be increased to 30
+    "n_neighbors": 15,  # default 15.
     "n_jobs": -1,
 
     # do not use a random state if you want to run umap on all cores according to faq
@@ -252,6 +262,17 @@ UMAP_PARAMS = {
     "random_state": RANDOM_STATE,
     "verbose": False,
     "min_dist": 0,
+}
+
+# autoencoder
+AUTOENCODER_PARAMS = {
+    "validation_split": 1 - TRAIN_TEST_SPLIT_TRAIN_SIZE,
+    "epochs": 100,  # early stopping runs anyway.
+    "batch_size": 32,  # 32 default value
+    "optimizer": "adam",
+    "loss": "mean_squared_error",  # "mean_squared_error", 'binary_crossentropy'
+    "activation": "relu",
+    "early_stopping_patience": 3,  # stops fit after n rounds without improvement
 }
 
 ########################################################################################################################

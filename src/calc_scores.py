@@ -163,6 +163,18 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME)))
 
+        # autoencoder
+        if "autoencoder" in mode:
+            if "autoencoder_filtered" not in mode:
+                print("add autoencoder dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_AUTOENCODER_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_AUTOENCODER_FILE_NAME)))
+
+            else:
+                print("add autoencoder filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
+
         # modes with all features used (at least before possible feature selection)
         if any([x in mode for x in ["selected_features", "all_features"]]):
             print("add baseline dataframes")
@@ -190,6 +202,9 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_UMAP_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_UMAP_FILE_NAME)))
 
+                print("add autoencoder dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_AUTOENCODER_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_AUTOENCODER_FILE_NAME)))
 
             else:
                 print("add pca filtered dataframes")
@@ -211,6 +226,10 @@ def calc_scores(
                 print("add umap filtered dataframes")
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_UMAP_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_UMAP_FILE_NAME)))
+
+                print("add autoencoder filtered dataframes")
+                X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
+                X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
 
 
         # concat all needed dataframes for train and test data
