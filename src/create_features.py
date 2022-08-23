@@ -1,6 +1,7 @@
 import warnings
 
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 from calc_scores import get_X_train_X_test_y_train_y_test
 from kmeans_feature import _create_kmeans_features
@@ -161,13 +162,25 @@ def create_features(
         feature_creation_time_needed_dict[int(dataset_folder.name)] = end_time - start_time
 
         # give feedback about new featuers and time needed for fit/transform
-        print(f"Created {n_new_features} in {end_time - start_time} seconds")
+        print(f"Created {n_new_features} in {int(end_time - start_time)} seconds")
 
-        # check for NaN
+        # check for NaN before scale
         if df_train.isnull().values.any():
             raise ValueError("train dataframe features contain Nan Values")
         if df_test.isnull().values.any():
             raise ValueError("test dataframe features contain Nan Values")
+
+        # standard scale the new features
+        print("scale new features")
+        scaler = StandardScaler()
+        df_train = pd.DataFrame(scaler.fit_transform(df_train)).add_prefix(prefix)
+        df_test = pd.DataFrame(scaler.transform(df_test)).add_prefix(prefix)
+
+        # check for NaN after scale
+        if df_train.isnull().values.any():
+            raise ValueError("train dataframe features contain Nan Values (after scale)")
+        if df_test.isnull().values.any():
+            raise ValueError("test dataframe features contain Nan Values (after scale)")
 
         # store new features
         df_train.to_feather(X_train_file_path)
