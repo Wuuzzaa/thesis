@@ -162,7 +162,7 @@ def create_features(
         feature_creation_time_needed_dict[int(dataset_folder.name)] = end_time - start_time
 
         # give feedback about new featuers and time needed for fit/transform
-        print(f"Created {n_new_features} in {int(end_time - start_time)} seconds")
+        print(f"Created {n_new_features} features in {int(end_time - start_time)} seconds")
 
         # check for NaN before scale
         if df_train.isnull().values.any():

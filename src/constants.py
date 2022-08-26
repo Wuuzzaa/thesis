@@ -17,7 +17,7 @@ Specify the dataset ids to use for the test in a list.
 Make sure to run the test mode on a clear folder without any data downloaded so far. 
 Otherwise all downloaded datasets will be used as usual
 """
-USE_TESTMODE = True
+USE_TESTMODE = False
 TESTMODE_DATASET_ID_LIST = [
     40923,  # huge and many classes 92k samples 1k ohe features, 46 classes
     3,      # small 2 classes 3k samples 73 features ohe
