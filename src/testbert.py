@@ -35,15 +35,15 @@ df = df[df.columns[df.columns.str.contains("dataset_id|test_score")]]
 
 # remove the compare with baseline columns
 #df = df[df.columns[df.columns.str.contains(">|change") == False]]
-df = df[df.columns[~df.columns.str.contains(">|change")]]
+df = df[df.columns[~df.columns.str.contains(">|change|stacking")]]
 
 # make plots
 
 row_index = 0
-df_plot = df.iloc[row_index]
+df_plot = df.iloc[row_index].to_frame().T
 
 # set dataset id as index
-df_plot = df.set_index("dataset_id")
+df_plot = df_plot.set_index("dataset_id")
 
 # rename the column for better readability
 columns = list(df_plot.columns)
@@ -52,9 +52,9 @@ columns = [column.replace("_", " ").replace("test score", "").rstrip() for colum
 df_plot.columns = columns
 
 # get dataset id
-dataset_id = df_plot.head(1).index.array[0]
+dataset_id = df_plot.index.array[0]
 
-df_plot = df_plot.head(1).T.sort_values(by=dataset_id, ascending=False).T
+df_plot = df_plot.T.sort_values(by=dataset_id, ascending=False).T
 
 # adjust color of baseline score
 colors = ["blue"] * len(columns)
