@@ -34,9 +34,13 @@ df = pd.read_feather(RESULTS_FILE_PATH)
 df = df[df.columns[df.columns.str.contains("dataset_id|test_score")]]
 
 # remove the compare with baseline columns
-df = df[df.columns[df.columns.str.contains(">|change") == False]]
+#df = df[df.columns[df.columns.str.contains(">|change") == False]]
+df = df[df.columns[~df.columns.str.contains(">|change")]]
 
 # make plots
+
+row_index = 0
+df_plot = df.iloc[row_index]
 
 # set dataset id as index
 df_plot = df.set_index("dataset_id")
@@ -47,19 +51,18 @@ columns = [column.replace("_", " ").replace("test score", "").rstrip() for colum
 
 df_plot.columns = columns
 
-df_plot = df_plot.head(1).T.sort_values(by=3, ascending=False).T
+# get dataset id
+dataset_id = df_plot.head(1).index.array[0]
 
-print()
+df_plot = df_plot.head(1).T.sort_values(by=dataset_id, ascending=False).T
 
 # adjust color of baseline score
 colors = ["blue"] * len(columns)
 index_baseline = list(df_plot.columns).index("baseline filtered")
 colors[index_baseline] = "red"
 
-plt.figure(figsize=(25, 20))
-
-# make a vertical line for the baseline score
-plt.axvline(x=df_plot.values.squeeze()[index_baseline], color='g')
+# set figure size
+plt.figure(figsize=(10, 10))
 
 # horizontal barplot
 plt.barh(
@@ -68,11 +71,20 @@ plt.barh(
     color=colors,
 )
 
-# add accuracy to the bars
+# add accuracy to the end of bars
 for index, value in enumerate(df_plot.values.squeeze()):
     plt.text(value, index, str(value.round(4)))
 
+# add title with accuracy performance gain
+highest_accuracy = df_plot.values.squeeze()[0]
+baseline_accuracy = df_plot.values.squeeze()[index_baseline]
+performance_gain_percent = round((highest_accuracy / baseline_accuracy) * 100 - 100, 2)
+plt.title(f"Dataset ID: {dataset_id}. Accuracy improved by {performance_gain_percent}%")
 
+# make a vertical line for the baseline score
+plt.axvline(x=baseline_accuracy, color='g')
+
+# show or store
 #plt.show()
-plt.savefig(fname="temp_plot")
+plt.savefig(fname="temp_plot", bbox_inches="tight")
 pass
