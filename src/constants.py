@@ -88,6 +88,9 @@ RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 # feature importance file
 FEATURE_IMPORTANCE_FILE_NAME = "feature_importance.feather"
 
+# boxplot performance gain in % against baseline with new features without stacking
+BOXPLOT_PERFORMANCE_GAIN_FILE_NAME = "performance_gain_boxplot"  # do not add a filetype. matplot sets it.
+
 ########################################################################################################################
 # PATHS
 # Paths from pathlib to folders or files
@@ -103,6 +106,7 @@ PLOTS_FOLDER_PATH = RESULTS_FOLDER_PATH.joinpath("plots")
 
 # FILES
 RESULTS_FILE_PATH = RESULTS_FOLDER_PATH.joinpath(RESULTS_DATAFRAME_FILE_NAME)
+BOXPLOT_PERFORMANCE_GAIN_FILE_PATH = PLOTS_FOLDER_PATH.joinpath(BOXPLOT_PERFORMANCE_GAIN_FILE_NAME)
 
 ########################################################################################################################
 # CALC_SCORES CONSTANTS

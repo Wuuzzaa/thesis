@@ -8,7 +8,8 @@ from load_and_clean_suite_datasets import load_and_clean_suite_datasets
 from extract_datasets_info import extract_datasets_info, extract_amount_ohe_features
 from calc_scores import calc_scores
 from analyze_results import add_compare_scores_columns, print_info_performance_overview, \
-    extract_tuned_hyperparameter_from_models, add_performance_improvement_column_and_make_plot
+    extract_tuned_hyperparameter_from_models, add_performance_improvement_column_and_make_plot, \
+    make_boxplot_performance_gain
 from constants import RANDOM_STATE
 from create_features import create_features
 from feature_selection import feature_selection
@@ -277,6 +278,8 @@ if __name__ == "__main__":
     add_compare_scores_columns(results_file_path=RESULTS_FILE_PATH)
 
     add_performance_improvement_column_and_make_plot(results_file_path=RESULTS_FILE_PATH)
+
+    make_boxplot_performance_gain()
 
     extract_tuned_hyperparameter_from_models(
         path_datasets_folder=DATASETS_FOLDER_PATH,

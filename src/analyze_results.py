@@ -50,6 +50,26 @@ def add_compare_scores_columns(results_file_path: Path):
     df.to_feather(results_file_path)
 
 
+def make_boxplot_performance_gain():
+    # load results dataframe
+    df = pd.read_feather(RESULTS_FILE_PATH)
+    data = df["max_accuracy_improvement_all_modes_without_stacking"]
+
+    # boxplot
+    fig1, ax1 = plt.subplots()
+    ax1.set_title('Accuracy improvement in % against Baseline')
+    # plt.ylabel("Accuracy improvement in % against Baseline")
+    # plt.xlabel("")
+
+    # outliner range for this results see: https://towardsdatascience.com/create-and-customize-boxplots-with-pythons-matplotlib-to-get-lots-of-insights-from-your-data-d561c9883643
+    upper_y_limit = data.describe()["75%"] + 1.5 * (data.describe()["75%"] - data.describe()["25%"])
+    ax1.set_ylim([-0.5, upper_y_limit])
+    ax1.boxplot(data.values)
+
+    # plt.show()
+    plt.savefig(fname=str(BOXPLOT_PERFORMANCE_GAIN_FILE_PATH))
+
+
 def add_performance_improvement_column_and_make_plot(results_file_path: Path):
     # load results dataframe
     df = pd.read_feather(results_file_path)
