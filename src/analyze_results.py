@@ -50,7 +50,7 @@ def add_compare_scores_columns(results_file_path: Path):
     df.to_feather(results_file_path)
 
 
-def add_performance_improvement_column_and_plot(results_file_path: Path):
+def add_performance_improvement_column_and_make_plot(results_file_path: Path):
     # load results dataframe
     df = pd.read_feather(results_file_path)
 
@@ -167,6 +167,13 @@ def print_info_performance_overview(results_file_path: Path):
     print("---")
     print(f"When all modes were tried the performance improved on {n_any_new_feature_type_improved_test_score_compared_to_baseline} datasets = {any_new_feature_type_improved_test_score_compared_to_baseline_percent}% on at least one new featuretype mode. Features were generated on cleaned and filtered data")
     print("---")
+
+
+    print("---")
+    print(f"The best new featureset improved the dataset by x %")
+    print("---")
+    print(df["max_accuracy_improvement_all_modes_without_stacking"].describe())
+    print(f"{(df['max_accuracy_improvement_all_modes_without_stacking'] == 0).sum()} datasets could not be improved")
 
     ####################################################################################################################
     # train data
