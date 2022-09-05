@@ -82,6 +82,12 @@ if __name__ == "__main__":
         # "pca_and_kpca_clean_random_forest.joblib",
         # "pca_clean_random_forest.joblib",
         # "umap_clean_random_forest.joblib",
+        "stacking_all_features_stacking.joblib",
+        "stacking_baseline_filtered_stacking.joblib",
+
+        ## plots
+        BOXPLOT_PERFORMANCE_GAIN_FILE_NAME,
+        STACKING_PLOTS_FILE_NAME,
     ]
 
     if len(filenames) > 0:
@@ -114,8 +120,8 @@ if __name__ == "__main__":
         #"n_samples",
         #"n_features_ohe",
         #"n_features_filtered",
-        "pca_clean_n_features_created",
-        "pca_clean_creation_time_seconds",
+        #"pca_clean_n_features_created",
+        #"pca_clean_creation_time_seconds",
         #"kpca_clean_n_features_created",
         #"kpca_clean_creation_time_seconds",
         #"umap_clean_n_features_created",
@@ -209,12 +215,12 @@ if __name__ == "__main__":
         #"all_features_filtered_train_cv_score",
         #"all_features_filtered_test_score",
         #"all_features_filtered_train_time_in_seconds",
-        #"stacking_baseline_filtered_train_cv_score",
-        #"stacking_baseline_filtered_test_score",
-        #"stacking_baseline_filtered_train_time_in_seconds",
-        #"stacking_all_features_train_cv_score",
-        #"stacking_all_features_test_score",
-        #"stacking_all_features_train_time_in_seconds",
+        "stacking_baseline_filtered_train_cv_score",
+        "stacking_baseline_filtered_test_score",
+        "stacking_baseline_filtered_train_time_in_seconds",
+        "stacking_all_features_train_cv_score",
+        "stacking_all_features_test_score",
+        "stacking_all_features_train_time_in_seconds",
         #"only_pca_train_score > baseline_filtered_train_score",
         #"only_pca_test_score > baseline_filtered_test_score",
         #"only_pca_test_score_change_to_baseline_filtered",
@@ -314,8 +320,8 @@ if __name__ == "__main__":
         #"model_hyperparameter_selected_features_filtered_random_forest",
         #"model_hyperparameter_all_features_random_forest",
         #"model_hyperparameter_all_features_filtered_random_forest",
-        #"model_hyperparameter_stacking_baseline_filtered_stacking",
-        #"model_hyperparameter_stacking_all_features_stacking",
+        "model_hyperparameter_stacking_baseline_filtered_stacking",
+        "model_hyperparameter_stacking_all_features_stacking",
     ]
 
     if len(columns_to_delete) > 0:

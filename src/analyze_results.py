@@ -51,6 +51,9 @@ def add_compare_scores_columns(results_file_path: Path):
 
 
 def make_boxplot_performance_gain():
+    # print header
+    print_function_header(f"make boxplots with performance gain")
+
     # load results dataframe
     df = pd.read_feather(RESULTS_FILE_PATH)
     data = df["max_accuracy_improvement_all_modes_without_stacking"]
@@ -71,6 +74,9 @@ def make_boxplot_performance_gain():
 
 
 def make_stacking_plots():
+    # print header
+    print_function_header(f"make plots for stacking results")
+
     # load results dataframe
     df = pd.read_feather(RESULTS_FILE_PATH)
     df = df[df.columns[df.columns.str.contains("dataset_id|test_score")]]
@@ -127,8 +133,10 @@ def make_stacking_plots():
         dataset_folder = PLOTS_FOLDER_PATH.joinpath(str(int(dataset_id)))
         dataset_folder.mkdir(parents=True, exist_ok=True)
 
-        # store
+        # set file path
         file_path = dataset_folder.joinpath("stacking_plot")
+
+        # store
         plt.savefig(fname=file_path, bbox_inches="tight")
 
 
@@ -256,6 +264,19 @@ def print_info_performance_overview(results_file_path: Path):
     print("---")
     print(df["max_accuracy_improvement_all_modes_without_stacking"].describe())
     print(f"{(df['max_accuracy_improvement_all_modes_without_stacking'] == 0).sum()} datasets could not be improved")
+
+    print("---")
+    print(f"stacking".upper())
+    print("---")
+
+    # stacking with all new features vs baseline
+    print(f"Stacking with all features improved the score in {sum(df['stacking_all_features_test_score'] > df['baseline_filtered_test_score']) / len(df) *100}% of the datasets")
+
+    # stacking filtered baseline features vs baseline
+    print(f"Stacking with the baseline features filtered improved the score in {sum(df['stacking_baseline_filtered_test_score'] > df['baseline_filtered_test_score']) / len(df) *100}% of the datasets")
+
+    # stacking all features vs stacking filtered baseline features
+    print(f"Stacking with all features beats stacking with baseline features filtered in {sum(df['stacking_all_features_test_score'] > df['stacking_baseline_filtered_test_score']) / len(df) *100}% of the datasets")
 
     ####################################################################################################################
     # train data

@@ -11,7 +11,8 @@ import joblib
 
 from feature_selection import feature_selection_rfecv
 from util import get_sub_folders, print_function_header
-
+from time import perf_counter
+import warnings
 
 def calc_scores(
         random_state: int,
@@ -253,32 +254,60 @@ def calc_scores(
         # path to the tuned model
         estimator_file_path: Path = dataset_folder.joinpath(f"{mode}{estimator_file_path_suffix}")
 
-        # set the n_jobs for the cross validation according to the dataset size. On a huge dataset i ran out of RAM when
-        # i run cross validation in parallel
-        n_jobs_cv = -1
-        if len(X_train) > 10_000 and not CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH:
-            n_jobs_cv = 1
+        if "stacking" not in mode:
+            # set the n_jobs for the cross validation according to the dataset size. On a huge dataset i ran out of RAM when
+            # i run cross validation in parallel
+            n_jobs_cv = -1
+            if len(X_train) > 10_000 and not CALC_SCORES_USE_ALWAYS_ALL_CORES_GRIDSEARCH:
+                n_jobs_cv = 1
 
-        print(f"n_jobs for cross validation: {n_jobs_cv}")
+            print(f"n_jobs for cross validation: {n_jobs_cv}")
 
-        # search the best hyperparameter and score with them
-        # let n_jobs = 1 because estimator will run on all cores -> less memory usage
-        estimator_tuned_grid = GridSearchCV(estimator=estimator, param_grid=estimator_param_grid, n_jobs=n_jobs_cv, cv=cv, verbose=1)
-        estimator_tuned_grid.fit(X_train, y_train)
+            # search the best hyperparameter and score with them
+            # let n_jobs = 1 because estimator will run on all cores -> less memory usage
+            estimator_tuned_grid = GridSearchCV(estimator=estimator, param_grid=estimator_param_grid, n_jobs=n_jobs_cv, cv=cv, verbose=1)
+            estimator_tuned_grid.fit(X_train, y_train)
 
-        # store the estimator (tuned) on disk
-        print(f"store estimator model to: {estimator_file_path}")
-        joblib.dump(estimator_tuned_grid.best_estimator_, filename=estimator_file_path)
+            # store the estimator (tuned) on disk
+            print(f"store estimator model to: {estimator_file_path}")
+            joblib.dump(estimator_tuned_grid.best_estimator_, filename=estimator_file_path)
 
-        # score model on test data and cv score for train data
-        test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
+            # score model on test data and cv score for train data
+            test_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.score(X_test, y_test)
 
-        # get the train score
-        train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
+            # get the train score
+            train_cv_scores_dict[int(dataset_folder.name)] = estimator_tuned_grid.best_score_
 
-        # get the train time of the best estimator found
-        index_best_estimator = estimator_tuned_grid.best_index_
-        train_time_dict[int(dataset_folder.name)] = estimator_tuned_grid.cv_results_["mean_fit_time"][index_best_estimator]
+            # get the train time of the best estimator found
+            index_best_estimator = estimator_tuned_grid.best_index_
+            train_time_dict[int(dataset_folder.name)] = estimator_tuned_grid.cv_results_["mean_fit_time"][index_best_estimator]
+
+        else:
+            # fit and measure the train time
+            start = perf_counter()
+            # ignore the fit warning of MLP which comes from fitting on dataframe with column names and then running in crossvalidation without columnnames
+            # ignore logistic regression converge warning
+            warnings.filterwarnings("ignore", message="X does not have valid feature names, but MLPClassifier was fitted with feature names")
+            warnings.filterwarnings("ignore", message="lbfgs failed to converge (status=1)")
+            estimator.fit(X_train, y_train)
+            end = perf_counter()
+            train_time_seconds = end - start
+
+            # train score
+            train_score = estimator.score(X_train, y_train)
+
+            # test score
+            test_score = estimator.score(X_test, y_test)
+
+            # store the estimator on disk
+            print(f"store estimator model to: {estimator_file_path}")
+            joblib.dump(estimator, filename=estimator_file_path)
+
+            # fill the dicts
+            test_scores_dict[int(dataset_folder.name)] = test_score
+            train_cv_scores_dict[int(dataset_folder.name)] = train_score
+            train_time_dict[int(dataset_folder.name)] = train_time_seconds
+
 
         # give feedback of the train and test score and time
         print("-")

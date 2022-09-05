@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import psutil
+from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -89,7 +90,8 @@ RESULTS_DATAFRAME_FILE_NAME = "results.feather"
 FEATURE_IMPORTANCE_FILE_NAME = "feature_importance.feather"
 
 # boxplot performance gain in % against baseline with new features without stacking
-BOXPLOT_PERFORMANCE_GAIN_FILE_NAME = "performance_gain_boxplot"  # do not add a filetype. matplot sets it.
+BOXPLOT_PERFORMANCE_GAIN_FILE_NAME = "performance_gain_boxplot.png"  # do not add a filetype. matplot sets it.?
+STACKING_PLOTS_FILE_NAME = "stacking_plot.png"  # do not add a filetype. matplot sets it.?
 
 ########################################################################################################################
 # PATHS
@@ -195,12 +197,14 @@ PARAM_GRID_STACKING_PARAMS = {
         [
             # seems to be slow on huge n_features and or classes "saga" is for this datasets slower than the default of "lbfgs"
             ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
-            ("knn_1", KNeighborsClassifier(n_jobs=-1, n_neighbors=1)),
+            #("knn_1", KNeighborsClassifier(n_jobs=-1, n_neighbors=1)),
             ("knn_5", KNeighborsClassifier(n_jobs=-1)),
-            ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)), # too slow.
-            ("random_forest", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
+            ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)),  # too slow?
+            ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
+            ("random_forest_8_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=8)),
             ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
-            ("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
+            ("LGBMClassifier", LGBMClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
+            #("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
 
             # do not use too slow on many classes. Soo no boosting. SVC sucks anyway.
             # "hist_gradient_boosting_classifier": HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True),
@@ -215,7 +219,7 @@ PARAM_GRID_STACKING_PARAMS = {
         max_iter=100,
         solver="saga"
     )],
-    "cv": [3],
+    "cv": [5],
     "n_jobs": [-1],
     "passthrough": [False],
     "verbose": [1],
