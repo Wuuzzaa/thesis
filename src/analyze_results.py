@@ -286,6 +286,9 @@ def print_info_performance_overview(results_file_path: Path):
     # stacking all improved features vs stacking all features
     print(f"Stacking with all improved features beats stacking with all features in {sum(df['stacking_improved_features_test_score'] > df['stacking_all_features_test_score']) / len(df) *100}% of the datasets")
 
+    # stacking all improved features vs stacking filtered baseline features
+    print(f"Stacking with all improved features beats stacking with baseline features filtered in {sum(df['stacking_improved_features_test_score'] > df['stacking_baseline_filtered_test_score']) / len(df) *100}% of the datasets")
+
 
     ####################################################################################################################
     # train data
