@@ -38,6 +38,18 @@ MAX_FEATURES_FEATURE_SELECTION = 100
 TRAIN_TEST_SPLIT_TRAIN_SIZE = 0.66
 
 ########################################################################################################################
+# LISTS
+########################################################################################################################
+NEW_FEATURE_TYPE_LIST = [
+    "pca",
+    "kpca",
+    "umap",
+    "kmeans",
+    "lda",
+    "autoencoder",
+]
+
+########################################################################################################################
 # FILENAMES
 # Filenames NO Paths see above
 # suffix: _FILE_NAME
@@ -167,6 +179,7 @@ CALC_SCORES_MODES = [
     # stacking
     "stacking_baseline_filtered",
     "stacking_all_features",  # basefeatures filtered, pca, kpca etc. not filtered
+    "stacking_improved_features",  # basefeatures filtered, and all pca, kpca etc. when they improved the score compared to the baseline
 ]
 
 CALC_SCORES_TRAIN_CV_SCORE_COLUMN_NAME_SUFFIX = "_train_cv_score"

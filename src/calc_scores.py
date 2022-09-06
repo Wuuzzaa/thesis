@@ -178,6 +178,10 @@ def calc_scores(
 
         # modes with all features used (at least before possible feature selection)
         if any([x in mode for x in ["selected_features", "all_features"]]):
+            # handle this case seperate for readability
+            if mode == "stacking_improved_features":
+                break
+
             print("add baseline dataframes")
             X_train_dfs.append(X_train_baseline)
             X_test_dfs.append(X_test_baseline)
@@ -232,6 +236,35 @@ def calc_scores(
                 X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TRAIN_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
                 X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(X_TEST_CLEAN_FILTERED_AUTOENCODER_FILE_NAME)))
 
+        if mode == "stacking_improved_features":
+            print("add baseline dataframes")
+            X_train_dfs.append(X_train_baseline)
+            X_test_dfs.append(X_test_baseline)
+
+            # load results to determine which features should be added
+            df_results = pd.read_feather(path_results_file)
+
+            dataset_row = df_results[df_results["dataset_id"] == int(dataset_folder.name)]
+            print()
+
+            for new_feature_type in NEW_FEATURE_TYPE_LIST:
+                print("\n---")
+                print(f"check new feature type: {new_feature_type}")
+
+                baseline_filtered_test_score = float(dataset_row['baseline_filtered_test_score'])
+                baseline_filtered_new_feature_type_test_score = float(dataset_row[f'baseline_filtered_{new_feature_type}_test_score'])
+
+                print(f"baseline filtered test score: {baseline_filtered_test_score}")
+                print(f"baseline filtered with {new_feature_type} test score: {baseline_filtered_new_feature_type_test_score}\n")
+
+                if baseline_filtered_test_score < baseline_filtered_new_feature_type_test_score:
+                    print("performance was increased use the feature")
+                    print(f"add {new_feature_type} dataframes")
+                    X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(f"{new_feature_type}_train_clean.feather")))
+                    X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(f"{new_feature_type}_test_clean.feather")))
+
+                else:
+                    print("performance was not increased. Do not use this feature for stacking")
 
         # concat all needed dataframes for train and test data
         X_train = pd.concat(X_train_dfs, axis="columns")
