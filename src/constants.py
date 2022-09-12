@@ -209,9 +209,9 @@ PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
             # seems to be slow on huge n_features and or classes "saga" is for this datasets slower than the default of "lbfgs"
-            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
+            #("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
             #("knn_1", KNeighborsClassifier(n_jobs=-1, n_neighbors=1)),
-            ("knn_5", KNeighborsClassifier(n_jobs=-1)),
+            #("knn_5", KNeighborsClassifier(n_jobs=-1)),
             ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)),  # too slow?
             ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
             ("random_forest_8_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=8)),
@@ -230,7 +230,7 @@ PARAM_GRID_STACKING_PARAMS = {
         random_state=RANDOM_STATE,
         n_jobs=-1,
         max_iter=100,
-        solver="saga"
+        solver="lbfgs"
     )],
     "cv": [5],
     "n_jobs": [-1],

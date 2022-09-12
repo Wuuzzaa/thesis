@@ -270,14 +270,21 @@ def print_info_performance_overview(results_file_path: Path):
     print("---")
 
     # stacking with all new features vs baseline
+    print("stacking with all new features vs baseline".upper())
     print(f"Stacking with all features improved the score in {sum(df['stacking_all_features_test_score'] > df['baseline_filtered_test_score']) / len(df) *100}% of the datasets")
+    print(((df['stacking_all_features_test_score'] / df['baseline_filtered_test_score'] -1) * 100).clip(lower=0).describe())
+    print("---")
 
     # stacking with only the new features which improved the test score vs baseline
+    print("stacking with only the new features which improved the test score vs baseline".upper())
     print(f"Stacking with only features which improved the basescore improved the score in {sum(df['stacking_improved_features_test_score'] > df['baseline_filtered_test_score']) / len(df) *100}% of the datasets")
+    print(((df['stacking_improved_features_test_score'] / df['baseline_filtered_test_score'] -1) * 100).clip(lower=0).describe())
+    print("---")
 
     # stacking filtered baseline features vs baseline
+    print("stacking filtered baseline features vs baseline".upper())
     print(f"Stacking with the baseline features filtered improved the score in {sum(df['stacking_baseline_filtered_test_score'] > df['baseline_filtered_test_score']) / len(df) *100}% of the datasets")
-
+    print(((df['stacking_baseline_filtered_test_score'] / df['baseline_filtered_test_score'] -1) * 100).clip(lower=0).describe())
     print("---")
 
     # stacking all features vs stacking filtered baseline features
