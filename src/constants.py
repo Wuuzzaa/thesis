@@ -11,6 +11,8 @@ from sklearn.tree import DecisionTreeClassifier
 ########################################################################################################################
 # TEST MODE
 ########################################################################################################################
+from xgboost import XGBClassifier
+
 """
 Test mode is used for running the whole script against a few subset of all datasets.
 Use the flag to set the Testmode to active.
@@ -209,21 +211,22 @@ PARAM_GRID_STACKING_PARAMS = {
     "estimators": [
         [
             # seems to be slow on huge n_features and or classes "saga" is for this datasets slower than the default of "lbfgs"
-            #("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
+            ("logistic_regression", LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1, max_iter=100, solver="lbfgs")),
             #("knn_1", KNeighborsClassifier(n_jobs=-1, n_neighbors=1)),
-            #("knn_5", KNeighborsClassifier(n_jobs=-1)),
+            ("knn_5", KNeighborsClassifier(n_jobs=-1)),
             ("mlp", MLPClassifier(random_state=RANDOM_STATE, early_stopping=True)),  # too slow?
             ("random_forest_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=None)),
             ("random_forest_8_deep", RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, max_depth=8)),
             ("dt", DecisionTreeClassifier(random_state=RANDOM_STATE)),
             ("LGBMClassifier", LGBMClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
             #("sgd", SGDClassifier(random_state=RANDOM_STATE, n_jobs=-1, early_stopping=True)),
+            #("xgboost", XGBClassifier(random_state=RANDOM_STATE, n_jobs=-1)), # has some problems with feature names use other boosting.
+            ("hist_gradient_boosting_classifier", HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True)),
 
             # do not use too slow on many classes. Soo no boosting. SVC sucks anyway.
             # "hist_gradient_boosting_classifier": HistGradientBoostingClassifier(random_state=RANDOM_STATE, early_stopping=True),
             # "SVC": SVC(random_state=RANDOM_STATE),  # only 1 core SVC totally useless.
-            # "xgboost": XGBClassifier(random_state=RANDOM_STATE, n_jobs=-1),
-            # "LGBMClassifier": LGBMClassifier(random_state=RANDOM_STATE, n_jobs=-1),
+
         ]
     ],
     "final_estimator": [LogisticRegression(

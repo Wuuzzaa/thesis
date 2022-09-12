@@ -251,14 +251,14 @@ def calc_scores(
                 print("\n---")
                 print(f"check new feature type: {new_feature_type}")
 
-                baseline_filtered_test_score = float(dataset_row['baseline_filtered_test_score'])
-                baseline_filtered_new_feature_type_test_score = float(dataset_row[f'baseline_filtered_{new_feature_type}_test_score'])
+                baseline_filtered_train_score = float(dataset_row['baseline_filtered_train_cv_score'])
+                baseline_filtered_new_feature_type_train_score = float(dataset_row[f'baseline_filtered_{new_feature_type}_train_cv_score'])
 
-                print(f"baseline filtered test score: {baseline_filtered_test_score}")
-                print(f"baseline filtered with {new_feature_type} test score: {baseline_filtered_new_feature_type_test_score}\n")
+                print(f"baseline filtered train score: {baseline_filtered_train_score}")
+                print(f"baseline filtered with {new_feature_type} train score: {baseline_filtered_new_feature_type_train_score}\n")
 
-                if baseline_filtered_test_score < baseline_filtered_new_feature_type_test_score:
-                    print("performance was increased use the feature")
+                if baseline_filtered_train_score < baseline_filtered_new_feature_type_train_score:
+                    print("performance was increased on train cross validation use the feature")
                     print(f"add {new_feature_type} dataframes")
                     X_train_dfs.append(pd.read_feather(dataset_folder.joinpath(f"{new_feature_type}_train_clean.feather")))
                     X_test_dfs.append(pd.read_feather(dataset_folder.joinpath(f"{new_feature_type}_test_clean.feather")))
@@ -321,7 +321,7 @@ def calc_scores(
             # ignore the fit warning of MLP which comes from fitting on dataframe with column names and then running in crossvalidation without columnnames
             # ignore logistic regression converge warning
             warnings.filterwarnings("ignore", message="X does not have valid feature names, but MLPClassifier was fitted with feature names")
-            warnings.filterwarnings("ignore", message="lbfgs failed to converge (status=1)")
+            warnings.filterwarnings("ignore", message="lbfgs failed to converge (status=1)")  # todo seems not to work
             estimator.fit(X_train, y_train)
             end = perf_counter()
             train_time_seconds = end - start
