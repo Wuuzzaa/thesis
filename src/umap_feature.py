@@ -106,7 +106,7 @@ def _create_umap_features(
     #     pydev_imports.execfile(file, globals, locals)  # execute the script
     #   File "C:\Program Files\JetBrains\PyCharm 2022.1.3\plugins\python\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
     #     exec(compile(contents+"\n", file, 'exec'), glob, loc)
-    #   File "C:/Users/jonas/PycharmProjects/thesis/src/testbert.py", line 37, in <module>
+    #   File "C:/Users/jonas/PycharmProjects/thesis/src/stacking_by_hand.py", line 37, in <module>
     #     X_test_trans = transformer.transform(X_test)
     #   File "C:\Users\jonas\PycharmProjects\thesis\venv\lib\site-packages\umap\umap_.py", line 2896, in transform
     #     indices, dists = self._knn_search_index.query(

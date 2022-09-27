@@ -11,6 +11,9 @@ from time import perf_counter
 import warnings
 
 from src.calc_scores import get_X_train_X_test_y_train_y_test
+from pycaret.classification import *
+
+
 
 dataset_id = "3"
 #dataset_id = "40923" # 1489 # 3
@@ -34,38 +37,42 @@ if len(X_train) > sample_size:
 else:
     X_train_sample = X_train
 
-cv = 5
+# pycaret wants the target in a dataframe column
+X_train["y"] = y_train
+X_test["y"] = y_test
 
-estimators = [
-    ('rf', RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
-    ('lr', LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1)),
-]
-
-clf = StackingClassifier(
-    estimators=estimators,
-    final_estimator=LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1),
-    cv=cv,
+experiment = setup(
+    data=X_train,
+    target="y",
+    test_data=X_test,
+    preprocess=False,
+    #data_split_shuffle=False,
+    #n_jobs=-1,
+    # session_id=RANDOM_STATE # maybe a bug so do not set the random state. ERROR: ValueError: Setting a random_state has no effect since shuffle is False. You should leave random_state to its default (None), or set shuffle=True.
+    #fold=5
+    fold_shuffle=True,
 )
 
-clf.fit(X_train, y_train)
-print(f"stacking score: {clf.score(X_test, y_test)}")
+compare_models()
+
+############################################
+# # pycaret example
+# from pycaret.datasets import get_data
+# dataset = get_data('credit')
+#
+#
+# data = dataset.sample(frac=0.95, random_state=786)
+# data_unseen = dataset.drop(data.index)
+# data.reset_index(inplace=True, drop=True)
+# data_unseen.reset_index(inplace=True, drop=True)
+# print('Data for Modeling: ' + str(data.shape))
+# print('Unseen Data For Predictions: ' + str(data_unseen.shape))
+#
+#
+#
+# exp_clf101 = setup(data = data, target = 'default', session_id=123, fold_shuffle=True)
 
 
-est = RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)
-rf_cross_val_predict = cross_val_predict(est, X_train, y_train, cv=cv, method="predict_proba")
-est.fit(X_train, y_train)
-rf_test_predict = est.predict_proba(X_test)
 
-est = LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1)
-est.fit(X_train, y_train)
-lr_test_predict = est.predict_proba(X_test)
-lr_cross_val_predict = cross_val_predict(est, X_train, y_train, cv=cv, method="predict_proba")
-
-X_train_final = np.concatenate((rf_cross_val_predict, lr_cross_val_predict), axis=1)
-X_test_final = np.concatenate((rf_test_predict, lr_test_predict), axis=1)
-
-est = LogisticRegression(random_state=RANDOM_STATE, n_jobs=-1)
-est.fit(X_train_final, y_train)
-print(f"score stacking by hand: {est.score(X_test_final, y_test)}")
 
 pass
