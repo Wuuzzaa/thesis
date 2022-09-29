@@ -84,11 +84,13 @@ if __name__ == "__main__":
         # "umap_clean_random_forest.joblib",
         # "stacking_all_features_stacking.joblib",
         # "stacking_baseline_filtered_stacking.joblib",
-        "stacking_improved_features_stacking.joblib",
+        #"stacking_improved_features_stacking.joblib",
+        "caret_baseline_results.feather",
+        "caret_baseline_and_improved_features_results.feather",
 
         #plots
-        BOXPLOT_PERFORMANCE_GAIN_FILE_NAME,
-        STACKING_PLOTS_FILE_NAME,
+        #BOXPLOT_PERFORMANCE_GAIN_FILE_NAME,
+        #STACKING_PLOTS_FILE_NAME,
     ]
 
     if len(filenames) > 0:
@@ -356,10 +358,10 @@ if __name__ == "__main__":
         # "stacking_all_features_train_time_in_seconds",
         # "model_hyperparameter_stacking_baseline_filtered_stacking",
         # "model_hyperparameter_stacking_all_features_stacking",
-        "stacking_improved_features_train_cv_score",
-        "stacking_improved_features_test_score",
-        "stacking_improved_features_train_time_in_seconds",
-        "model_hyperparameter_stacking_improved_features_stacking",
+        #"stacking_improved_features_train_cv_score",
+        #"stacking_improved_features_test_score",
+        #"stacking_improved_features_train_time_in_seconds",
+        #"model_hyperparameter_stacking_improved_features_stacking",
     ]
 
     if len(columns_to_delete) > 0:
