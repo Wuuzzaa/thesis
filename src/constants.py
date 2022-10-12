@@ -297,7 +297,7 @@ AUTOENCODER_PARAMS = {
     "optimizer": "adam",
     "loss": "mean_squared_error",  # "mean_squared_error", 'binary_crossentropy'
     "activation": "relu",
-    "early_stopping_patience": 3,  # stops fit after n rounds without improvement
+    "early_stopping_patience": 10,  # stops fit after n rounds without improvement
 }
 
 ########################################################################################################################
