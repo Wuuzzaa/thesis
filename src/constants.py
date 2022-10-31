@@ -292,12 +292,12 @@ UMAP_PARAMS = {
 # autoencoder
 AUTOENCODER_PARAMS = {
     "validation_split": 1 - TRAIN_TEST_SPLIT_TRAIN_SIZE,
-    "epochs": 100,  # early stopping runs anyway.
-    "batch_size": 32,  # 32 default value
+    "epochs": 10000,  # early stopping runs anyway.  #100
+    "batch_size": 32,  # 32 default value  #32
     "optimizer": "adam",
     "loss": "mean_squared_error",  # "mean_squared_error", 'binary_crossentropy'
     "activation": "relu",
-    "early_stopping_patience": 10,  # stops fit after n rounds without improvement
+    "early_stopping_patience": 10,  # stops fit after n rounds without improvement  # 10
 }
 
 ########################################################################################################################

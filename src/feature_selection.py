@@ -120,7 +120,7 @@ def _top_boruta_rfecv_selection(X: pd.DataFrame, y: pd.Series, random_state: int
         X_trans = _rfecv_selection(X_select, y_select, random_state=random_state, max_features=max_features)
         boruta_failed_one_feature_only_left = True
 
-    # To avoid this return all featuers when there a just a few left
+    # To avoid this return all features when there a just a few left
     if len(X_trans.columns) > 10 and not boruta_failed_one_feature_only_left:
         # then recursive feature elimination
         print(f"run recursive feature elimination start with {len(X_trans.columns)} features")
