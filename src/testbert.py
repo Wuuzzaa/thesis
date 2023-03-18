@@ -51,7 +51,8 @@ def split_list(lst, k):
 
     print("Sublists after optimization:")
     for i, sublist in enumerate(sublists):
-        print(f"Sublist {i+1}: {sublist} (Product: {product(sublist)})")
+        status = "Optimized" if sublist in optimized_sublists else "Not optimized"
+        print(f"Sublist {i+1}: {sublist} (Product: {product(sublist)}) ({status})")
 
     return sublists
 
